@@ -1,0 +1,47 @@
+# -----------------------
+# Archivos de Java/Maven
+# -----------------------
+/target/
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+
+# -----------------------
+# Archivos de Spring Boot
+# -----------------------
+/spring.log
+*.db
+*.h2.db
+*.mv.db
+
+# -----------------------
+# Archivos de IDE
+# -----------------------
+# Ignorar configuración de VS Code sensible (variables de entorno, launch.json)
+.vscode/
+# Si quieres subir settings generales (formatting, extensions), se puede hacer así:
+# !.vscode/settings.json
+
+# Archivos de Eclipse, IntelliJ u otros IDEs
+/.idea/
+/*.ipr
+/*.iws
+/*.iml
+/.project
+/.classpath
+/.settings/
+
+# -----------------------
+# Variables de entorno y credenciales
+# -----------------------
+.env
+*.env
+
+# -----------------------
+# Otros
+# -----------------------
+*.log
+*.tmp
+.DS_Store
