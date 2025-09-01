@@ -16,8 +16,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idUser;
 
-    @Column(name = "name_user", length = 50, nullable = false)
-    private String nameUser;
+    @Column(name = "username", length = 50, nullable = false)
+    private String username;
 
     @Column(name = "name", length = 100, nullable = false)
     private String name;
@@ -28,8 +28,8 @@ public class User {
     @Column(name = "phone", length = 20)
     private String phone;
 
-    @Column(name = "access_key", length = 255, nullable = false)
-    private String accessKey;
+    @Column(name = "password", length = 255, nullable = false)
+    private String password;
 
     @Column(name = "email", length = 100, nullable = false, unique = true)
     private String email;
