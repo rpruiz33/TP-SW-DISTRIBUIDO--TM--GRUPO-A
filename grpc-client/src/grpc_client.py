@@ -11,7 +11,6 @@ import service_pb2_grpc
 
 app = Flask(__name__)
 
-# Conexión gRPC global
 channel = grpc.insecure_channel('localhost:9090')
 stub = service_pb2_grpc.MyServiceStub(channel)
 
@@ -26,6 +25,15 @@ def do_something():
     grpc_request = service_pb2.MyRequest(param=param)
     grpc_response = stub.MyMethod(grpc_request)
     return jsonify({'result': grpc_response.result})
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.json
+    username = data.get('username', 'aa')
+    password = data.get('password', '1234')
+    grpc_request = service_pb2.LoginRequest(username=username, password=password)
+    grpc_response = stub.Login(grpc_request)
+    return jsonify({'success': grpc_response.success, 'message': grpc_response.message})
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)

@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rservice.proto\x12\x07\x65xample\"\x1a\n\tMyRequest\x12\r\n\x05param\x18\x01 \x01(\t\"\x1c\n\nMyResponse\x12\x0e\n\x06result\x18\x01 \x01(\t2@\n\tMyService\x12\x33\n\x08MyMethod\x12\x12.example.MyRequest\x1a\x13.example.MyResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rservice.proto\x12\x07\x65xample\"\x1a\n\tMyRequest\x12\r\n\x05param\x18\x01 \x01(\t\"\x1c\n\nMyResponse\x12\x0e\n\x06result\x18\x01 \x01(\t\"2\n\x0cLoginRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"1\n\rLoginResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t2x\n\tMyService\x12\x33\n\x08MyMethod\x12\x12.example.MyRequest\x1a\x13.example.MyResponse\x12\x36\n\x05Login\x12\x15.example.LoginRequest\x1a\x16.example.LoginResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -35,6 +35,10 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_MYREQUEST']._serialized_end=52
   _globals['_MYRESPONSE']._serialized_start=54
   _globals['_MYRESPONSE']._serialized_end=82
-  _globals['_MYSERVICE']._serialized_start=84
-  _globals['_MYSERVICE']._serialized_end=148
+  _globals['_LOGINREQUEST']._serialized_start=84
+  _globals['_LOGINREQUEST']._serialized_end=134
+  _globals['_LOGINRESPONSE']._serialized_start=136
+  _globals['_LOGINRESPONSE']._serialized_end=185
+  _globals['_MYSERVICE']._serialized_start=187
+  _globals['_MYSERVICE']._serialized_end=307
 # @@protoc_insertion_point(module_scope)

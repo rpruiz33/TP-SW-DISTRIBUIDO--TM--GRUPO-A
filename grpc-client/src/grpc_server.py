@@ -1,3 +1,8 @@
+# ...existing code...
+
+
+# ...existing code...
+
 import grpc
 from concurrent import futures
 import sys
@@ -9,9 +14,22 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../proto'))
 import service_pb2
 import service_pb2_grpc
 
+
+
+
 class MyService(service_pb2_grpc.MyServiceServicer):
     def MyMethod(self, request, context):
         return service_pb2.MyResponse(result=f"Recibido: {request.param}")
+
+    def Login(self, request, context):
+        # Ejemplo simple: usuario=admin, pass=1234
+        if request.username == "aa" and request.password == "1234":
+            return service_pb2.LoginResponse(success=True, message="Login exitoso")
+        else:
+            return service_pb2.LoginResponse(success=False, message="Credenciales incorrectas")
+
+
+
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
@@ -20,6 +38,9 @@ def serve():
     server.start()
     print("gRPC server corriendo en puerto 9090...")
     server.wait_for_termination()
+
+
+    
 
 if __name__ == '__main__':
     serve()
