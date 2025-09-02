@@ -12,6 +12,8 @@ import com.grpc.grpc_server.entities.User;
 import com.grpc.grpc_server.repositories.UserRepository;
 
 import io.grpc.stub.StreamObserver;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @GrpcService
 public class UserService extends MyServiceGrpc.MyServiceImplBase {
@@ -19,13 +21,17 @@ public class UserService extends MyServiceGrpc.MyServiceImplBase {
     @Autowired
     private UserRepository userRepository;
 
+    //Libreria que permite la encriptacion de contraseñas
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+
     @Override
     public void login(LoginRequest request, StreamObserver<LoginResponse> responseObserver) {
         var responseBuilder = LoginResponse.newBuilder();
 
-        userRepository.findByEmailOrUsername(request.getUsername(), request.getUsername(), request.getPassword())
+        userRepository.findByEmailOrUsername(request.getUsername(), request.getUsername())
             .ifPresentOrElse(user -> {
-                if (user.getPassword().equals(request.getPassword())) {
+                if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
                     responseBuilder.setSuccess(true).setMessage("Login successful");
                 } else {
                     responseBuilder.setSuccess(false).setMessage("Invalid password");

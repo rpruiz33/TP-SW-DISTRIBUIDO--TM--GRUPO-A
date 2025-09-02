@@ -12,8 +12,8 @@ import com.grpc.grpc_server.entities.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    @Query("SELECT u FROM User u WHERE (u.email = :email and u.password = :password) or (u.username = :username and u.password = :password)")
-    Optional<User> findByEmailOrUsername(@Param("email") String email, @Param("username") String username, @Param("password") String password);
+    @Query("SELECT u FROM User u WHERE u.email = :email  or u.username = :username ")
+    Optional<User> findByEmailOrUsername(@Param("email") String email, @Param("username") String username);
 
     boolean existsByEmail(String email);
 

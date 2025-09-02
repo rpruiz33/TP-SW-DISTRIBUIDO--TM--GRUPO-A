@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './componentes/navbar/navBar';
 import Footer from './componentes/footer/footer';
 import Login from './componentes/login/login';
+import Home from './componentes/home/home';
+
 
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -14,7 +16,8 @@ function App() {
  
         <div >
           <Routes>
-         
+            
+            <Route path="/home" element={<Home />} /> 
             <Route path="/login" element={<Login />} />
            
 

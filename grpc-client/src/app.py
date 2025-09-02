@@ -22,13 +22,18 @@ def do_something():
 @app.route("/api/login", methods=["POST"])
 def login():
     data = request.json
-    username = data.get("username", "")
-    password = data.get("password", "")
-    grpc_response = grpc_client.login(username, password)
-    return jsonify({
-        "success": grpc_response.success,
-        "message": grpc_response.message
-    })
+    print("Recibido del frontend:", data)
+    try:
+        grpc_response = grpc_client.login(data.get("username"), data.get("password"))
+        print("Respuesta gRPC:", grpc_response)
+        return jsonify({
+            "success": grpc_response.success,
+            "message": grpc_response.message
+        })
+    except Exception as e:
+        print("Error interno:", e)
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
