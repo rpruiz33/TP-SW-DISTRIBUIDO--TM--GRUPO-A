@@ -1,18 +1,13 @@
 syntax = "proto3";
 
-option java_outer_classname = "MyServiceClass";
 option java_package = "com.grpc.grpc_server";
+option java_outer_classname = "MyServiceClass";
 
-package example;
-
-
-message MyRequest {
-  string param = 1;
+service MyService {
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc Register(RegisterRequest) returns (RegisterResponse);
 }
 
-message MyResponse {
-  string result = 1;
-}
 message LoginRequest {
   string username = 1;
   string password = 2;
@@ -23,8 +18,13 @@ message LoginResponse {
   string message = 2;
 }
 
+message RegisterRequest {
+  string username = 1;
+  string email = 2;
+  string password = 3;
+}
 
-service MyService {
-  rpc MyMethod(MyRequest) returns (MyResponse);
-  rpc Login(LoginRequest) returns (LoginResponse);
+message RegisterResponse {
+  bool success = 1;
+  string message = 2;
 }
