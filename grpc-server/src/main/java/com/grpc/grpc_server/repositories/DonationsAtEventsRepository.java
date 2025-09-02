@@ -8,6 +8,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.grpc.grpc_server.entities.DonationsAtEvents;
-public class DonationsAtEventsRepository {
+
+@Repository
+public interface DonationsAtEventsRepository extends JpaRepository<DonationsAtEvents, Long> {
     
 }

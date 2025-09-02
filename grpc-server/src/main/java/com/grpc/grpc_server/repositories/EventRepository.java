@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import com.grpc.grpc_server.entities.Event;
 
-public class EventRepository {
+@Repository
+public interface EventRepository extends JpaRepository<Event, Long>{
     
 }

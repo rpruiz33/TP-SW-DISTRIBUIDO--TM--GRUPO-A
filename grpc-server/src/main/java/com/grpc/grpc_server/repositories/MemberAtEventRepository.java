@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import com.grpc.grpc_server.entities.MemberAtEvent;
 
-public class MemberAtEventRepository {
+@Repository
+public interface MemberAtEventRepository extends JpaRepository<MemberAtEvent, Long> {
     
 }

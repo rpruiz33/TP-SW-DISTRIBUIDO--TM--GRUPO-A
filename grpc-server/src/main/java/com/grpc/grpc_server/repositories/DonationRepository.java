@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import com.grpc.grpc_server.entities.Donation;
 
-public class DonationRepository {
+@Repository
+public interface DonationRepository extends JpaRepository<Donation, Long> {
     
 }

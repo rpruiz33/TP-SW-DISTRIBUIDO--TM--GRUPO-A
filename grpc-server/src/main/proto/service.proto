@@ -28,3 +28,29 @@ message RegisterResponse {
   bool success = 1;
   string message = 2;
 }
+
+
+// ========================
+// Service de eventos
+// ========================
+service EventService {
+  rpc GetAllEvents(Empty) returns (EventListResponse);
+}
+
+
+// ========================
+// Messages de eventos
+// ========================
+message Event { 
+  int32 id = 1;
+  string nameEvent = 2;
+  string descriptionEvent = 3;
+  string dateRegistration = 4;  
+}
+
+message EventListResponse {
+  repeated Event events = 1;
+}
+
+// Mensaje vacío (si no hay parámetros de entrada)
+message Empty {}

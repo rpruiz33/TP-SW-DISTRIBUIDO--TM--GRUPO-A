@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import com.grpc.grpc_server.entities.Role;
 
-public class RoleRepository {
+@Repository
+public interface RoleRepository extends JpaRepository<Role, Long> {
     
 }
