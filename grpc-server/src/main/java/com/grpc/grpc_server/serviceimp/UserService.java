@@ -2,22 +2,39 @@ package com.grpc.grpc_server.serviceimp;
 
 import com.grpc.grpc_server.entities.User;
 import com.grpc.grpc_server.repositories.UserRepository;
+import io.grpc.stub.StreamObserver;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.grpc.grpc_server.MyServiceClass;
+import com.grpc.grpc_server.MyServiceClass.LoginRequest;
+import com.grpc.grpc_server.MyServiceClass.LoginResponse;
+import com.grpc.grpc_server.MyServiceGrpc;
+import org.springframework.grpc.server.service.GrpcService;
 
 import java.util.Optional;
 
-public class UserService  {
+@GrpcService
+public class UserService extends MyServiceGrpc.MyServiceImplBase {
 
     @Autowired
     private UserRepository userRepository;
 
 
-    public Optional<User> validateLogin (String login, String password){
+    @Override
+    public void login(LoginRequest request, StreamObserver<LoginResponse> responseObserver) {
+        var responseBuilder = LoginResponse.newBuilder();
 
-        Optional<User> useropt = userRepository.findByEmailOrUsername(login,login,password);
+        userRepository.findByEmailOrUsername(request.getUsername(), request.getUsername(), request.getPassword())            .ifPresentOrElse(user -> {
+            if (user.getPassword().equals(request.getPassword())) {
+                responseBuilder.setSuccess(true).setMessage("Login successful");
+            } else {
+                responseBuilder.setSuccess(false).setMessage("Invalid password");
+            }
+        }, () -> {
+            responseBuilder.setSuccess(false).setMessage("User not found");
+        });
 
-
-
-        return useropt;
+        responseObserver.onNext(responseBuilder.build());
+        responseObserver.onCompleted();
     }
 }
