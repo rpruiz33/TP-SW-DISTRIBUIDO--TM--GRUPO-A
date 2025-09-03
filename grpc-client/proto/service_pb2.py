@@ -24,21 +24,29 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rservice.proto\x12\x07\x65xample\"\x1a\n\tMyRequest\x12\r\n\x05param\x18\x01 \x01(\t\"\x1c\n\nMyResponse\x12\x0e\n\x06result\x18\x01 \x01(\t\"2\n\x0cLoginRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"1\n\rLoginResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t2x\n\tMyService\x12\x33\n\x08MyMethod\x12\x12.example.MyRequest\x1a\x13.example.MyResponse\x12\x36\n\x05Login\x12\x15.example.LoginRequest\x1a\x16.example.LoginResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rservice.proto\x12\x14\x63om.grpc.grpc_server\"\x1a\n\tMyRequest\x12\r\n\x05param\x18\x01 \x01(\t\"\x1c\n\nMyResponse\x12\x0e\n\x06result\x18\x01 \x01(\t\"2\n\x0cLoginRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"1\n\rLoginResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"D\n\x0fRegisterRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\r\n\x05\x65mail\x18\x02 \x01(\t\x12\x10\n\x08password\x18\x03 \x01(\t\"4\n\x10RegisterResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"r\n\x12\x41ltaUsuarioRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x10\n\x08lastName\x18\x03 \x01(\t\x12\r\n\x05phone\x18\x04 \x01(\t\x12\r\n\x05\x65mail\x18\x05 \x01(\t\x12\x0c\n\x04role\x18\x06 \x01(\t\"7\n\x13\x41ltaUsuarioResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t2\xf3\x02\n\tMyService\x12O\n\x08MyMethod\x12\x1f.com.grpc.grpc_server.MyRequest\x1a .com.grpc.grpc_server.MyResponse\"\x00\x12R\n\x05Login\x12\".com.grpc.grpc_server.LoginRequest\x1a#.com.grpc.grpc_server.LoginResponse\"\x00\x12[\n\x08Register\x12%.com.grpc.grpc_server.RegisterRequest\x1a&.com.grpc.grpc_server.RegisterResponse\"\x00\x12\x64\n\x0b\x41ltaUsuario\x12(.com.grpc.grpc_server.AltaUsuarioRequest\x1a).com.grpc.grpc_server.AltaUsuarioResponse\"\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'service_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_MYREQUEST']._serialized_start=26
-  _globals['_MYREQUEST']._serialized_end=52
-  _globals['_MYRESPONSE']._serialized_start=54
-  _globals['_MYRESPONSE']._serialized_end=82
-  _globals['_LOGINREQUEST']._serialized_start=84
-  _globals['_LOGINREQUEST']._serialized_end=134
-  _globals['_LOGINRESPONSE']._serialized_start=136
-  _globals['_LOGINRESPONSE']._serialized_end=185
-  _globals['_MYSERVICE']._serialized_start=187
-  _globals['_MYSERVICE']._serialized_end=307
+  _globals['_MYREQUEST']._serialized_start=39
+  _globals['_MYREQUEST']._serialized_end=65
+  _globals['_MYRESPONSE']._serialized_start=67
+  _globals['_MYRESPONSE']._serialized_end=95
+  _globals['_LOGINREQUEST']._serialized_start=97
+  _globals['_LOGINREQUEST']._serialized_end=147
+  _globals['_LOGINRESPONSE']._serialized_start=149
+  _globals['_LOGINRESPONSE']._serialized_end=198
+  _globals['_REGISTERREQUEST']._serialized_start=200
+  _globals['_REGISTERREQUEST']._serialized_end=268
+  _globals['_REGISTERRESPONSE']._serialized_start=270
+  _globals['_REGISTERRESPONSE']._serialized_end=322
+  _globals['_ALTAUSUARIOREQUEST']._serialized_start=324
+  _globals['_ALTAUSUARIOREQUEST']._serialized_end=438
+  _globals['_ALTAUSUARIORESPONSE']._serialized_start=440
+  _globals['_ALTAUSUARIORESPONSE']._serialized_end=495
+  _globals['_MYSERVICE']._serialized_start=498
+  _globals['_MYSERVICE']._serialized_end=869
 # @@protoc_insertion_point(module_scope)

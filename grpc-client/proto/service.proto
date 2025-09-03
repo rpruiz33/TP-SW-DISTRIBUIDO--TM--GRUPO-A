@@ -1,29 +1,53 @@
 syntax = "proto3";
 
+package com.grpc.grpc_server;
 
+service MyService {
+    rpc MyMethod(MyRequest) returns (MyResponse) {}
+    rpc Login(LoginRequest) returns (LoginResponse) {}
+    rpc Register(RegisterRequest) returns (RegisterResponse) {}
+    rpc AltaUsuario(AltaUsuarioRequest) returns (AltaUsuarioResponse) {}
+}
+
+message MyRequest {
+    string param = 1;
+}
+
+message MyResponse {
+    string result = 1;
+}
 
 message LoginRequest {
-  string username = 1;
-  string password = 2;
+    string username = 1;
+    string password = 2;
 }
 
 message LoginResponse {
-  bool success = 1;
-  string message = 2;
+    bool success = 1;
+    string message = 2;
 }
 
 message RegisterRequest {
-  string username = 1;
-  string email = 2;
-  string password = 3;
+    string username = 1;
+    string email = 2;
+    string password = 3;
 }
 
 message RegisterResponse {
-  bool success = 1;
-  string message = 2;
+    bool success = 1;
+    string message = 2;
 }
 
-service MyService {
-  rpc Login(LoginRequest) returns (LoginResponse);
-  rpc Register(RegisterRequest) returns (RegisterResponse);
+message AltaUsuarioRequest {
+    string username = 1;
+    string name = 2;
+    string lastName = 3;  // Verifica que este campo exista y se llame "last_name"
+    string phone = 4;
+    string email = 5;
+    string role = 6;
+}
+
+message AltaUsuarioResponse {
+    bool success = 1;
+    string message = 2;
 }
