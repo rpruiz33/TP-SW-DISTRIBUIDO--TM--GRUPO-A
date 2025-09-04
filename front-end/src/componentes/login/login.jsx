@@ -21,7 +21,7 @@ const Login = () => {
 
             if (response.data.success) {
                 alert("Bienvenido al sistema empuje solidario");
-                navigate('/altauser');
+                navigate('/userlist');
             } else {
                 setError(response.data.message || "Credenciales incorrectas");
             }

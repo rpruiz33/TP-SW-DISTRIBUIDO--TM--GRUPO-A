@@ -2,6 +2,7 @@ import os
 import sys
 import grpc
 
+
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(CURRENT_DIR, '../proto'))  
 import service_pb2
@@ -26,7 +27,12 @@ class MyServiceClient:
     
     def altaUser(self, username: str,name: str, lastName: str, phone: str, email: str, role: str):
         """Llama al RPC Alta Usuario"""
-        print(lastName)
         request = service_pb2.AltaUsuarioRequest(username=username,name=name,lastName=lastName,phone=phone, email=email, role=role )
-        print("Salgo")
         return self.stub.AltaUser(request)
+    
+    def getAllUsers(self):
+        """Llama al RPC Traer todos los Usuarios"""
+        print("entramos al grpc")
+
+        request = service_pb2.Empty()
+        return self.stub.GetAllUsers(request)    

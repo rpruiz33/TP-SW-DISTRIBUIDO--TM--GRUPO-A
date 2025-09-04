@@ -1,6 +1,8 @@
 package com.grpc.grpc_server.serviceimp;
 
+import com.grpc.grpc_server.MyServiceClass;
 import com.grpc.grpc_server.entities.Role;
+import com.grpc.grpc_server.mapper.UserMapper;
 import com.grpc.grpc_server.repositories.RoleRepository;
 import com.grpc.grpc_server.util.PasswordUtils;
 
@@ -9,6 +11,9 @@ import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.grpc.server.service.GrpcService;
 
+import com.grpc.grpc_server.MyServiceClass.Empty;
+import com.grpc.grpc_server.MyServiceClass.UserListResponse;
+import com.grpc.grpc_server.MyServiceClass.UserDTO;
 import com.grpc.grpc_server.MyServiceClass.LoginRequest;
 import com.grpc.grpc_server.MyServiceClass.LoginResponse;
 import com.grpc.grpc_server.MyServiceClass.AltaUsuarioResponse;
@@ -21,7 +26,9 @@ import io.grpc.stub.StreamObserver;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @GrpcService
 public class UserService extends MyServiceGrpc.MyServiceImplBase {
@@ -68,13 +75,6 @@ public class UserService extends MyServiceGrpc.MyServiceImplBase {
                 responseBuilder.setSuccess(false).setMessage("Faltan completar campos");
             } else {
 
-                User newUser = new User();
-                newUser.setUsername(request.getUsername());
-                newUser.setEmail(request.getEmail());
-                newUser.setName(request.getName());
-                newUser.setLastName(request.getLastName());
-                newUser.setPhone(request.getPhone());
-
                 Role rol = roleRepository.findByNameRole(request.getRole());
 
 
@@ -85,7 +85,8 @@ public class UserService extends MyServiceGrpc.MyServiceImplBase {
                     responseObserver.onCompleted();
                     return;
                 }
-                newUser.setRole(rol);
+
+                User newUser = UserMapper.toEntity(request,rol);
 
                 String passPlana = PasswordUtils.generateRandomPassword();
                 //LOGICA PARA ENVIAR POR MAIL LA PASSWORD GENERADA
@@ -100,5 +101,17 @@ public class UserService extends MyServiceGrpc.MyServiceImplBase {
 
         responseObserver.onNext(responseBuilder.build());
         responseObserver.onCompleted();
+     }
+     @Override
+     public void getAllUsers (Empty response, StreamObserver<UserListResponse> responseObserver){
+
+             List<User> lstUser = userRepository.findAll();
+
+             UserListResponse ul = UserListResponse.newBuilder()
+                     .addAllUsers(lstUser.stream().map(x -> UserMapper.toDTO(x))
+                             .collect(Collectors.toList())).build();
+             responseObserver.onNext(ul);
+             responseObserver.onCompleted();
+
      }
 }

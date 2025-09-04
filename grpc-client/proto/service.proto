@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-option java_package = "com.grpc.grpc_server";
-option java_outer_classname = "MyServiceClass";
 
 
 // ========================
@@ -9,43 +7,57 @@ option java_outer_classname = "MyServiceClass";
 // ========================
 
 service MyService {
-    rpc Login(LoginRequest) returns (LoginResponse);
-    rpc AltaUser(AltaUsuarioRequest) returns (AltaUsuarioResponse);
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc AltaUser(AltaUsuarioRequest) returns (AltaUsuarioResponse);
+  rpc GetAllUsers(Empty) returns (UserListResponse);
 }
 
 // ========================
 // Messages de Usuarios
 // ========================
 message LoginRequest {
-    string username = 1;
-    string password = 2;
+  string username = 1;
+  string password = 2;
 }
 
 message LoginResponse {
-    bool success = 1;
-    string message = 2;
+  bool success = 1;
+  string message = 2;
 }
 
 message AltaUsuarioRequest {
-    string username = 1;
-    string name = 2;
-    string lastName = 3;  
-    string phone = 4;
-    string email = 5;
-    string role = 6;
+  string username = 1;
+  string name = 2;
+  string lastName = 3;
+  string phone = 4;
+  string email = 5;
+  string role = 6;
 }
 
 message AltaUsuarioResponse {
-    bool success = 1;
-    string message = 2;
+  bool success = 1;
+  string message = 2;
 }
 
+message UserDTO{
+  string username = 1;
+  string name = 2;
+  string lastName = 3;
+  string phone = 4;
+  string email = 5;
+  string role = 6;
+  bool   activated=7;
+}
+
+message UserListResponse{
+  repeated UserDTO users = 1;
+}
 
 // ========================
 // Service de eventos
 // ========================
 service EventService {
-    rpc GetAllEvents(Empty) returns (EventListResponse);
+  rpc GetAllEvents(Empty) returns (EventListResponse);
 }
 
 
@@ -53,14 +65,14 @@ service EventService {
 // Messages de eventos
 // ========================
 message Event {
-    int32 id = 1;
-    string nameEvent = 2;
-    string descriptionEvent = 3;
-    string dateRegistration = 4;
+  int32 id = 1;
+  string nameEvent = 2;
+  string descriptionEvent = 3;
+  string dateRegistration = 4;
 }
 
 message EventListResponse {
-    repeated Event events = 1;
+  repeated Event events = 1;
 }
 
 // Mensaje vacío (si no hay parámetros de entrada)

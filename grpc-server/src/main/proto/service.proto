@@ -11,6 +11,7 @@ option java_outer_classname = "MyServiceClass";
 service MyService {
   rpc Login(LoginRequest) returns (LoginResponse);
   rpc AltaUser(AltaUsuarioRequest) returns (AltaUsuarioResponse);
+  rpc GetAllUsers(Empty) returns (UserListResponse);
 }
 
 // ========================
@@ -29,7 +30,7 @@ message LoginResponse {
 message AltaUsuarioRequest {
   string username = 1;
   string name = 2;
-  string lastName = 3;  // Verifica que este campo exista y se llame "last_name"
+  string lastName = 3;
   string phone = 4;
   string email = 5;
   string role = 6;
@@ -40,6 +41,19 @@ message AltaUsuarioResponse {
   string message = 2;
 }
 
+message UserDTO{
+  string username = 1;
+  string name = 2;
+  string lastName = 3;
+  string phone = 4;
+  string email = 5;
+  string role = 6;
+  bool   activated=7;
+}
+
+message UserListResponse{
+  repeated UserDTO users = 1;
+}
 
 // ========================
 // Service de eventos

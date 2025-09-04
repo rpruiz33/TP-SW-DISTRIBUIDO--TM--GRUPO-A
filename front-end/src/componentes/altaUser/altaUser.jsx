@@ -16,36 +16,36 @@ export default function AltaUsuario() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const response = await axios.post(
-      "http://localhost:5000/api/altauser",
-      formData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/altauser",
+        formData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-    if (response.data.success) {
-      alert("✅ Usuario dado de alta con éxito!");
-      setFormData({
-        username: "",
-        nombre: "",
-        apellido: "",
-        telefono: "",
-        email: "",
-        rol: "",
-      });
-    }
-  } catch (error) {
-    console.error(error);
-    
-    alert("❌ Error al dar de alta el usuario");
-   };
-}
+      if (response.data.success) {
+        alert("✅ Usuario dado de alta con éxito!");
+        setFormData({
+          username: "",
+          nombre: "",
+          apellido: "",
+          telefono: "",
+          email: "",
+          rol: "",
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      
+      alert("❌ Error al dar de alta el usuario");
+    };
+  }
 
   return (
   <div

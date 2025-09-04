@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from grpc_client import MyServiceClient
+from google.protobuf.json_format import MessageToJson
+
 
 app = Flask(__name__)
 CORS(app)  # Permite llamadas desde React u otros dominios
@@ -34,17 +36,26 @@ def login():
 @app.route("/api/altauser", methods=["POST"])
 def altaUser():
     data = request.json
-    print(data)
     try:
         grpc_response = grpc_client.altaUser(data.get("username"), data.get("nombre"),data.get("apellido"),data.get("telefono"),data.get("email"), data.get("rol"))
-        print(grpc_response.message)
         return jsonify({
             "success": grpc_response.success,
             "message": grpc_response.message
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
+    
+@app.route("/api/userlist", methods=["GET"])
+def getAllUsers():
+    try:
+        print("llega al endpoint")
+        grpc_response = grpc_client.getAllUsers()
+        # Convierte protobuf a JSON
+        json_response = MessageToJson(grpc_response)
+        print("post llamada a grpc")
+        return json_response
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 
