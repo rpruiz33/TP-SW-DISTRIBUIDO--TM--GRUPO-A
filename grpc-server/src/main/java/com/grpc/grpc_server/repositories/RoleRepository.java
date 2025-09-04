@@ -11,5 +11,8 @@ import com.grpc.grpc_server.entities.Role;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
+
+
+    Role findByNameRole(String name);
     
 }

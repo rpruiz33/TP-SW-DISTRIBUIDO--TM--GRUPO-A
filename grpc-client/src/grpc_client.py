@@ -24,7 +24,9 @@ class MyServiceClient:
         request = service_pb2.LoginRequest(username=username, password=password)
         return self.stub.Login(request)
     
-    def register(self, username: str,email: str, password: str):
-        """Llama al RPC Register"""
-        request = service_pb2.RegisterRequest(username=username,email=email , password=password)
-        return self.stub.Register(request)
+    def altaUser(self, username: str,name: str, lastName: str, phone: str, email: str, role: str):
+        """Llama al RPC Alta Usuario"""
+        print(lastName)
+        request = service_pb2.AltaUsuarioRequest(username=username,name=name,lastName=lastName,phone=phone, email=email, role=role )
+        print("Salgo")
+        return self.stub.AltaUser(request)

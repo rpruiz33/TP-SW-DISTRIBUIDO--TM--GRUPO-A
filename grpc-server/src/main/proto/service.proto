@@ -3,11 +3,19 @@ syntax = "proto3";
 option java_package = "com.grpc.grpc_server";
 option java_outer_classname = "MyServiceClass";
 
+
+// ========================
+// Service de Usuario
+// ========================
+
 service MyService {
   rpc Login(LoginRequest) returns (LoginResponse);
-  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc AltaUser(AltaUsuarioRequest) returns (AltaUsuarioResponse);
 }
 
+// ========================
+// Messages de Usuarios
+// ========================
 message LoginRequest {
   string username = 1;
   string password = 2;
@@ -18,13 +26,16 @@ message LoginResponse {
   string message = 2;
 }
 
-message RegisterRequest {
+message AltaUsuarioRequest {
   string username = 1;
-  string email = 2;
-  string password = 3;
+  string name = 2;
+  string lastName = 3;  // Verifica que este campo exista y se llame "last_name"
+  string phone = 4;
+  string email = 5;
+  string role = 6;
 }
 
-message RegisterResponse {
+message AltaUsuarioResponse {
   bool success = 1;
   string message = 2;
 }
@@ -41,11 +52,11 @@ service EventService {
 // ========================
 // Messages de eventos
 // ========================
-message Event { 
+message Event {
   int32 id = 1;
   string nameEvent = 2;
   string descriptionEvent = 3;
-  string dateRegistration = 4;  
+  string dateRegistration = 4;
 }
 
 message EventListResponse {

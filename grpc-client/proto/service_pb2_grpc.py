@@ -26,7 +26,11 @@ if _version_not_supported:
 
 
 class MyServiceStub(object):
-    """Missing associated documentation comment in .proto file."""
+    """========================
+    Service de Usuario
+    ========================
+
+    """
 
     def __init__(self, channel):
         """Constructor.
@@ -34,36 +38,24 @@ class MyServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.MyMethod = channel.unary_unary(
-                '/com.grpc.grpc_server.MyService/MyMethod',
-                request_serializer=service__pb2.MyRequest.SerializeToString,
-                response_deserializer=service__pb2.MyResponse.FromString,
-                _registered_method=True)
         self.Login = channel.unary_unary(
-                '/com.grpc.grpc_server.MyService/Login',
+                '/MyService/Login',
                 request_serializer=service__pb2.LoginRequest.SerializeToString,
                 response_deserializer=service__pb2.LoginResponse.FromString,
                 _registered_method=True)
-        self.Register = channel.unary_unary(
-                '/com.grpc.grpc_server.MyService/Register',
-                request_serializer=service__pb2.RegisterRequest.SerializeToString,
-                response_deserializer=service__pb2.RegisterResponse.FromString,
-                _registered_method=True)
-        self.AltaUsuario = channel.unary_unary(
-                '/com.grpc.grpc_server.MyService/AltaUsuario',
+        self.AltaUser = channel.unary_unary(
+                '/MyService/AltaUser',
                 request_serializer=service__pb2.AltaUsuarioRequest.SerializeToString,
                 response_deserializer=service__pb2.AltaUsuarioResponse.FromString,
                 _registered_method=True)
 
 
 class MyServiceServicer(object):
-    """Missing associated documentation comment in .proto file."""
+    """========================
+    Service de Usuario
+    ========================
 
-    def MyMethod(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
+    """
 
     def Login(self, request, context):
         """Missing associated documentation comment in .proto file."""
@@ -71,13 +63,7 @@ class MyServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def Register(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def AltaUsuario(self, request, context):
+    def AltaUser(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -86,63 +72,30 @@ class MyServiceServicer(object):
 
 def add_MyServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'MyMethod': grpc.unary_unary_rpc_method_handler(
-                    servicer.MyMethod,
-                    request_deserializer=service__pb2.MyRequest.FromString,
-                    response_serializer=service__pb2.MyResponse.SerializeToString,
-            ),
             'Login': grpc.unary_unary_rpc_method_handler(
                     servicer.Login,
                     request_deserializer=service__pb2.LoginRequest.FromString,
                     response_serializer=service__pb2.LoginResponse.SerializeToString,
             ),
-            'Register': grpc.unary_unary_rpc_method_handler(
-                    servicer.Register,
-                    request_deserializer=service__pb2.RegisterRequest.FromString,
-                    response_serializer=service__pb2.RegisterResponse.SerializeToString,
-            ),
-            'AltaUsuario': grpc.unary_unary_rpc_method_handler(
-                    servicer.AltaUsuario,
+            'AltaUser': grpc.unary_unary_rpc_method_handler(
+                    servicer.AltaUser,
                     request_deserializer=service__pb2.AltaUsuarioRequest.FromString,
                     response_serializer=service__pb2.AltaUsuarioResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'com.grpc.grpc_server.MyService', rpc_method_handlers)
+            'MyService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('com.grpc.grpc_server.MyService', rpc_method_handlers)
+    server.add_registered_method_handlers('MyService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
 class MyService(object):
-    """Missing associated documentation comment in .proto file."""
+    """========================
+    Service de Usuario
+    ========================
 
-    @staticmethod
-    def MyMethod(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/com.grpc.grpc_server.MyService/MyMethod',
-            service__pb2.MyRequest.SerializeToString,
-            service__pb2.MyResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
+    """
 
     @staticmethod
     def Login(request,
@@ -158,7 +111,7 @@ class MyService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/com.grpc.grpc_server.MyService/Login',
+            '/MyService/Login',
             service__pb2.LoginRequest.SerializeToString,
             service__pb2.LoginResponse.FromString,
             options,
@@ -172,7 +125,7 @@ class MyService(object):
             _registered_method=True)
 
     @staticmethod
-    def Register(request,
+    def AltaUser(request,
             target,
             options=(),
             channel_credentials=None,
@@ -185,9 +138,9 @@ class MyService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/com.grpc.grpc_server.MyService/Register',
-            service__pb2.RegisterRequest.SerializeToString,
-            service__pb2.RegisterResponse.FromString,
+            '/MyService/AltaUser',
+            service__pb2.AltaUsuarioRequest.SerializeToString,
+            service__pb2.AltaUsuarioResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -198,8 +151,62 @@ class MyService(object):
             metadata,
             _registered_method=True)
 
+
+class EventServiceStub(object):
+    """========================
+    Service de eventos
+    ========================
+    """
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.GetAllEvents = channel.unary_unary(
+                '/EventService/GetAllEvents',
+                request_serializer=service__pb2.Empty.SerializeToString,
+                response_deserializer=service__pb2.EventListResponse.FromString,
+                _registered_method=True)
+
+
+class EventServiceServicer(object):
+    """========================
+    Service de eventos
+    ========================
+    """
+
+    def GetAllEvents(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_EventServiceServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'GetAllEvents': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetAllEvents,
+                    request_deserializer=service__pb2.Empty.FromString,
+                    response_serializer=service__pb2.EventListResponse.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'EventService', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('EventService', rpc_method_handlers)
+
+
+ # This class is part of an EXPERIMENTAL API.
+class EventService(object):
+    """========================
+    Service de eventos
+    ========================
+    """
+
     @staticmethod
-    def AltaUsuario(request,
+    def GetAllEvents(request,
             target,
             options=(),
             channel_credentials=None,
@@ -212,9 +219,9 @@ class MyService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/com.grpc.grpc_server.MyService/AltaUsuario',
-            service__pb2.AltaUsuarioRequest.SerializeToString,
-            service__pb2.AltaUsuarioResponse.FromString,
+            '/EventService/GetAllEvents',
+            service__pb2.Empty.SerializeToString,
+            service__pb2.EventListResponse.FromString,
             options,
             channel_credentials,
             insecure,

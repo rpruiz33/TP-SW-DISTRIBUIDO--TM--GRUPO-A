@@ -22,17 +22,30 @@ def do_something():
 @app.route("/api/login", methods=["POST"])
 def login():
     data = request.json
-    print("Recibido del frontend:", data)
     try:
         grpc_response = grpc_client.login(data.get("username"), data.get("password"))
-        print("Respuesta gRPC:", grpc_response)
         return jsonify({
             "success": grpc_response.success,
             "message": grpc_response.message
         })
     except Exception as e:
-        print("Error interno:", e)
         return jsonify({"error": str(e)}), 500
+
+@app.route("/api/altauser", methods=["POST"])
+def altaUser():
+    data = request.json
+    print(data)
+    try:
+        grpc_response = grpc_client.altaUser(data.get("username"), data.get("nombre"),data.get("apellido"),data.get("telefono"),data.get("email"), data.get("rol"))
+        print(grpc_response.message)
+        return jsonify({
+            "success": grpc_response.success,
+            "message": grpc_response.message
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 
 
 if __name__ == "__main__":

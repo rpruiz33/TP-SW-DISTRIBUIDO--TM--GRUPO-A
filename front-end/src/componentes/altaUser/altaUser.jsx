@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import axios from "axios";
+
 
 export default function AltaUsuario() {
   const [formData, setFormData] = useState({
@@ -14,14 +16,20 @@ export default function AltaUsuario() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const response = await fetch("http://localhost:8080/api/usuarios", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    });
-    if (response.ok) {
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const response = await axios.post(
+      "http://localhost:5000/api/altauser",
+      formData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.data.success) {
       alert("✅ Usuario dado de alta con éxito!");
       setFormData({
         username: "",
@@ -31,10 +39,13 @@ export default function AltaUsuario() {
         email: "",
         rol: "",
       });
-    } else {
-      alert("❌ Error al dar de alta el usuario");
     }
-  };
+  } catch (error) {
+    console.error(error);
+    
+    alert("❌ Error al dar de alta el usuario");
+   };
+}
 
   return (
   <div
@@ -146,9 +157,9 @@ export default function AltaUsuario() {
             className="w-full p-3 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
             <option value="">Seleccione un rol</option>
-            <option value="PRESIDENTE">VOCAL</option>
-            <option value="TESORERO">COORDINADOR</option>
-            <option value="SECRETARIO">VOLUNTARIO</option>
+            <option value="Vocal">VOCAL</option>
+            <option value="Coordinador">COORDINADOR</option>
+            <option value="Voluntario">VOLUNTARIO</option>
           </select>
         </div>
 

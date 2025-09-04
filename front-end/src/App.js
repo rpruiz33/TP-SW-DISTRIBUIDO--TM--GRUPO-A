@@ -4,6 +4,8 @@ import Navbar from './componentes/navbar/navBar';
 import Footer from './componentes/footer/footer';
 import Login from './componentes/login/login';
 import Home from './componentes/home/home';
+import AltaUser from './componentes/altaUser/altaUser';
+
 
 
 
@@ -19,6 +21,8 @@ function App() {
             
             <Route path="/home" element={<Home />} /> 
             <Route path="/login" element={<Login />} />
+            <Route path="/altauser" element={<AltaUser />} />
+
            
 
    
