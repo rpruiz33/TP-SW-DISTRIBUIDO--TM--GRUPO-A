@@ -1,6 +1,6 @@
 use empuje_comunitario;
 
-insert into role ( name_rol) values ("PRESIDENTE"),("VOCAL"),("COORDINADOR"),("VOLUNTARIO");
+insert into role ( name_rol) values ("Presidente"),("Vocal"),("Coordinador"),("Voluntario");
 
 INSERT INTO user(activate,id_role,phone,username,email,last_name,name,password) 
 VALUES (
