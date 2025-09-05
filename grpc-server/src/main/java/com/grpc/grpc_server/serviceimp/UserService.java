@@ -1,34 +1,28 @@
 package com.grpc.grpc_server.serviceimp;
 
-import com.grpc.grpc_server.MyServiceClass;
-import com.grpc.grpc_server.entities.Role;
-import com.grpc.grpc_server.mapper.UserMapper;
-import com.grpc.grpc_server.repositories.RoleRepository;
-import com.grpc.grpc_server.util.PasswordUtils;
-
-import org.checkerframework.checker.units.qual.A;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.grpc.server.service.GrpcService;
-
-import com.grpc.grpc_server.MyServiceClass.Empty;
-import com.grpc.grpc_server.MyServiceClass.UserListResponse;
-import com.grpc.grpc_server.MyServiceClass.UserDTO;
-import com.grpc.grpc_server.MyServiceClass.LoginRequest;
-import com.grpc.grpc_server.MyServiceClass.LoginResponse;
-import com.grpc.grpc_server.MyServiceClass.AltaUsuarioResponse;
-import com.grpc.grpc_server.MyServiceClass.AltaUsuarioRequest;
-import com.grpc.grpc_server.MyServiceGrpc;
-import com.grpc.grpc_server.entities.User;
-import com.grpc.grpc_server.repositories.UserRepository;
-
-import io.grpc.stub.StreamObserver;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import com.grpc.grpc_server.MyServiceClass.AltaUsuarioRequest;
+import com.grpc.grpc_server.MyServiceClass.AltaUsuarioResponse;
+import com.grpc.grpc_server.MyServiceClass.Empty;
+import com.grpc.grpc_server.MyServiceClass.LoginRequest;
+import com.grpc.grpc_server.MyServiceClass.LoginResponse;
+import com.grpc.grpc_server.MyServiceClass.UserListResponse;
+import com.grpc.grpc_server.MyServiceGrpc;
+import com.grpc.grpc_server.entities.Role;
+import com.grpc.grpc_server.entities.User;
+import com.grpc.grpc_server.mapper.UserMapper;
+import com.grpc.grpc_server.repositories.RoleRepository;
+import com.grpc.grpc_server.repositories.UserRepository;
+import com.grpc.grpc_server.util.PasswordUtils;
+
+import io.grpc.stub.StreamObserver;
 
 @GrpcService
 public class UserService extends MyServiceGrpc.MyServiceImplBase {
@@ -37,6 +31,8 @@ public class UserService extends MyServiceGrpc.MyServiceImplBase {
     private UserRepository userRepository;
     @Autowired
     private RoleRepository roleRepository;
+    @Autowired
+    private EmailService emailService;
 
 
 
@@ -64,44 +60,53 @@ public class UserService extends MyServiceGrpc.MyServiceImplBase {
     }
 
     @Override
-    public void altaUser(AltaUsuarioRequest request, StreamObserver<AltaUsuarioResponse> responseObserver) {
-        var responseBuilder = AltaUsuarioResponse.newBuilder();
+public void altaUser(AltaUsuarioRequest request, StreamObserver<AltaUsuarioResponse> responseObserver) {
+    var responseBuilder = AltaUsuarioResponse.newBuilder();
 
-        if (userRepository.existsByEmail(request.getEmail()) || userRepository.existsByUsername(request.getUsername())) {
-            responseBuilder.setSuccess(false).setMessage("User already exists");
+    if (userRepository.existsByEmail(request.getEmail()) || userRepository.existsByUsername(request.getUsername())) {
+        responseBuilder.setSuccess(false).setMessage("User already exists");
+    } else {
+        if (request.getEmail().isEmpty() || request.getUsername().isEmpty() || 
+            request.getName().isEmpty() || request.getLastName().isEmpty() || 
+            request.getRole().isEmpty()) {
+
+            responseBuilder.setSuccess(false).setMessage("Faltan completar campos");
         } else {
+            Role rol = roleRepository.findByNameRole(request.getRole());
 
-            if (request.getEmail().isEmpty() || request.getUsername().isEmpty() || request.getName().isEmpty() || request.getLastName().isEmpty() || request.getRole().isEmpty()   ) {
-                responseBuilder.setSuccess(false).setMessage("Faltan completar campos");
-            } else {
+            if (rol == null) {
+                responseBuilder.setSuccess(false);
+                responseBuilder.setMessage("Rol no encontrado: " + request.getRole());
+                responseObserver.onNext(responseBuilder.build());
+                responseObserver.onCompleted();
+                return;
+            }
 
-                Role rol = roleRepository.findByNameRole(request.getRole());
+            User newUser = UserMapper.toEntity(request, rol);
 
+            String passPlana = PasswordUtils.generateRandomPassword();
+            newUser.setPassword(PasswordUtils.encryptPassword(passPlana));
 
-                if (rol == null) {
-                    responseBuilder.setSuccess(false);
-                    responseBuilder.setMessage("Rol no encontrado: " + request.getRole());
-                    responseObserver.onNext(responseBuilder.build());
-                    responseObserver.onCompleted();
-                    return;
-                }
+            userRepository.save(newUser);
 
-                User newUser = UserMapper.toEntity(request,rol);
-
-                String passPlana = PasswordUtils.generateRandomPassword();
-                //LOGICA PARA ENVIAR POR MAIL LA PASSWORD GENERADA
-
-                newUser.setPassword(PasswordUtils.encryptPassword(passPlana));
-
-                userRepository.save(newUser);
-
-                responseBuilder.setSuccess(true).setMessage("User registered successfully");
+            // 🚀 Enviar mail con la contraseña
+            try {
+                emailService.sendEmail(
+                    newUser.getEmail(),
+                    "Registro exitoso",
+                    "Hola " + newUser.getName() + ",\n\nTu usuario fue creado exitosamente.\n" +
+                    "Tu contraseña es: " + passPlana + "\n\n."
+                );
+                responseBuilder.setSuccess(true).setMessage("User registered successfully. Email sent.");
+            } catch (Exception e) {
+                responseBuilder.setSuccess(true).setMessage("User registered, but failed to send email: " + e.getMessage());
             }
         }
+    }
 
-        responseObserver.onNext(responseBuilder.build());
-        responseObserver.onCompleted();
-     }
+    responseObserver.onNext(responseBuilder.build());
+    responseObserver.onCompleted();
+    }
      @Override
      public void getAllUsers (Empty response, StreamObserver<UserListResponse> responseObserver){
 
