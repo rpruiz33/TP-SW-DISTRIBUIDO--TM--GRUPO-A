@@ -1,4 +1,4 @@
-package com.grpc.grpc_server.serviceimp;
+package com.grpc.grpc_server.services.impl;
 
 import java.util.List;
 import java.util.stream.Collectors;
