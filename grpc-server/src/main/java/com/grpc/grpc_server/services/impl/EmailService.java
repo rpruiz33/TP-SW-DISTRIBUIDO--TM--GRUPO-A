@@ -1,4 +1,4 @@
-package com.grpc.grpc_server.serviceimp;
+package com.grpc.grpc_server.services.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
