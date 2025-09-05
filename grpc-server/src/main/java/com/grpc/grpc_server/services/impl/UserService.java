@@ -1,4 +1,4 @@
-package com.grpc.grpc_server.serviceimp;
+package com.grpc.grpc_server.services.impl;
 
 import com.grpc.grpc_server.MyServiceClass;
 import com.grpc.grpc_server.entities.Role;
