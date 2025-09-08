@@ -26,6 +26,7 @@ message LoginRequest {
 message LoginResponse {
   bool success = 1;
   string message = 2;
+  string role_name=3;
 }
 
 message AltaUsuarioRequest {

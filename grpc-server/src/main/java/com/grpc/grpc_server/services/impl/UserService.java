@@ -51,7 +51,7 @@ public class UserService extends MyServiceGrpc.MyServiceImplBase {
         userRepository.findByEmailOrUsername(request.getUsername(), request.getUsername())
             .ifPresentOrElse(user -> {
                 if (passwordEncoder.matches( request.getPassword(), user.getPassword())) {
-                    responseBuilder.setSuccess(true).setMessage("Login successful");
+                    responseBuilder.setSuccess(true).setMessage("Login successful").setRoleName(user.getRole().getNameRole());
                 } else {
                     responseBuilder.setSuccess(false).setMessage("Invalid password");
                 }

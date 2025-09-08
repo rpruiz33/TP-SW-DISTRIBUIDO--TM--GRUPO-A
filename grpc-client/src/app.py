@@ -28,7 +28,8 @@ def login():
         grpc_response = grpc_client.login(data.get("username"), data.get("password"))
         return jsonify({
             "success": grpc_response.success,
-            "message": grpc_response.message
+            "message": grpc_response.message,
+            "role_name": grpc_response.role_name
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500

@@ -11,7 +11,7 @@ const Login = () => {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        setError("");  // Limpiar errores previos
+        setError(""); // Limpiar errores previos
 
         try {
             const response = await axios.post("http://localhost:5000/api/login", {
@@ -20,16 +20,25 @@ const Login = () => {
             });
 
             if (response.data.success) {
-                alert("Bienvenido al sistema empuje solidario");
-                navigate('/home');
+                const roleName = response.data.role_name; // Obtener name_rol de la respuesta
+
+                if (roleName === "Presidente") { // Comparar con "Presidente"
+                    alert("Bienvenido Usuario con acceso a Userlist");
+                    navigate('/userlist');
+                } else {
+                    setError("Acceso restringido: solo los usuarios con rol Presidente pueden entrar a la lista de usuarios");
+
+
+                }
             } else {
-                setError(response.data.message || "Credenciales incorrectas");
+                setError("Credenciales inválidas");
             }
         } catch (err) {
             console.error(err);
             setError("Error de conexión con el servidor");
         }
     };
+
     return (
         <div className=" h-100 bg-black mb-90 p-5 pb-1000 ">
             <div className="row  h-100">
