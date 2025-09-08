@@ -112,7 +112,7 @@ public void altaUser(AltaUsuarioRequest request, StreamObserver<AltaUsuarioRespo
     responseObserver.onCompleted();
     }
      @Override
-     public void getAllUsers (Empty response, StreamObserver<UserListResponse> responseObserver){
+     public void getAllUsers (Empty request, StreamObserver<UserListResponse> responseObserver){
 
              List<User> lstUser = userRepository.findAll();
 
@@ -123,6 +123,7 @@ public void altaUser(AltaUsuarioRequest request, StreamObserver<AltaUsuarioRespo
              responseObserver.onCompleted();
 
      }
+
      @Override
 public void updateUser(UpdateUsuarioRequest request, StreamObserver<AltaUsuarioResponse> responseObserver) {
     var responseBuilder = AltaUsuarioResponse.newBuilder();

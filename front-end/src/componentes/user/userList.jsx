@@ -80,13 +80,13 @@ const UserList = () => {
                 <td className="px-4 py-2 border space-x-2">
                   <button
                     onClick={() => editUser(user)}
-                    className="px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                    className="px-2 py-1 bg-yellow-500 text-black rounded hover:bg-yellow-600"
                   >
                     Modificar
                   </button>
                   <button
                     onClick={() => deleteUser(user.username)}
-                    className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                    className="px-2 py-1 bg-red-500 text-black rounded hover:bg-red-600"
                   >
                     Eliminar
                   </button>

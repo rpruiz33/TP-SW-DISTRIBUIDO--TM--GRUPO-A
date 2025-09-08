@@ -4,8 +4,10 @@ import Navbar from './componentes/navbar/navBar';
 import Footer from './componentes/footer/footer';
 import Login from './componentes/login/login';
 import Home from './componentes/home/home';
-import AltaUser from './componentes/altaUser/altaUser';
-import UserList from './componentes/userList/userList';
+import AltaUser from './componentes/user/altaUser';
+import UserList from './componentes/user/userList';
+import DonationList from './componentes/donation/donationList';
+
 
 
 
@@ -25,6 +27,8 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/userlist" element={<UserList/>} />
             <Route path="/altauser" element={<AltaUser />} />
+            <Route path="/donationlist" element={<DonationList />} />
+
 
 
 

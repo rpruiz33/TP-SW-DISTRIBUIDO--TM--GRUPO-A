@@ -48,11 +48,8 @@ def altaUser():
 @app.route("/api/userlist", methods=["GET"])
 def getAllUsers():
     try:
-        print("llega al endpoint")
         grpc_response = grpc_client.getAllUsers()
-        # Convierte protobuf a JSON
         json_response = MessageToJson(grpc_response)
-        print("post llamada a grpc")
         return json_response
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -66,11 +63,6 @@ def deleteUser(username):
     except Exception as e:
         print("Error en delete_user:", e)
         return jsonify({"message": "Error eliminando usuario", "error": str(e)}), 500
-
-
-
-
-
 
 @app.route("/api/updateuser", methods=["PUT"])
 def update_user():
@@ -87,6 +79,18 @@ def update_user():
     db.session.commit()
 
     return jsonify({"success": True, "message": "Usuario actualizado"}), 200
+
+
+@app.route("/api/donationlist", methods=["GET"])
+def getAllDonations():
+    try:
+        grpc_response = grpc_client.getAllDonations()
+        json_response = MessageToJson(grpc_response)
+
+        print("salimos de la llamada grpc")
+        return json_response
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)

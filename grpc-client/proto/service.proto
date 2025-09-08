@@ -110,3 +110,25 @@ message EventListResponse {
 
 // Mensaje vacío (si no hay parámetros de entrada)
 message Empty {}
+
+// ========================
+// Service de donacion
+// ========================
+service DonationService {
+  rpc GetAllDonations(Empty) returns (DonationListResponse);
+}
+
+// ========================
+// Messages de donacion
+// ========================
+message DonationProto {
+  int32 id = 1;
+  string category = 2;
+  string description = 3;
+  int32 amount = 4;
+  bool removed = 5;
+}
+
+message DonationListResponse {
+  repeated DonationProto donations = 1;
+}

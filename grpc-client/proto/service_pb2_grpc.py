@@ -400,3 +400,84 @@ class EventService(object):
             timeout,
             metadata,
             _registered_method=True)
+
+
+class DonationServiceStub(object):
+    """========================
+    Service de donacion
+    ========================
+    """
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.GetAllDonations = channel.unary_unary(
+                '/DonationService/GetAllDonations',
+                request_serializer=service__pb2.Empty.SerializeToString,
+                response_deserializer=service__pb2.DonationListResponse.FromString,
+                _registered_method=True)
+
+
+class DonationServiceServicer(object):
+    """========================
+    Service de donacion
+    ========================
+    """
+
+    def GetAllDonations(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_DonationServiceServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'GetAllDonations': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetAllDonations,
+                    request_deserializer=service__pb2.Empty.FromString,
+                    response_serializer=service__pb2.DonationListResponse.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'DonationService', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('DonationService', rpc_method_handlers)
+
+
+ # This class is part of an EXPERIMENTAL API.
+class DonationService(object):
+    """========================
+    Service de donacion
+    ========================
+    """
+
+    @staticmethod
+    def GetAllDonations(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/DonationService/GetAllDonations',
+            service__pb2.Empty.SerializeToString,
+            service__pb2.DonationListResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
