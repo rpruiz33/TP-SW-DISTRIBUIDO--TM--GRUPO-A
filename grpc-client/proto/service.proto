@@ -6,12 +6,13 @@ option java_outer_classname = "MyServiceClass";
 // ========================
 // Service de Usuario
 // ========================
-
 service MyService {
   rpc Login(LoginRequest) returns (LoginResponse);
   rpc AltaUser(AltaUsuarioRequest) returns (AltaUsuarioResponse);
   rpc GetAllUsers(Empty) returns (UserListResponse);
-  rpc SendEmail(SendEmailRequest) returns (SendEmailResponse); // Nuevo método para enviar correo
+  rpc UpdateUser(UpdateUsuarioRequest) returns (AltaUsuarioResponse);
+  rpc DeleteUser(DeleteUsuarioRequest) returns (DeleteUsuarioResponse);
+  rpc SendEmail(SendEmailRequest) returns (SendEmailResponse);
 }
 
 // ========================
@@ -67,6 +68,23 @@ message SendEmailRequest {
 message SendEmailResponse {
   bool success = 1;       // Indica si el envío fue exitoso
   string message = 2;     // Mensaje de respuesta (éxito o error)
+}
+message UpdateUsuarioRequest {
+  string username = 1;
+  string name = 2;
+  string lastName = 3;
+  string phone = 4;
+  string email = 5;
+  string role = 6;
+}
+
+message DeleteUsuarioRequest {
+  string username = 1;
+}
+
+message DeleteUsuarioResponse {
+  bool success = 1;
+  string message = 2;
 }
 
 // ========================

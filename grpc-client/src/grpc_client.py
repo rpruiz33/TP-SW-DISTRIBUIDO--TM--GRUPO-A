@@ -36,3 +36,14 @@ class MyServiceClient:
 
         request = service_pb2.Empty()
         return self.stub.GetAllUsers(request)    
+    def updateUser(self, username, name, lastName, phone, email, role):
+        request = service_pb2.UpdateUsuarioRequest(
+        username=username, name=name, lastName=lastName,
+        phone=phone, email=email, role=role
+    )
+        return self.stub.UpdateUser(request)
+    
+    def deleteUser(self, username: str):
+         request = service_pb2.DeleteUsuarioRequest(username=username)
+         return self.stub.DeleteUser(request)
+

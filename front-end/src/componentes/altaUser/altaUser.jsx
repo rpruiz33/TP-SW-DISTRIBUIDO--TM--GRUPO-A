@@ -1,8 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-
 export default function AltaUsuario() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const userToEdit = location.state?.user || null;
+
   const [formData, setFormData] = useState({
     username: "",
     nombre: "",
@@ -12,6 +16,20 @@ export default function AltaUsuario() {
     rol: "",
   });
 
+  // 👇 Si venimos con un usuario, llenar el form
+  useEffect(() => {
+    if (userToEdit) {
+      setFormData({
+        username: userToEdit.username,
+        nombre: userToEdit.name,
+        apellido: userToEdit.lastName,
+        telefono: userToEdit.phone,
+        email: userToEdit.email,
+        rol: userToEdit.role,
+      });
+    }
+  }, [userToEdit]);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -19,156 +37,98 @@ export default function AltaUsuario() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/altauser",
-        formData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
+      let response;
+      if (userToEdit) {
+        // 👉 UPDATE
+        response = await axios.put("http://localhost:5000/api/updateuser", formData);
+      } else {
+        // 👉 ALTA
+        response = await axios.post("http://localhost:5000/api/altauser", formData);
+      }
       if (response.data.success) {
-        alert("✅ Usuario dado de alta con éxito!");
-        setFormData({
-          username: "",
-          nombre: "",
-          apellido: "",
-          telefono: "",
-          email: "",
-          rol: "",
-        });
+        alert(userToEdit ? "✅ Usuario actualizado!" : "✅ Usuario creado!");
+        navigate("/userlist");
+      } else {
+        alert("❌ " + response.data.message);
       }
     } catch (error) {
       console.error(error);
-      
-      alert("❌ Error al dar de alta el usuario");
-    };
-  }
+      alert("❌ Error en la operación");
+    }
+  };
 
   return (
-  <div
-    className="flex justify-center items-center min-h-screen bg-gradient-to-r from-indigo-200 via-purple-200 to-pink-200 p-4"
-    style={{
-      display: "flex",
-      flexDirection: "column",
-      flexWrap: "wrap",
-      alignContent: "space-around",
-      alignItems: "center", // para centrar horizontalmente
-    }}
-  >
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-md space-y-5"
-
-        style={{
-    display: "flex",
-    flexDirection: "column",
-         }} >
-        <h2 className="text-3xl font-bold text-center text-indigo-700 mb-6">
-          Alta de Usuario
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md w-full max-w-md">
+        <h2 className="text-xl font-bold mb-4">
+          {userToEdit ? "Modificar Usuario" : "Alta de Usuario"}
         </h2>
 
-        {/* Nombre */}
-        <div>
-          <label className="block text-sm font-medium text-indigo-600 mb-1">
-            Nombre
-          </label>
-          <input
-            type="text"
-            name="nombre"
-            value={formData.nombre}
-            onChange={handleChange}
-            required
-            className="w-full p-3 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
+        <label>Nombre</label>
+        <input
+          type="text"
+          name="nombre"
+          value={formData.nombre}
+          onChange={handleChange}
+          className="w-full p-2 border mb-2"
+        />
 
-        {/* Nombre de usuario */}
-        <div>
-          <label className="block text-sm font-medium text-indigo-600 mb-1">
-            Nombre de Usuario
-          </label>
-          <input
-            type="text"
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            required
-            className="w-full p-3 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
+        <label>Username</label>
+        <input
+          type="text"
+          name="username"
+          value={formData.username}
+          onChange={handleChange}
+          disabled={!!userToEdit} // 👈 bloqueado si es update
+          className="w-full p-2 border mb-2"
+        />
 
-        {/* Apellido */}
-        <div>
-          <label className="block text-sm font-medium text-indigo-600 mb-1">
-            Apellido
-          </label>
-          <input
-            type="text"
-            name="apellido"
-            value={formData.apellido}
-            onChange={handleChange}
-            required
-            className="w-full p-3 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
+        <label>Apellido</label>
+        <input
+          type="text"
+          name="apellido"
+          value={formData.apellido}
+          onChange={handleChange}
+          className="w-full p-2 border mb-2"
+        />
 
-        {/* Teléfono */}
-        <div>
-          <label className="block text-sm font-medium text-indigo-600 mb-1">
-            Teléfono
-          </label>
-          <input
-            type="text"
-            name="telefono"
-            value={formData.telefono}
-            onChange={handleChange}
-            className="w-full p-3 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
+        <label>Teléfono</label>
+        <input
+          type="text"
+          name="telefono"
+          value={formData.telefono}
+          onChange={handleChange}
+          className="w-full p-2 border mb-2"
+        />
 
-        {/* Email */}
-        <div>
-          <label className="block text-sm font-medium text-indigo-600 mb-1">
-            Email
-          </label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            className="w-full p-3 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
+        <label>Email</label>
+        <input
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          className="w-full p-2 border mb-2"
+        />
 
-        {/* Rol */}
-        <div>
-          <label className="block text-sm font-medium text-indigo-600 mb-1">
-            Rol
-          </label>
-          <select
-            name="rol"
-            value={formData.rol}
-            onChange={handleChange}
-            required
-            className="w-full p-3 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option value="">Seleccione un rol</option>
-            <option value="Vocal">VOCAL</option>
-            <option value="Coordinador">COORDINADOR</option>
-            <option value="Voluntario">VOLUNTARIO</option>
-          </select>
-        </div>
+        <label>Rol</label>
+        <select
+          name="rol"
+          value={formData.rol}
+          onChange={handleChange}
+          className="w-full p-2 border mb-4"
+        >
+          <option value="">Seleccione un rol</option>
+          <option value="Vocal">VOCAL</option>
+          <option value="Coordinador">COORDINADOR</option>
+          <option value="Voluntario">VOLUNTARIO</option>
+          <option value="Presidente">PRESIDENTE</option>
+        </select>
 
-        {/* Botón */}
         <button
           type="submit"
-          className="w-full bg-indigo-600 text-blasck py-3 rounded-lg hover:bg-indigo-700 font-semibold transition-all duration-300"
+          className="w-full bg-blue-600 text-white p-2 rounded"
         >
-          Dar de Alta
+          {userToEdit ? "Guardar Cambios" : "Dar de Alta"}
         </button>
       </form>
     </div>

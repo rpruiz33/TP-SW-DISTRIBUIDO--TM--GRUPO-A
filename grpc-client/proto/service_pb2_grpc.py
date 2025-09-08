@@ -29,7 +29,6 @@ class MyServiceStub(object):
     """========================
     Service de Usuario
     ========================
-
     """
 
     def __init__(self, channel):
@@ -48,13 +47,32 @@ class MyServiceStub(object):
                 request_serializer=service__pb2.AltaUsuarioRequest.SerializeToString,
                 response_deserializer=service__pb2.AltaUsuarioResponse.FromString,
                 _registered_method=True)
+        self.GetAllUsers = channel.unary_unary(
+                '/MyService/GetAllUsers',
+                request_serializer=service__pb2.Empty.SerializeToString,
+                response_deserializer=service__pb2.UserListResponse.FromString,
+                _registered_method=True)
+        self.UpdateUser = channel.unary_unary(
+                '/MyService/UpdateUser',
+                request_serializer=service__pb2.UpdateUsuarioRequest.SerializeToString,
+                response_deserializer=service__pb2.AltaUsuarioResponse.FromString,
+                _registered_method=True)
+        self.DeleteUser = channel.unary_unary(
+                '/MyService/DeleteUser',
+                request_serializer=service__pb2.DeleteUsuarioRequest.SerializeToString,
+                response_deserializer=service__pb2.DeleteUsuarioResponse.FromString,
+                _registered_method=True)
+        self.SendEmail = channel.unary_unary(
+                '/MyService/SendEmail',
+                request_serializer=service__pb2.SendEmailRequest.SerializeToString,
+                response_deserializer=service__pb2.SendEmailResponse.FromString,
+                _registered_method=True)
 
 
 class MyServiceServicer(object):
     """========================
     Service de Usuario
     ========================
-
     """
 
     def Login(self, request, context):
@@ -64,6 +82,30 @@ class MyServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def AltaUser(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetAllUsers(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def UpdateUser(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def DeleteUser(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SendEmail(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -82,6 +124,26 @@ def add_MyServiceServicer_to_server(servicer, server):
                     request_deserializer=service__pb2.AltaUsuarioRequest.FromString,
                     response_serializer=service__pb2.AltaUsuarioResponse.SerializeToString,
             ),
+            'GetAllUsers': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetAllUsers,
+                    request_deserializer=service__pb2.Empty.FromString,
+                    response_serializer=service__pb2.UserListResponse.SerializeToString,
+            ),
+            'UpdateUser': grpc.unary_unary_rpc_method_handler(
+                    servicer.UpdateUser,
+                    request_deserializer=service__pb2.UpdateUsuarioRequest.FromString,
+                    response_serializer=service__pb2.AltaUsuarioResponse.SerializeToString,
+            ),
+            'DeleteUser': grpc.unary_unary_rpc_method_handler(
+                    servicer.DeleteUser,
+                    request_deserializer=service__pb2.DeleteUsuarioRequest.FromString,
+                    response_serializer=service__pb2.DeleteUsuarioResponse.SerializeToString,
+            ),
+            'SendEmail': grpc.unary_unary_rpc_method_handler(
+                    servicer.SendEmail,
+                    request_deserializer=service__pb2.SendEmailRequest.FromString,
+                    response_serializer=service__pb2.SendEmailResponse.SerializeToString,
+            ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
             'MyService', rpc_method_handlers)
@@ -94,7 +156,6 @@ class MyService(object):
     """========================
     Service de Usuario
     ========================
-
     """
 
     @staticmethod
@@ -141,6 +202,114 @@ class MyService(object):
             '/MyService/AltaUser',
             service__pb2.AltaUsuarioRequest.SerializeToString,
             service__pb2.AltaUsuarioResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetAllUsers(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/MyService/GetAllUsers',
+            service__pb2.Empty.SerializeToString,
+            service__pb2.UserListResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def UpdateUser(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/MyService/UpdateUser',
+            service__pb2.UpdateUsuarioRequest.SerializeToString,
+            service__pb2.AltaUsuarioResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def DeleteUser(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/MyService/DeleteUser',
+            service__pb2.DeleteUsuarioRequest.SerializeToString,
+            service__pb2.DeleteUsuarioResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SendEmail(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/MyService/SendEmail',
+            service__pb2.SendEmailRequest.SerializeToString,
+            service__pb2.SendEmailResponse.FromString,
             options,
             channel_credentials,
             insecure,

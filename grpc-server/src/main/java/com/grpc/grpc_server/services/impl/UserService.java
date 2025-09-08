@@ -7,12 +7,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.grpc.server.service.GrpcService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.grpc.grpc_server.MyServiceClass.AltaUsuarioRequest;
 import com.grpc.grpc_server.MyServiceClass.AltaUsuarioResponse;
+import com.grpc.grpc_server.MyServiceClass.DeleteUsuarioRequest;
+import com.grpc.grpc_server.MyServiceClass.DeleteUsuarioResponse;
 import com.grpc.grpc_server.MyServiceClass.Empty;
 import com.grpc.grpc_server.MyServiceClass.LoginRequest;
 import com.grpc.grpc_server.MyServiceClass.LoginResponse;
+import com.grpc.grpc_server.MyServiceClass.UpdateUsuarioRequest;
 import com.grpc.grpc_server.MyServiceClass.UserListResponse;
 import com.grpc.grpc_server.MyServiceGrpc;
 import com.grpc.grpc_server.entities.Role;
@@ -119,4 +123,55 @@ public void altaUser(AltaUsuarioRequest request, StreamObserver<AltaUsuarioRespo
              responseObserver.onCompleted();
 
      }
+     @Override
+public void updateUser(UpdateUsuarioRequest request, StreamObserver<AltaUsuarioResponse> responseObserver) {
+    var responseBuilder = AltaUsuarioResponse.newBuilder();
+    User user = userRepository.findByUsername(request.getUsername()).orElse(null);
+
+    if (user == null) {
+        responseBuilder.setSuccess(false).setMessage("Usuario no encontrado");
+    } else {
+        user.setName(request.getName());
+        user.setLastName(request.getLastName());
+        user.setPhone(request.getPhone());
+        user.setEmail(request.getEmail());
+
+        Role rol = roleRepository.findByNameRole(request.getRole());
+        if (rol != null) {
+            user.setRole(rol);
+        }
+
+        userRepository.save(user);
+        responseBuilder.setSuccess(true).setMessage("Usuario actualizado");
+    }
+
+    responseObserver.onNext(responseBuilder.build());
+    responseObserver.onCompleted();
+}
+
+@Override
+@Transactional
+public void deleteUser(DeleteUsuarioRequest request, StreamObserver<DeleteUsuarioResponse> responseObserver) {
+    var responseBuilder = AltaUsuarioResponse.newBuilder();
+
+    if (request == null || request.getUsername() == null || request.getUsername().isEmpty()) {
+        responseBuilder.setSuccess(false).setMessage("El nombre de usuario no puede estar vacío");
+
+        responseObserver.onCompleted();
+        return;
+    }
+
+    userRepository.findByUsername(request.getUsername()).ifPresentOrElse(user -> {
+        userRepository.delete(user);
+        responseBuilder.setSuccess(true).setMessage("Usuario eliminado");
+    }, () -> {
+        responseBuilder.setSuccess(false).setMessage("Usuario no encontrado");
+    });
+    responseObserver.onNext(DeleteUsuarioResponse.newBuilder()
+        .setSuccess(responseBuilder.getSuccess())
+        .setMessage(responseBuilder.getMessage())
+        .build());
+    responseObserver.onCompleted();
+}
+
 }
