@@ -66,20 +66,17 @@ def deleteUser(username):
         return jsonify({"message": "Error eliminando usuario", "error": str(e)}), 500
 
 @app.route("/api/updateuser", methods=["PUT"])
-def update_user():
+def updateUser():
     data = request.json
-    user = User.query.filter_by(username=data["username"]).first()
-    if not user:
-        return jsonify({"success": False, "message": "Usuario no encontrado"}), 404
-    
-    user.name = data.get("nombre", user.name)
-    user.lastName = data.get("apellido", user.lastName)
-    user.phone = data.get("telefono", user.phone)
-    user.email = data.get("email", user.email)
-    user.role = data.get("rol", user.role)
-    db.session.commit()
-
-    return jsonify({"success": True, "message": "Usuario actualizado"}), 200
+    try:
+        response = grpc_client.updateUser(data.get("username"), data.get("nombre"),data.get("apellido"),data.get("telefono"),data.get("email"), data.get("rol"))
+        return jsonify({
+            "success": response.success,
+            "message": response.message
+        })
+    except Exception as e:
+        print("Error en update user:", e)
+        return jsonify({"message": "Error modificando usuario", "error": str(e)}), 500
 
 
 @app.route("/api/donationlist", methods=["GET"])

@@ -30,12 +30,9 @@ class MyServiceClient:
         """Llama al RPC Traer todos los Usuarios"""
         request = service_pb2.Empty()
         return self.user_stub.GetAllUsers(request)
-        
-    def updateUser(self, username, name, lastName, phone, email, role):
-        request = service_pb2.UpdateUsuarioRequest(
-        username=username, name=name, lastName=lastName,
-        phone=phone, email=email, role=role
-    )
+    
+    def updateUser(self, username: str,name: str, lastName: str, phone: str, email: str, role: str):
+        request = service_pb2.UpdateUsuarioRequest(username=username,name=name,lastName=lastName,phone=phone, email=email, role=role )
         return self.user_stub.UpdateUser(request)
     
     def deleteUser(self, username: str):

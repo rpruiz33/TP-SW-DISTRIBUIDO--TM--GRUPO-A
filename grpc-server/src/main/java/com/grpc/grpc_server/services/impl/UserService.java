@@ -124,23 +124,33 @@ public void altaUser(AltaUsuarioRequest request, StreamObserver<AltaUsuarioRespo
 
      }
 
-     @Override
+  @Override
 public void updateUser(UpdateUsuarioRequest request, StreamObserver<AltaUsuarioResponse> responseObserver) {
     var responseBuilder = AltaUsuarioResponse.newBuilder();
     User user = userRepository.findByUsername(request.getUsername()).orElse(null);
 
     if (user == null) {
+
         responseBuilder.setSuccess(false).setMessage("Usuario no encontrado");
-    } else {
+        responseObserver.onNext(responseBuilder.build());
+        responseObserver.onCompleted();
+
+        } else {
+
         user.setName(request.getName());
         user.setLastName(request.getLastName());
         user.setPhone(request.getPhone());
         user.setEmail(request.getEmail());
 
         Role rol = roleRepository.findByNameRole(request.getRole());
-        if (rol != null) {
-            user.setRole(rol);
+
+        if (rol == null) {
+         responseBuilder.setSuccess(false).setMessage("Usuario no encontrado");
+         responseObserver.onNext(responseBuilder.build());
+         responseObserver.onCompleted();
         }
+
+        user.setRole(rol);
 
         userRepository.save(user);
         responseBuilder.setSuccess(true).setMessage("Usuario actualizado");
