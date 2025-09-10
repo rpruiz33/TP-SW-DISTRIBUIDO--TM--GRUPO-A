@@ -23,7 +23,7 @@ const Footer = () => {
 
       <div className="text-center p-3" style={{  backgroundColor:'#232D4F'}}>
       <a className="text-white" href="#!">
-          SISTEMA--EMPUJE--SOLIDARIO
+          SISTEMA--EMPUJE--COMUNITARIO
           <br></br>
           <br></br>
         </a>
