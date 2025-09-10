@@ -84,11 +84,25 @@ def getAllDonations():
     try:
         grpc_response = grpc_client.getAllDonations()
         json_response = MessageToJson(grpc_response)
-
-        print("salimos de la llamada grpc")
         return json_response
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+
+@app.route("/api/updatedonation", methods=["PUT"])
+def updateDonation():
+    data = request.json
+    try:
+        response = grpc_client.updateDonation(data.get("id"), data.get("category"),data.get("description"),data.get("amount"))
+        print(response)
+        return jsonify({
+            "success": response.success,
+            "message": response.message
+        })
+    except Exception as e:
+        print("Error en update donation:", e)
+        return jsonify({"message": "Error modificando donacion", "error": str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)

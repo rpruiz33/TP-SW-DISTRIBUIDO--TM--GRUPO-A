@@ -9,4 +9,6 @@ import java.util.List;
 public interface DonationService {
 
     void getAllDonations(MyServiceClass.Empty request, StreamObserver<MyServiceClass.DonationListResponse> responseObserver);
+    void updateDonation(MyServiceClass.UpdateDonationRequest request, StreamObserver<MyServiceClass.UpdateDonationResponse> responseObserver);
+
 }

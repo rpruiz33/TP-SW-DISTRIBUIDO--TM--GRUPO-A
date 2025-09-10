@@ -40,7 +40,11 @@ class MyServiceClient:
          return self.user_stub.DeleteUser(request)
     
     def getAllDonations(self):
-         print("llegamos a la llamada")
          request = service_pb2.Empty()
          return self.donation_stub.GetAllDonations(request)
+    
+    def updateDonation(self, id: int , category: str, description: str, amount: int):
+        print(amount)
+        request = service_pb2.UpdateDonationRequest(id=id,category=category,description=description,amount=amount)
+        return self.donation_stub.UpdateDonation(request)
 

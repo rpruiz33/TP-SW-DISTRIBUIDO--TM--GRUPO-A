@@ -50,7 +50,7 @@ message UserDTO {
   string phone = 4;
   string email = 5;
   string role = 6;
-  bool activated = 7;
+  optional bool activated = 7;
 }
 
 message UserListResponse {
@@ -113,10 +113,21 @@ message EventListResponse {
 message Empty {}
 
 // ========================
+// Messages de donacion x evento
+// ========================
+
+
+message DonationEventProto{
+  Event event =1;
+  int32 quantityDelivered=2;
+}
+
+// ========================
 // Service de donacion
 // ========================
 service DonationService {
   rpc GetAllDonations(Empty) returns (DonationListResponse);
+  rpc UpdateDonation(UpdateDonationRequest) returns (UpdateDonationResponse);
 }
 
 // ========================
@@ -127,9 +138,22 @@ message DonationProto {
   string category = 2;
   string description = 3;
   int32 amount = 4;
-  bool removed = 5;
+  optional bool removed = 5;
+  repeated DonationEventProto events = 6;
 }
 
 message DonationListResponse {
   repeated DonationProto donations = 1;
+}
+
+message UpdateDonationRequest{
+  int32 id = 1;
+  string category = 2;
+  string description = 3;
+  int32 amount = 4;
+}
+
+message UpdateDonationResponse{
+  bool success = 1;
+  string message = 2;
 }

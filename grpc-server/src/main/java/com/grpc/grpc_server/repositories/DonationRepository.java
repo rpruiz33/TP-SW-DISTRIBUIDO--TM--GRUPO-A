@@ -13,8 +13,16 @@ import com.grpc.grpc_server.entities.Donation;
 @Repository
 public interface DonationRepository extends JpaRepository<Donation, Long> {
 
-
-    @Query("SELECT DISTINCT d FROM Donation d JOIN FETCH d.events e JOIN FETCH e.event")
+    @Query("""
+        SELECT DISTINCT d
+        FROM Donation d
+        LEFT JOIN FETCH d.events dae
+        LEFT JOIN FETCH dae.event
+        """)
     List<Donation> findAllWithEvents();
 
+    @Query("SELECT d FROM Donation d WHERE d.idDonation = :id")
+    Donation findById(@Param("id") int id);
 }
+
+

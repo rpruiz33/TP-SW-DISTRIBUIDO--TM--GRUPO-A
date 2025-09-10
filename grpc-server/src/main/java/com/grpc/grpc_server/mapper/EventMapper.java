@@ -2,6 +2,10 @@ package com.grpc.grpc_server.mapper;
 
 import com.grpc.grpc_server.MyServiceClass;
 import com.grpc.grpc_server.entities.Event;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -13,24 +17,17 @@ public class EventMapper {
     //-------------------------------------------------------------------------------------------------------//
     //-----------------------------------------DTO-----------------------------------------------------------//
     //-------------------------------------------------------------------------------------------------------//
-
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class EventDTO {
         private int id;
         private String name;
         private String description;
         private LocalDateTime dateRegistration;
 
-        public EventDTO(int id, String name, String description, LocalDateTime dateRegistration) {
-            this.id = id;
-            this.name = name;
-            this.description = description;
-            this.dateRegistration = dateRegistration;
-        }
 
-        public int getId() { return id; }
-        public String getName() { return name; }
-        public String getDescription() { return description; }
-        public LocalDateTime getDateRegistration() { return dateRegistration; }
     }
 
     public static EventDTO toDTO(Event e) {

@@ -7,6 +7,8 @@ import Home from './componentes/home/home';
 import AltaUser from './componentes/user/altaUser';
 import UserList from './componentes/user/userList';
 import DonationList from './componentes/donation/donationList';
+import DonationForm from './componentes/donation/donationForm';
+
 
 
 
@@ -27,8 +29,8 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/userlist" element={<UserList/>} />
             <Route path="/altauser" element={<AltaUser />} />
-            <Route path="/donationlist" element={<DonationList />} />
-    ||||      
+            <Route path="/donationlist" element={<DonationList />} />   
+            <Route path="/donationform" element={<DonationForm />} />   
 
 
 

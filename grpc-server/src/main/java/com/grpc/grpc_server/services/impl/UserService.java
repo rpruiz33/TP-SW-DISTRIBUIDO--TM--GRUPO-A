@@ -64,7 +64,7 @@ public class UserService extends MyServiceGrpc.MyServiceImplBase {
     }
 
     @Override
-public void altaUser(AltaUsuarioRequest request, StreamObserver<AltaUsuarioResponse> responseObserver) {
+    public void altaUser(AltaUsuarioRequest request, StreamObserver<AltaUsuarioResponse> responseObserver) {
     var responseBuilder = AltaUsuarioResponse.newBuilder();
 
     if (userRepository.existsByEmail(request.getEmail()) || userRepository.existsByUsername(request.getUsername())) {
@@ -111,8 +111,8 @@ public void altaUser(AltaUsuarioRequest request, StreamObserver<AltaUsuarioRespo
     responseObserver.onNext(responseBuilder.build());
     responseObserver.onCompleted();
     }
-     @Override
-     public void getAllUsers (Empty request, StreamObserver<UserListResponse> responseObserver){
+    @Override
+    public void getAllUsers (Empty request, StreamObserver<UserListResponse> responseObserver){
 
              List<User> lstUser = userRepository.findAll();
 
@@ -124,8 +124,8 @@ public void altaUser(AltaUsuarioRequest request, StreamObserver<AltaUsuarioRespo
 
      }
 
-  @Override
-public void updateUser(UpdateUsuarioRequest request, StreamObserver<AltaUsuarioResponse> responseObserver) {
+    @Override
+    public void updateUser(UpdateUsuarioRequest request, StreamObserver<AltaUsuarioResponse> responseObserver) {
     var responseBuilder = AltaUsuarioResponse.newBuilder();
     User user = userRepository.findByUsername(request.getUsername()).orElse(null);
 
