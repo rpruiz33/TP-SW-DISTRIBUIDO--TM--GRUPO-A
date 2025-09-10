@@ -6,7 +6,7 @@ const NavBar = () => {
     <nav className="navbar navbar-expand-lg navbar-dark bg-nav">
       <div className="container-fluid">
       <Link className="navbar-brand" to="/">
-        Sistema empuje solidario
+        Sistema empuje Comunitario
       </Link>
 
         <button

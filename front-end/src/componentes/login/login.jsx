@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import axios from "axios";
 
 const Login = () => {
-
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -11,7 +10,7 @@ const Login = () => {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        setError(""); // Limpiar errores previos
+        setError("");
 
         try {
             const response = await axios.post("http://localhost:5000/api/login", {
@@ -20,15 +19,16 @@ const Login = () => {
             });
 
             if (response.data.success) {
-                const roleName = response.data.role_name; // Obtener name_rol de la respuesta
+                const roleName = response.data.role_name; 
+                const normalizedRole = roleName.toUpperCase(); // 🔹 Siempre en mayúsculas
+                localStorage.setItem("userRole", normalizedRole);
 
-                if (roleName === "Presidente") { // Comparar con "Presidente"
-                    alert("Bienvenido Usuario con acceso a Userlist");
-                    navigate('/userlist');
+                if (normalizedRole === "PRESIDENTE") {
+                    alert("Bienvenido Presidente");
+                    navigate('/dashboard');
                 } else {
-                    setError("Acceso restringido: solo los usuarios con rol Presidente pueden entrar a la lista de usuarios");
-
-
+                    alert("Bienvenido " + roleName);
+                    navigate('/dashboard');
                 }
             } else {
                 setError("Credenciales inválidas");
@@ -40,8 +40,8 @@ const Login = () => {
     };
 
     return (
-        <div className=" h-100 bg-black mb-90 p-5 pb-1000 ">
-            <div className="row  h-100">
+        <div className="h-100 bg-black mb-90 p-5 pb-1000">
+            <div className="row h-100">
                 <div className="col-md-6 offset-md-3">
                     <h2 className="text-light">Iniciar Sesión</h2>
                     <form onSubmit={handleLogin}>
@@ -72,12 +72,10 @@ const Login = () => {
                         {error && <div className="text-danger mb-3">{error}</div>}
                         <button type="submit" className="btn btn-primary">Iniciar Sesión</button>
                     </form>
-
-
                 </div>
             </div>
         </div>
     );
+};
 
-}
 export default Login;
