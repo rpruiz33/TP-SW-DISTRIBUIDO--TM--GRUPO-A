@@ -68,8 +68,8 @@ public class EventServiceImpl implements EventService {
         Event event = new Event();
         event.setNameEvent(nameEvent.trim());
         event.setDescriptionEvent(descriptionEvent.trim());
-        event.setDateTime(dateTime);
-        event.setParticipantUsernames(participantUsernames != null ? new ArrayList<>(participantUsernames) : new ArrayList<>());
+        event.setDateRegistration(dateTime);
+        event.setMembers(participantUsernames != null ? new ArrayList<>(participantUsernames) : new ArrayList<>());
 
         return eventRepository.save(event);
     }
@@ -105,7 +105,7 @@ public class EventServiceImpl implements EventService {
                 // Ejemplo: registrar donaciones y descontar del inventario
                 throw new IllegalArgumentException("La fecha no puede modificarse para eventos pasados sin registrar donaciones");
             }
-            event.setDateTime(dateTime);
+            event.setDateRegistration(dateTime);
         }
         if (participantUsernames != null) {
             event.setParticipantUsernames(new ArrayList<>(participantUsernames));
@@ -130,7 +130,7 @@ public class EventServiceImpl implements EventService {
         }
 
         Event event = optionalEvent.get();
-        if (event.getDateTime().isBefore(NOW) || event.getDateTime().isEqual(NOW)) {
+        if (event.getDateRegistration().isBefore(NOW) || event.getDateRegistration().isEqual(NOW)) {
             throw new IllegalArgumentException("No se pueden eliminar eventos pasados (antes de las 10:57 del 12/09/2025)");
         }
 
@@ -191,7 +191,7 @@ public void assignMember(Long eventId, String username) {
         }
 
         Event event = optionalEvent.get();
-        if (event.getDateTime().isBefore(NOW) || event.getDateTime().isEqual(NOW)) {
+        if (event.getDateRegistration().isBefore(NOW) || event.getDateRegistration().isEqual(NOW)) {
             throw new IllegalArgumentException("No se pueden quitar miembros de eventos pasados (antes de las 10:57 del 12/09/2025)");
         }
 

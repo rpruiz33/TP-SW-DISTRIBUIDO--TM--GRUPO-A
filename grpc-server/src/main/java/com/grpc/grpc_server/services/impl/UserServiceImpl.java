@@ -3,22 +3,16 @@ package com.grpc.grpc_server.services.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.grpc.grpc_server.MyServiceClass;
+import com.grpc.grpc_server.services.UserService;
+import io.grpc.stub.StreamObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.grpc.server.service.GrpcService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.grpc.grpc_server.MyServiceClass.AltaUsuarioRequest;
-import com.grpc.grpc_server.MyServiceClass.AltaUsuarioResponse;
-import com.grpc.grpc_server.MyServiceClass.DeleteUsuarioRequest;
-import com.grpc.grpc_server.MyServiceClass.DeleteUsuarioResponse;
-import com.grpc.grpc_server.MyServiceClass.Empty;
-import com.grpc.grpc_server.MyServiceClass.LoginRequest;
-import com.grpc.grpc_server.MyServiceClass.LoginResponse;
-import com.grpc.grpc_server.MyServiceClass.UpdateUsuarioRequest;
-import com.grpc.grpc_server.MyServiceClass.UserListResponse;
-import com.grpc.grpc_server.MyServiceGrpc;
+import com.grpc.grpc_server.MyServiceClass.*;
 import com.grpc.grpc_server.entities.Role;
 import com.grpc.grpc_server.entities.User;
 import com.grpc.grpc_server.mapper.UserMapper;
@@ -26,10 +20,8 @@ import com.grpc.grpc_server.repositories.RoleRepository;
 import com.grpc.grpc_server.repositories.UserRepository;
 import com.grpc.grpc_server.util.PasswordUtils;
 
-import io.grpc.stub.StreamObserver;
-
-@GrpcService
-public class UserService extends MyServiceGrpc.MyServiceImplBase {
+@Service
+public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
@@ -44,7 +36,7 @@ public class UserService extends MyServiceGrpc.MyServiceImplBase {
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 
-    @Override
+
     public void login(LoginRequest request, StreamObserver<LoginResponse> responseObserver) {
         var responseBuilder = LoginResponse.newBuilder();
 
@@ -63,7 +55,6 @@ public class UserService extends MyServiceGrpc.MyServiceImplBase {
         responseObserver.onCompleted();
     }
 
-    @Override
     public void altaUser(AltaUsuarioRequest request, StreamObserver<AltaUsuarioResponse> responseObserver) {
     var responseBuilder = AltaUsuarioResponse.newBuilder();
 
@@ -111,20 +102,18 @@ public class UserService extends MyServiceGrpc.MyServiceImplBase {
     responseObserver.onNext(responseBuilder.build());
     responseObserver.onCompleted();
     }
-    @Override
     public void getAllUsers (Empty request, StreamObserver<UserListResponse> responseObserver){
 
              List<User> lstUser = userRepository.findAll();
 
              UserListResponse ul = UserListResponse.newBuilder()
-                     .addAllUsers(lstUser.stream().map(x -> UserMapper.toDTO(x))
+                     .addAllUsers(lstUser.stream().map(x -> UserMapper.toProto(x))
                              .collect(Collectors.toList())).build();
              responseObserver.onNext(ul);
              responseObserver.onCompleted();
 
      }
 
-    @Override
     public void updateUser(UpdateUsuarioRequest request, StreamObserver<AltaUsuarioResponse> responseObserver) {
     var responseBuilder = AltaUsuarioResponse.newBuilder();
     User user = userRepository.findByUsername(request.getUsername()).orElse(null);
@@ -160,9 +149,8 @@ public class UserService extends MyServiceGrpc.MyServiceImplBase {
     responseObserver.onCompleted();
 }
 
-@Override
-@Transactional
-public void deleteUser(DeleteUsuarioRequest request, StreamObserver<DeleteUsuarioResponse> responseObserver) {
+    @Transactional
+    public void deleteUser(DeleteUsuarioRequest request, StreamObserver<DeleteUsuarioResponse> responseObserver) {
     var responseBuilder = AltaUsuarioResponse.newBuilder();
 
     if (request == null || request.getUsername() == null || request.getUsername().isEmpty()) {

@@ -68,7 +68,7 @@ public class DonationMapper {
                 d.getRemoved(),
                 d.getEvents() != null
                         ? d.getEvents().stream()
-                        .map(DonationsAtEventsMapper::toDTO)
+                        .map(DonationsAtEventsMapper::withEventToDTO)
                         .collect(Collectors.toList())
                         : null
         );

@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.grpc.server.service.GrpcService;
 
 import com.grpc.grpc_server.DonationServiceGrpc;
-import com.grpc.grpc_server.MyServiceClass;
+import com.grpc.grpc_server.MyServiceClass.*;
 import com.grpc.grpc_server.entities.Donation;
 import com.grpc.grpc_server.mapper.DonationMapper;
 import com.grpc.grpc_server.repositories.DonationRepository;
@@ -15,23 +15,23 @@ import com.grpc.grpc_server.services.DonationService;
 
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 
 @Slf4j
-@GrpcService
-public class DonationServiceImpl extends DonationServiceGrpc.DonationServiceImplBase implements DonationService {
+@Service
+public class DonationServiceImpl implements DonationService {
 
     @Autowired
     private DonationRepository donationRepository;
 
 
-    @Override
-    public void getAllDonations(MyServiceClass.Empty request, StreamObserver<MyServiceClass.DonationListResponse> responseObserver){
 
+    public void getAllDonations(Empty request, StreamObserver<DonationListResponse> responseObserver){
 
         List<Donation> lstDonation = donationRepository.findAllWithEvents();
 
-        MyServiceClass.DonationListResponse dl = MyServiceClass.DonationListResponse.newBuilder()
+        DonationListResponse dl = DonationListResponse.newBuilder()
                 .addAllDonations(lstDonation.stream().map(x ->DonationMapper.toProtoWithEvents(x))
                         .collect(Collectors.toList())).build();
 
@@ -39,9 +39,9 @@ public class DonationServiceImpl extends DonationServiceGrpc.DonationServiceImpl
         responseObserver.onCompleted();
     }
 
-    @Override
-    public void updateDonation(MyServiceClass.UpdateDonationRequest request, StreamObserver<MyServiceClass.UpdateDonationResponse> responseObserver){
-        var responseBuilder = MyServiceClass.UpdateDonationResponse.newBuilder();
+
+    public void updateDonation(UpdateDonationRequest request, StreamObserver<UpdateDonationResponse> responseObserver){
+        var responseBuilder = UpdateDonationResponse.newBuilder();
 
         Donation d = donationRepository.findById(request.getId());
 
@@ -54,7 +54,7 @@ public class DonationServiceImpl extends DonationServiceGrpc.DonationServiceImpl
         } else {
             d.setDescription(request.getDescription());
             d.setAmount(request.getAmount());
-            log.debug("Cantidad "+ request.getAmount());
+
             donationRepository.save(d);
             responseBuilder.setSuccess(true).setMessage("Donacion actualizada");
         }

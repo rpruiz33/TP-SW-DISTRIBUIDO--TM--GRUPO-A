@@ -43,7 +43,7 @@ message AltaUsuarioResponse {
   string message = 2;
 }
 
-message UserDTO {
+message UserProto {
   string username = 1;
   string name = 2;
   string lastName = 3;
@@ -54,21 +54,7 @@ message UserDTO {
 }
 
 message UserListResponse {
-  repeated UserDTO users = 1;
-}
-
-// ========================
-// Nuevos Messages para enviar correo
-// ========================
-message SendEmailRequest {
-  string to = 1;          // Destinatario del correo
-  string subject = 2;     // Asunto del correo
-  string body = 3;        // Cuerpo del correo
-}
-
-message SendEmailResponse {
-  bool success = 1;       // Indica si el envío fue exitoso
-  string message = 2;     // Mensaje de respuesta (éxito o error)
+  repeated UserProto users = 1;
 }
 
 message UpdateUsuarioRequest {
@@ -90,6 +76,21 @@ message DeleteUsuarioResponse {
 }
 
 // ========================
+// Nuevos Messages para enviar correo
+// ========================
+message SendEmailRequest {
+  string to = 1;          // Destinatario del correo
+  string subject = 2;     // Asunto del correo
+  string body = 3;        // Cuerpo del correo
+}
+
+message SendEmailResponse {
+  bool success = 1;       // Indica si el envío fue exitoso
+  string message = 2;     // Mensaje de respuesta (éxito o error)
+}
+
+
+// ========================
 // Service de eventos
 // ========================
 service EventService {
@@ -104,16 +105,19 @@ service EventService {
 // ========================
 // Messages de eventos
 // ========================
-message Event {
+message EventProto {
   int32 id = 1;
   string nameEvent = 2;
   string descriptionEvent = 3;
   string dateRegistration = 4;
-  repeated string participantUsernames = 5;
+  repeated UserProto users =5;
+  repeated EventDonationProto donations=6;
 }
 
+
+
 message EventListResponse {
-  repeated Event events = 1;
+  repeated EventProto events = 1;
 }
 
 message CreateEventRequest {
@@ -156,9 +160,13 @@ message Empty {}
 // Messages de donacion x evento
 // ========================
 message DonationEventProto {
-  Event event = 1;
+  EventProto event = 1;
   int32 quantityDelivered = 2;
-  string registeredBy = 3;
+}
+
+message EventDonationProto {
+  DonationProto donation = 1;
+  int32 quantityDelivered = 2;
 }
 
 // ========================

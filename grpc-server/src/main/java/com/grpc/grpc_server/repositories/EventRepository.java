@@ -13,7 +13,7 @@ import com.grpc.grpc_server.entities.Event;
 @Repository
 public interface EventRepository extends JpaRepository<Event, Integer> {
     // Método derivado por nombre para obtener eventos futuros
-    List<Event> findByDateTimeAfter(LocalDateTime dateTime);
+    List<Event> findByDateRegistrationAfter(LocalDateTime dateTime);
 
     // Método derivado por nombre para buscar eventos por participante
     List<Event> findByParticipantUsernamesContaining(String username);
