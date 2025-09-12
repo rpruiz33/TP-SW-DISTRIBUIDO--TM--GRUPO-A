@@ -26,7 +26,7 @@ message LoginRequest {
 message LoginResponse {
   bool success = 1;
   string message = 2;
-  string role_name=3;
+  string role_name = 3;
 }
 
 message AltaUsuarioRequest {
@@ -70,6 +70,7 @@ message SendEmailResponse {
   bool success = 1;       // Indica si el envío fue exitoso
   string message = 2;     // Mensaje de respuesta (éxito o error)
 }
+
 message UpdateUsuarioRequest {
   string username = 1;
   string name = 2;
@@ -93,6 +94,11 @@ message DeleteUsuarioResponse {
 // ========================
 service EventService {
   rpc GetAllEvents(Empty) returns (EventListResponse);
+  rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse);
+  rpc UpdateEvent(UpdateEventRequest) returns (GenericResponse);
+  rpc DeleteEvent(DeleteEventRequest) returns (GenericResponse);
+  rpc AssignMemberToEvent(AssignMemberRequest) returns (GenericResponse);
+  rpc RemoveMemberFromEvent(RemoveMemberRequest) returns (GenericResponse);
 }
 
 // ========================
@@ -103,10 +109,44 @@ message Event {
   string nameEvent = 2;
   string descriptionEvent = 3;
   string dateRegistration = 4;
+  repeated string participantUsernames = 5;
 }
 
 message EventListResponse {
   repeated Event events = 1;
+}
+
+message CreateEventRequest {
+  string nameEvent = 1;
+  string descriptionEvent = 2;
+  string dateRegistration = 3;
+}
+
+message CreateEventResponse {
+  bool success = 1;
+  string message = 2;
+  int32 eventId = 3;
+}
+
+message UpdateEventRequest {
+  int32 id = 1;
+  string nameEvent = 2;
+  string descriptionEvent = 3;
+  string dateRegistration = 4;
+}
+
+message DeleteEventRequest {
+  int32 id = 1;
+}
+
+message AssignMemberRequest {
+  int32 eventId = 1;
+  string username = 2;
+}
+
+message RemoveMemberRequest {
+  int32 eventId = 1;
+  string username = 2;
 }
 
 // Mensaje vacío (si no hay parámetros de entrada)
@@ -115,11 +155,10 @@ message Empty {}
 // ========================
 // Messages de donacion x evento
 // ========================
-
-
-message DonationEventProto{
-  Event event =1;
-  int32 quantityDelivered=2;
+message DonationEventProto {
+  Event event = 1;
+  int32 quantityDelivered = 2;
+  string registeredBy = 3;
 }
 
 // ========================
@@ -128,6 +167,7 @@ message DonationEventProto{
 service DonationService {
   rpc GetAllDonations(Empty) returns (DonationListResponse);
   rpc UpdateDonation(UpdateDonationRequest) returns (UpdateDonationResponse);
+  rpc RegisterDelivery(RegisterDeliveryRequest) returns (GenericResponse);
 }
 
 // ========================
@@ -146,14 +186,26 @@ message DonationListResponse {
   repeated DonationProto donations = 1;
 }
 
-message UpdateDonationRequest{
+message UpdateDonationRequest {
   int32 id = 1;
   string category = 2;
   string description = 3;
   int32 amount = 4;
 }
 
-message UpdateDonationResponse{
+message UpdateDonationResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message RegisterDeliveryRequest {
+  int32 donationId = 1;
+  int32 eventId = 2;
+  int32 quantity = 3;
+  string registeredBy = 4;
+}
+
+message GenericResponse {
   bool success = 1;
   string message = 2;
 }

@@ -32,10 +32,10 @@ public class EventMapper {
 
     public static EventDTO toDTO(Event e) {
         return new EventDTO(
-            e.getIdEvent(),
+            e.getId(),
             e.getNameEvent(),
             e.getDescriptionEvent(),
-            e.getDateRegistration()
+            e.getDateTime(),
         );
     }
     //-------------------------------------------------------------------------------------------------------//

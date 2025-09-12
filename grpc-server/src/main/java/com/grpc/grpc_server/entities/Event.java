@@ -1,36 +1,50 @@
 package com.grpc.grpc_server.entities;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import lombok.*;
+
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 @Entity
-@Table(name = "events")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Event {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idEvent;
+    private Long id;
 
-    @Column(name = "name_event", length = 200, nullable = false)
+    @Column(nullable = false)
     private String nameEvent;
 
-    @Column(name = "description_event", columnDefinition = "TEXT")
+    @Column(nullable = false)
     private String descriptionEvent;
 
-     @Column(name = "date_registration")
-    private LocalDateTime dateRegistration;
+    @Column(nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime dateTime;
 
-    @OneToMany(mappedBy = "event")
-    private List<DonationsAtEvents> donations;
-
-    @OneToMany(mappedBy = "event")
-    private List<MemberAtEvent> members;
+    @ElementCollection
+    @CollectionTable(name = "event_participants")
+    @Column(name = "username")
+    private List<String> participantUsernames = new ArrayList<>();
 
     // Getters y Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getNameEvent() { return nameEvent; }
+    public void setNameEvent(String nameEvent) { this.nameEvent = nameEvent; }
+
+    public String getDescriptionEvent() { return descriptionEvent; }
+    public void setDescriptionEvent(String descriptionEvent) { this.descriptionEvent = descriptionEvent; }
+
+    public LocalDateTime getDateTime() { return dateTime; }
+    public void setDateTime(LocalDateTime dateTime) { this.dateTime = dateTime; }
+
+    public List<String> getParticipantUsernames() { return participantUsernames; }
+    public void setParticipantUsernames(List<String> participantUsernames) { this.participantUsernames = participantUsernames; }
 }

@@ -33,6 +33,13 @@ const Textarea = (props) => (
   />
 );
 
+const Select = (props) => (
+  <select
+    className="border border-gray-300 rounded-lg p-2 w-full text-black focus:outline-none focus:ring-2 focus:ring-[#4F6EE4] transition"
+    {...props}
+  />
+);
+
 // --- ROLES ---
 const roles = {
   PRESIDENTE: "PRESIDENTE",
@@ -40,106 +47,201 @@ const roles = {
   VOLUNTARIO: "VOLUNTARIO",
 };
 
-export default function Events({ userRole, userId }) {
+export default function Events({ userRole, userUsername }) {
   const [eventos, setEventos] = useState([]);
   const [miembros, setMiembros] = useState([]);
+  const [donations, setDonations] = useState([]);
   const [openForm, setOpenForm] = useState(false);
   const [openDonaciones, setOpenDonaciones] = useState(false);
   const [eventoActual, setEventoActual] = useState(null);
 
-  // Mock inicial
   useEffect(() => {
-    setEventos([
-      {
-        id: 1,
-        nombre: "Visita a la escuela nº 99",
-        descripcion: "Se organizarán juegos y repartirán útiles",
-        fecha: "2025-09-20T15:00",
-        miembros: [1, 2],
-        donaciones: [],
-      },
-    ]);
-    setMiembros([
-      { id: 1, nombre: "Juan Pérez", activo: true },
-      { id: 2, nombre: "Ana López", activo: true },
-      { id: 3, nombre: "Roberto Alcocer", activo: false },
-    ]);
+    // Fetch eventos
+    fetch("/api/eventlist")
+      .then((res) => res.json())
+      .then((data) => setEventos(JSON.parse(data).events || []))
+      .catch((err) => console.error(err));
+
+    // Fetch miembros (usuarios activados)
+    fetch("/api/userlist")
+      .then((res) => res.json())
+      .then((data) => {
+        const users = JSON.parse(data).users || [];
+        setMiembros(users.filter((u) => u.activated));
+      })
+      .catch((err) => console.error(err));
+
+    // Fetch donaciones
+    fetch("/api/donationlist")
+      .then((res) => res.json())
+      .then((data) => setDonations(JSON.parse(data).donations || []))
+      .catch((err) => console.error(err));
   }, []);
 
-  const esPasado = (evento) => new Date(evento.fecha) <= new Date();
+  const esPasado = (evento) => new Date(evento.dateRegistration) <= new Date();
 
   // Guardar evento
   const handleGuardar = (e) => {
     e.preventDefault();
-    if (new Date(eventoActual.fecha) <= new Date()) {
+    const eventData = {
+      nameEvent: eventoActual.nameEvent,
+      descriptionEvent: eventoActual.descriptionEvent,
+      dateRegistration: eventoActual.dateRegistration,
+    };
+    if (new Date(eventoActual.dateRegistration) <= new Date()) {
       alert("La fecha debe ser a futuro");
       return;
     }
     if (eventoActual.id) {
-      setEventos((prev) =>
-        prev.map((ev) => (ev.id === eventoActual.id ? eventoActual : ev))
-      );
+      // Update
+      fetch("/api/updateevent", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: eventoActual.id, ...eventData }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setEventos((prev) =>
+              prev.map((ev) => (ev.id === eventoActual.id ? { ...ev, ...eventData } : ev))
+            );
+            setOpenForm(false);
+            setEventoActual(null);
+          } else {
+            alert(data.message);
+          }
+        });
     } else {
-      setEventos((prev) => [...prev, { ...eventoActual, id: Date.now() }]);
+      // Create
+      fetch("/api/createevent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(eventData),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setEventos((prev) => [...prev, { id: data.eventId, ...eventData, participantUsernames: [] }]);
+            setOpenForm(false);
+            setEventoActual(null);
+          } else {
+            alert(data.message);
+          }
+        });
     }
-    setOpenForm(false);
-    setEventoActual(null);
   };
 
   // Baja evento
   const handleBaja = (id) => {
-    const evento = eventos.find((ev) => ev.id === id);
-    if (esPasado(evento)) {
-      alert("Solo se pueden eliminar eventos a futuro");
-      return;
-    }
-    setEventos((prev) => prev.filter((ev) => ev.id !== id));
+    fetch(`/api/deleteevent/${id}`, { method: "DELETE" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.response.includes("success: true")) {
+          setEventos((prev) => prev.filter((ev) => ev.id !== id));
+        } else {
+          alert("Solo se pueden eliminar eventos a futuro");
+        }
+      });
   };
 
   // Participación voluntario
   const toggleParticipacion = (evento) => {
     if (userRole === roles.VOLUNTARIO) {
-      const yaEsta = evento.miembros.includes(userId);
-      const nuevos = yaEsta
-        ? evento.miembros.filter((m) => m !== userId)
-        : [...evento.miembros, userId];
-      setEventos((prev) =>
-        prev.map((ev) => (ev.id === evento.id ? { ...ev, miembros: nuevos } : ev))
-      );
+      const yaEsta = evento.participantUsernames.includes(userUsername);
+      const endpoint = yaEsta ? "/api/removemember" : "/api/assignmember";
+      fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eventId: evento.id, username: userUsername }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setEventos((prev) =>
+              prev.map((ev) =>
+                ev.id === evento.id
+                  ? {
+                      ...ev,
+                      participantUsernames: yaEsta
+                        ? ev.participantUsernames.filter((u) => u !== userUsername)
+                        : [...ev.participantUsernames, userUsername],
+                    }
+                  : ev
+              )
+            );
+          } else {
+            alert(data.message);
+          }
+        });
     }
   };
 
   // Asignar/quitar miembro
-  const asignarQuitarMiembro = (evento, miembroId) => {
+  const asignarQuitarMiembro = (evento, username) => {
     if (userRole === roles.PRESIDENTE || userRole === roles.COORDINADOR) {
-      const yaEsta = evento.miembros.includes(miembroId);
-      const nuevos = yaEsta
-        ? evento.miembros.filter((m) => m !== miembroId)
-        : [...evento.miembros, miembroId];
-      setEventos((prev) =>
-        prev.map((ev) => (ev.id === evento.id ? { ...ev, miembros: nuevos } : ev))
-      );
+      const yaEsta = evento.participantUsernames.includes(username);
+      const endpoint = yaEsta ? "/api/removemember" : "/api/assignmember";
+      fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eventId: evento.id, username }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setEventos((prev) =>
+              prev.map((ev) =>
+                ev.id === evento.id
+                  ? {
+                      ...ev,
+                      participantUsernames: yaEsta
+                        ? ev.participantUsernames.filter((u) => u !== username)
+                        : [...ev.participantUsernames, username],
+                    }
+                  : ev
+              )
+            );
+          } else {
+            alert(data.message);
+          }
+        });
     }
   };
 
   // Guardar donaciones
   const handleGuardarDonaciones = (e) => {
     e.preventDefault();
-    const nuevasDonaciones = eventoActual.donaciones || [];
-    nuevasDonaciones.push({
-      descripcion: e.target.descripcion.value,
-      cantidad: e.target.cantidad.value,
-      registradoPor: userId,
-    });
-    setEventos((prev) =>
-      prev.map((ev) =>
-        ev.id === eventoActual.id
-          ? { ...ev, donaciones: nuevasDonaciones }
-          : ev
-      )
-    );
-    setOpenDonaciones(false);
-    setEventoActual(null);
+    const donationId = parseInt(e.target.donationId.value);
+    const quantity = parseInt(e.target.quantity.value);
+    if (quantity <= 0) {
+      alert("Cantidad debe ser positiva");
+      return;
+    }
+    fetch("/api/registerdelivery", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        donationId,
+        eventId: eventoActual.id,
+        quantity,
+        registeredBy: userUsername,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          // Actualizar donaciones localmente (restar cantidad)
+          setDonations((prev) =>
+            prev.map((d) =>
+              d.id === donationId ? { ...d, amount: d.amount - quantity } : d
+            )
+          );
+          setOpenDonaciones(false);
+          setEventoActual(null);
+        } else {
+          alert(data.message);
+        }
+      });
   };
 
   return (
@@ -163,25 +265,25 @@ export default function Events({ userRole, userId }) {
             </h2>
             <Input
               placeholder="Nombre del evento"
-              value={eventoActual?.nombre || ""}
+              value={eventoActual?.nameEvent || ""}
               onChange={(e) =>
-                setEventoActual({ ...eventoActual, nombre: e.target.value })
+                setEventoActual({ ...eventoActual, nameEvent: e.target.value })
               }
               required
             />
             <Textarea
               placeholder="Descripción"
-              value={eventoActual?.descripcion || ""}
+              value={eventoActual?.descriptionEvent || ""}
               onChange={(e) =>
-                setEventoActual({ ...eventoActual, descripcion: e.target.value })
+                setEventoActual({ ...eventoActual, descriptionEvent: e.target.value })
               }
               required
             />
             <Input
               type="datetime-local"
-              value={eventoActual?.fecha || ""}
+              value={eventoActual?.dateRegistration.slice(0, 16) || ""}
               onChange={(e) =>
-                setEventoActual({ ...eventoActual, fecha: e.target.value })
+                setEventoActual({ ...eventoActual, dateRegistration: e.target.value })
               }
               required
             />
@@ -207,14 +309,21 @@ export default function Events({ userRole, userId }) {
         <Card className="max-w-md mx-auto">
           <form onSubmit={handleGuardarDonaciones} className="space-y-4">
             <h2 className="text-lg font-semibold text-[#232D4F]">
-              Registrar Donaciones
+              Registrar Donaciones Repartidas
             </h2>
-            <Input name="descripcion" placeholder="Descripción donación" required />
+            <Select name="donationId" required>
+              <option value="">Seleccione donación</option>
+              {donations.filter((d) => d.amount > 0).map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.category} - {d.description} (Disponible: {d.amount})
+                </option>
+              ))}
+            </Select>
             <Input
-              name="cantidad"
+              name="quantity"
               type="number"
               min="1"
-              placeholder="Cantidad"
+              placeholder="Cantidad repartida"
               required
             />
             <div className="flex gap-2">
@@ -239,16 +348,16 @@ export default function Events({ userRole, userId }) {
         {eventos.map((evento) => (
           <Card key={evento.id}>
             <h2 className="text-lg font-semibold text-[#232D4F]">
-              {evento.nombre}
+              {evento.nameEvent}
             </h2>
-            <p>{evento.descripcion}</p>
+            <p>{evento.descriptionEvent}</p>
             <p className="text-sm text-gray-600">
-              {new Date(evento.fecha).toLocaleString()}
+              {new Date(evento.dateRegistration).toLocaleString()}
             </p>
             <p className="text-sm">
               Participantes:{" "}
-              {evento.miembros
-                .map((id) => miembros.find((m) => m.id === id)?.nombre)
+              {evento.participantUsernames
+                .map((username) => miembros.find((m) => m.username === username)?.name || username)
                 .join(", ")}
             </p>
 
@@ -259,11 +368,10 @@ export default function Events({ userRole, userId }) {
                   <Button
                     className="bg-[#F4B400] hover:bg-[#C99700] text-black"
                     onClick={() => {
+                      setEventoActual(evento);
                       if (esPasado(evento)) {
-                        setEventoActual(evento);
                         setOpenDonaciones(true);
                       } else {
-                        setEventoActual(evento);
                         setOpenForm(true);
                       }
                     }}
@@ -280,9 +388,9 @@ export default function Events({ userRole, userId }) {
                   </Button>
                 </>
               )}
-              {userRole === roles.VOLUNTARIO && (
+              {userRole === roles.VOLUNTARIO && !esPasado(evento) && (
                 <Button onClick={() => toggleParticipacion(evento)}>
-                  {evento.miembros.includes(userId)
+                  {evento.participantUsernames.includes(userUsername)
                     ? "Salir del evento"
                     : "Participar"}
                 </Button>
@@ -291,27 +399,25 @@ export default function Events({ userRole, userId }) {
 
             {/* Asignación de miembros */}
             {(userRole === roles.PRESIDENTE ||
-              userRole === roles.COORDINADOR) && (
+              userRole === roles.COORDINADOR) && !esPasado(evento) && (
               <div className="mt-3">
                 <h3 className="font-medium text-sm text-[#232D4F]">
                   Asignar miembros:
                 </h3>
                 <div className="flex flex-wrap gap-2 mt-1">
-                  {miembros
-                    .filter((m) => m.activo)
-                    .map((miembro) => (
-                      <Button
-                        key={miembro.id}
-                        className={`${
-                          evento.miembros.includes(miembro.id)
-                            ? "bg-[#4F6EE4]"
-                            : "bg-gray-400 hover:bg-gray-500"
-                        }`}
-                        onClick={() => asignarQuitarMiembro(evento, miembro.id)}
-                      >
-                        {miembro.nombre}
-                      </Button>
-                    ))}
+                  {miembros.map((miembro) => (
+                    <Button
+                      key={miembro.username}
+                      className={`${
+                        evento.participantUsernames.includes(miembro.username)
+                          ? "bg-[#4F6EE4]"
+                          : "bg-gray-400 hover:bg-gray-500"
+                      }`}
+                      onClick={() => asignarQuitarMiembro(evento, miembro.username)}
+                    >
+                      {miembro.name}
+                    </Button>
+                  ))}
                 </div>
               </div>
             )}

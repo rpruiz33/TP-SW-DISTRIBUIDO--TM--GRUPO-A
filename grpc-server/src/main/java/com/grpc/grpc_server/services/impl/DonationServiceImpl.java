@@ -1,21 +1,20 @@
 package com.grpc.grpc_server.services.impl;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.grpc.server.service.GrpcService;
+
 import com.grpc.grpc_server.DonationServiceGrpc;
 import com.grpc.grpc_server.MyServiceClass;
-import com.grpc.grpc_server.MyServiceGrpc;
 import com.grpc.grpc_server.entities.Donation;
-import com.grpc.grpc_server.entities.Role;
-import com.grpc.grpc_server.entities.User;
 import com.grpc.grpc_server.mapper.DonationMapper;
 import com.grpc.grpc_server.repositories.DonationRepository;
 import com.grpc.grpc_server.services.DonationService;
+
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.grpc.server.service.GrpcService;
-import org.springframework.stereotype.Service;
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Slf4j
