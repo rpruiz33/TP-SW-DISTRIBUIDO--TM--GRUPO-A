@@ -1,27 +1,46 @@
 package com.grpc.grpc_server.entities;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "member_at_event")
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class MemberAtEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idMemberAtEvent;
+    private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "id_event", nullable = false)
+    @JoinColumn(name = "event_id")
     private Event event;
 
     @ManyToOne
-    @JoinColumn(name = "id_user", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
-    
+    // Método adicional para compatibilidad con el campo username anterior
+    public String getUsername() {
+        return user != null ? user.getUsername() : null;
+    }
+
+    public void setUsername(String username) {
+        if (user == null) {
+            user = new User();
+        }
+        user.setUsername(username);
+    }
+
+    // Método solicitado
+    public User getUser() {
+        return user;
+    }
 }

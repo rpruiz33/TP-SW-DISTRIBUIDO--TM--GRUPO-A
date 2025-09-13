@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.grpc.grpc_server.entities.Event;
+import com.grpc.grpc_server.entities.MemberAtEvent;
 import com.grpc.grpc_server.repositories.EventRepository;
 import com.grpc.grpc_server.repositories.UserRepository;
 import com.grpc.grpc_server.services.EventService;
@@ -69,7 +70,22 @@ public class EventServiceImpl implements EventService {
         event.setNameEvent(nameEvent.trim());
         event.setDescriptionEvent(descriptionEvent.trim());
         event.setDateRegistration(dateTime);
-        event.setMembers(participantUsernames != null ? new ArrayList<>(participantUsernames) : new ArrayList<>());
+        event.setMembers(new ArrayList<>());
+
+        // Asignar participantes si existen
+        if (participantUsernames != null && !participantUsernames.isEmpty()) {
+            List<MemberAtEvent> members = new ArrayList<>();
+            for (String username : participantUsernames) {
+                if (!userRepository.existsByUsername(username)) {
+                    throw new IllegalArgumentException("El usuario " + username + " no existe");
+                }
+                MemberAtEvent member = new MemberAtEvent();
+                member.setUsername(username);
+                member.setEvent(event); // Asociar el evento al miembro
+                members.add(member);
+            }
+            event.setMembers(members);
+        }
 
         return eventRepository.save(event);
     }
@@ -97,18 +113,30 @@ public class EventServiceImpl implements EventService {
         }
 
         Event event = optionalEvent.get();
-        if (nameEvent != null && !nameEvent.trim().isEmpty()) event.setNameEvent(nameEvent.trim());
-        if (descriptionEvent != null && !descriptionEvent.trim().isEmpty()) event.setDescriptionEvent(descriptionEvent.trim());
+        if (nameEvent != null && !nameEvent.trim().isEmpty()) {
+            event.setNameEvent(nameEvent.trim());
+        }
+        if (descriptionEvent != null && !descriptionEvent.trim().isEmpty()) {
+            event.setDescriptionEvent(descriptionEvent.trim());
+        }
         if (dateTime != null) {
             if (dateTime.isBefore(NOW) || dateTime.isEqual(NOW)) {
-                // Lógica para eventos pasados (pendiente de inventario y auditoría)
-                // Ejemplo: registrar donaciones y descontar del inventario
                 throw new IllegalArgumentException("La fecha no puede modificarse para eventos pasados sin registrar donaciones");
             }
             event.setDateRegistration(dateTime);
         }
         if (participantUsernames != null) {
-            event.setParticipantUsernames(new ArrayList<>(participantUsernames));
+            List<MemberAtEvent> members = new ArrayList<>();
+            for (String username : participantUsernames) {
+                if (!userRepository.existsByUsername(username)) {
+                    throw new IllegalArgumentException("El usuario " + username + " no existe");
+                }
+                MemberAtEvent member = new MemberAtEvent();
+                member.setUsername(username);
+                member.setEvent(event); // Asociar el evento al miembro
+                members.add(member);
+            }
+            event.setMembers(members);
         }
 
         return eventRepository.save(event);
@@ -147,26 +175,50 @@ public class EventServiceImpl implements EventService {
      * @throws IllegalArgumentException Si el evento no existe, es pasado, o el miembro no es elegible.
      */
     @Override
-@Transactional
-@Secured({"ROLE_PRESIDENTE", "ROLE_COORDINADOR", "ROLE_VOLUNTARIO"})
-public void assignMember(Long eventId, String username) {
-    if (username == null || username.trim().isEmpty()) {
-        throw new IllegalArgumentException("El nombre de usuario es obligatorio");
+    @Transactional
+    @Secured({"ROLE_PRESIDENTE", "ROLE_COORDINADOR", "ROLE_VOLUNTARIO"})
+    public void assignMember(Long eventId, String username) {
+        if (username == null || username.trim().isEmpty()) {
+            throw new IllegalArgumentException("El nombre de usuario es obligatorio");
+        }
+
+        Optional<Event> optionalEvent = eventRepository.findById(eventId);
+        if (!optionalEvent.isPresent()) {
+            throw new IllegalArgumentException("Evento no encontrado");
+        }
+
+        Event event = optionalEvent.get();
+        if (event.getDateRegistration().isBefore(NOW) || event.getDateRegistration().isEqual(NOW)) {
+            throw new IllegalArgumentException("No se pueden asignar miembros a eventos pasados (antes de las 10:57 del 12/09/2025)");
+        }
+
+        if (!userRepository.existsByUsername(username)) {
+            throw new IllegalArgumentException("El usuario " + username + " no existe");
+        }
+
+        // Verificar si el usuario ya está asignado
+        boolean isAlreadyAssigned = event.getMembers().stream()
+                .anyMatch(member -> member.getUsername().equals(username));
+        if (isAlreadyAssigned) {
+            throw new IllegalArgumentException("El usuario " + username + " ya está asignado al evento");
+        }
+
+        // Simulación de contexto de seguridad (ajustar según tu implementación)
+        String currentUsername = "currentUser"; // Obtener del contexto de seguridad
+        String currentRole = "ROLE_PRESIDENTE"; // Obtener del contexto de seguridad
+
+        if ("ROLE_VOLUNTARIO".equals(currentRole) && !currentUsername.equals(username)) {
+            throw new IllegalArgumentException("Los voluntarios solo pueden asignarse a sí mismos");
+        }
+
+        MemberAtEvent member = new MemberAtEvent();
+        member.setUsername(username);
+        member.setEvent(event);
+        event.getMembers().add(member);
+
+        eventRepository.save(event);
     }
 
-    Optional<Event> optionalEvent = eventRepository.findById(eventId);
-    if (!optionalEvent.isPresent()) {
-        throw new IllegalArgumentException("Evento no encontrado");
-    }
-
-    Event event = optionalEvent.get();
-    // Validación de evento futuro usando el repositorio
-    if (!eventRepository.findByDateTimeAfter(NOW).contains(event)) {
-        throw new IllegalArgumentException("No se pueden asignar miembros a eventos pasados (antes de las 11:08 del 12/09/2025)");
-    }
-
-    // Resto del método...
-}
     /**
      * Quita un miembro de un evento.
      * - PRESIDENTE y COORDINADOR pueden quitar cualquier miembro.
@@ -203,10 +255,14 @@ public void assignMember(Long eventId, String username) {
             throw new IllegalArgumentException("Los voluntarios solo pueden quitarse a sí mismos");
         }
 
-        List<String> participants = event.getParticipantUsernames();
-        if (participants.remove(username)) {
-            event.setParticipantUsernames(participants);
-            eventRepository.save(event);
+        // Buscar y eliminar el miembro
+        List<MemberAtEvent> members = event.getMembers();
+        boolean removed = members.removeIf(member -> member.getUsername().equals(username));
+        if (!removed) {
+            throw new IllegalArgumentException("El usuario " + username + " no está asignado al evento");
         }
+
+        event.setMembers(members);
+        eventRepository.save(event);
     }
 }
