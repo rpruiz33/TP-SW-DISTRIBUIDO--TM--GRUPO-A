@@ -10,6 +10,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.protobuf.Int32Value;
 import com.grpc.grpc_server.entities.Event;
 import com.grpc.grpc_server.entities.MemberAtEvent;
 import com.grpc.grpc_server.repositories.EventRepository;
@@ -105,7 +106,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     @Secured({"ROLE_PRESIDENTE", "ROLE_COORDINADOR"})
-    public Event updateEvent(Long id, String nameEvent, String descriptionEvent, LocalDateTime dateTime, List<String> participantUsernames) {
+    public Event updateEvent(Integer id, String nameEvent, String descriptionEvent, LocalDateTime dateTime, List<String> participantUsernames) {
         Optional<Event> optionalEvent = eventRepository.findById(id);
 
         if (!optionalEvent.isPresent()) {
@@ -151,7 +152,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     @Secured({"ROLE_PRESIDENTE", "ROLE_COORDINADOR"})
-    public void deleteEvent(Long id) {
+    public void deleteEvent(Integer id) {
         Optional<Event> optionalEvent = eventRepository.findById(id);
         if (!optionalEvent.isPresent()) {
             throw new IllegalArgumentException("Evento no encontrado");
@@ -177,7 +178,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     @Secured({"ROLE_PRESIDENTE", "ROLE_COORDINADOR", "ROLE_VOLUNTARIO"})
-    public void assignMember(Long eventId, String username) {
+    public void assignMember(Integer eventId, String username) {
         if (username == null || username.trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre de usuario es obligatorio");
         }
@@ -232,7 +233,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     @Secured({"ROLE_PRESIDENTE", "ROLE_COORDINADOR", "ROLE_VOLUNTARIO"})
-    public void removeMember(Long eventId, String username) {
+    public void removeMember(Integer eventId, String username) {
         if (username == null || username.trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre de usuario es obligatorio");
         }
