@@ -40,6 +40,7 @@ public class EventServiceImpl implements EventService {
      */
     @Override
     public List<Event> getAllEvents() {
+        
         try {
             return eventRepository.findAll();
         } catch (Exception e) {

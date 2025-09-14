@@ -117,4 +117,8 @@ public class EventMapper {
 
         return builder.build();
     }
+
+    public static MyServiceClass.EventProto toProto(Event e) {
+        return toProto(toDTO(e));
+    }
 }
