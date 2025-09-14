@@ -146,9 +146,9 @@ public class UserServiceImpl implements UserService {
     responseObserver.onCompleted();
 }
 
-    @Transactional
+
     public void deleteUser(DeleteUsuarioRequest request, StreamObserver<DeleteUsuarioResponse> responseObserver) {
-    var responseBuilder = AltaUsuarioResponse.newBuilder();
+    var responseBuilder = DeleteUsuarioResponse.newBuilder();
 
     if (request == null || request.getUsername() == null || request.getUsername().isEmpty()) {
         responseBuilder.setSuccess(false).setMessage("El nombre de usuario no puede estar vacío");
@@ -157,16 +157,22 @@ public class UserServiceImpl implements UserService {
         return;
     }
 
-    userRepository.findByUsername(request.getUsername()).ifPresentOrElse(user -> {
-        userRepository.delete(user);
-        responseBuilder.setSuccess(true).setMessage("Usuario eliminado");
-    }, () -> {
+     User u = userRepository.findByUsername(request.getUsername()).orElse(null);
+
+    if (u!= null && u.getActivate()){
+        u.setActivate(false);
+        userRepository.save(u);
+        responseBuilder.setSuccess(true).setMessage("Usuario dado de baja");
+    }else if (u!= null && u.getActivate()==false){
+        u.setActivate(true);
+        userRepository.save(u);
+        responseBuilder.setSuccess(true).setMessage("Usuario dado de alta");
+    }else {
         responseBuilder.setSuccess(false).setMessage("Usuario no encontrado");
-    });
-    responseObserver.onNext(DeleteUsuarioResponse.newBuilder()
-        .setSuccess(responseBuilder.getSuccess())
-        .setMessage(responseBuilder.getMessage())
-        .build());
+
+    }
+
+    responseObserver.onNext(responseBuilder.build());
     responseObserver.onCompleted();
 }
 

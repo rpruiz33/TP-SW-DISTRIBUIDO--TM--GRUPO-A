@@ -29,13 +29,18 @@ const UserList = () => {
     }
   };
 
-  const deleteUser = async (username) => {
-    if (!window.confirm("¿Seguro que deseas eliminar este usuario?")) return;
+  const deleteUser = async (user) => {
+
+    if (user.activated){
+      if (!window.confirm("¿Seguro que deseas eliminar este usuario?")) return;
+    }else{
+      if (!window.confirm("¿Seguro que deseas activar este usuario?")) return;
+    }
 
     try {
-      const response = await axios.delete(`http://localhost:5000/api/deleteuser/${username}`);
-      console.log("Respuesta del servidor:", response.data);
-      alert(response.data.message || "✅ Usuario eliminado");
+      const response = await axios.put(`http://localhost:5000/api/deleteuser/${user.username}`);
+      console.log("Respuesta del servidor:", response.data.message);
+      alert(response.data.message);
       getUsers(); // Recarga la lista
     } catch (err) {
       console.error("Error al eliminar usuario:", err.response ? err.response.data : err.message);
@@ -44,7 +49,7 @@ const UserList = () => {
   };
 
   const editUser = (user) => {
-    navigate("/altauser", { state: { user } });
+    navigate("/userform", { state: { user } });
   };
 
   return (
@@ -52,7 +57,7 @@ const UserList = () => {
       <h1 className="text-2xl text-black font-bold mb-4">Lista de Usuarios</h1>
       {error && <div className="text-red-500 mb-4">{error}</div>}
       <button
-        onClick={() => navigate("/altausuario")}
+        onClick={() => navigate("/userform")}
         className="mb-4 px-4 py-2 bg-blue-500 text-black rounded hover:bg-blue-600"
       >
         Crear Nuevo Usuario
@@ -80,7 +85,7 @@ const UserList = () => {
                 <td className="px-4 py-2 border">{user.phone || "N/A"}</td>
                 <td className="px-4 py-2 border">{user.email || "N/A"}</td>
                 <td className="px-4 py-2 border">{user.role || "N/A"}</td>
-                <td className="px-4 py-2 border">
+                <td className="px-4 py-2 border text-red">
                   {user.activated != null ? (user.activated ? "Sí" : "No") : "N/A"}
                 </td>
                 <td className="px-4 py-2 border space-x-2">
@@ -91,10 +96,10 @@ const UserList = () => {
                     Modificar
                   </button>
                   <button
-                    onClick={() => deleteUser(user.username)}
+                    onClick={() => deleteUser(user)}
                     className="px-2 py-1 bg-red-500 text-black rounded hover:bg-red-600"
                   >
-                    Eliminar
+                    {user.activated != null ? (user.activated ? "Eliminar" : "Activar") : "N/A"}
                   </button>
                 </td>
               </tr>

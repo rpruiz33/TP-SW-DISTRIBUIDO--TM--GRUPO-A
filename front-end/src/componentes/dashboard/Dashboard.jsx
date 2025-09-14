@@ -17,13 +17,20 @@ const Dashboard = () => {
           onClick={() => navigate("/userlist")}
           className="px-4 py-2 bg-[#232D4F] text-black rounded-lg hover:opacity-90"
         >
-          Ir a Lista de Usuarios
+          Gestion de Usuarios
         </button>
         <button
-          onClick={() => navigate("/events")}
+          onClick={() => navigate("/eventlist")}
           className="px-4 py-2 bg-[#232D4F] text-black rounded-lg hover:opacity-90"
         >
-          Ir a Eventos
+          Gestion de Eventos
+        </button>
+
+        <button           
+        className="px-4 py-2 bg-[#232D4F] text-black rounded-lg hover:opacity-90"
+        onClick={()=>{navigate("/donationlist")}}   
+>
+          Gestión de Inventario
         </button>
       </div>
     </div>

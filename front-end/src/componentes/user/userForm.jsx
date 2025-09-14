@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-export default function AltaUsuario() {
+export default function UserForm() {
   const location = useLocation();
   const navigate = useNavigate();
   const userToEdit = location.state?.user || null;

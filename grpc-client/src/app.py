@@ -54,13 +54,15 @@ def getAllUsers():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route("/api/deleteuser/<string:username>", methods=["DELETE"])
+@app.route("/api/deleteuser/<string:username>", methods=["PUT"])
 def deleteUser(username):
     try:
         response = grpc_client.deleteUser(username)
-        return jsonify({"message": f"Usuario {username} eliminado", "response": str(response)})
+        return jsonify({            
+            "success": response.success,
+            "message": response.message
+            })
     except Exception as e:
-        print("Error en delete_user:", e)
         return jsonify({"message": "Error eliminando usuario", "error": str(e)}), 500
 
 @app.route("/api/updateuser", methods=["PUT"])
