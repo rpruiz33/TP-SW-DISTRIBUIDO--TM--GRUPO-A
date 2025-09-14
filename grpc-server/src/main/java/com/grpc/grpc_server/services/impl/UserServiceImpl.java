@@ -31,6 +31,13 @@ public class UserServiceImpl implements UserService {
     private EmailService emailService;
 
 
+    public List<User> getAllUsers (){
+
+        return  userRepository.findAll();
+
+    }
+
+    ///---------------------------------------------------------------------------------------------------------------------
 
     //Libreria que permite la encriptacion de contraseñas
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -102,17 +109,7 @@ public class UserServiceImpl implements UserService {
     responseObserver.onNext(responseBuilder.build());
     responseObserver.onCompleted();
     }
-    public void getAllUsers (Empty request, StreamObserver<UserListResponse> responseObserver){
-
-             List<User> lstUser = userRepository.findAll();
-
-             UserListResponse ul = UserListResponse.newBuilder()
-                     .addAllUsers(lstUser.stream().map(x -> UserMapper.toProto(x))
-                             .collect(Collectors.toList())).build();
-             responseObserver.onNext(ul);
-             responseObserver.onCompleted();
-
-     }
+    
 
     public void updateUser(UpdateUsuarioRequest request, StreamObserver<AltaUsuarioResponse> responseObserver) {
     var responseBuilder = AltaUsuarioResponse.newBuilder();

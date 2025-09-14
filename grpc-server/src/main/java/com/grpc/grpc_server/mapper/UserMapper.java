@@ -13,9 +13,14 @@ import lombok.NoArgsConstructor;
 
 public class UserMapper {
 
+     //-------------------------------------------------------------------------------------------------------//
+    //-----------------------------------------DTOS-----------------------------------------------------------//
+    //-------------------------------------------------------------------------------------------------------//
+
     // =======================
-    // DTO básico
+    // DTO sin relaciones
     // =======================
+
     @Data
     @Builder
     @NoArgsConstructor
@@ -29,6 +34,9 @@ public class UserMapper {
         private String roleName;
         private boolean activate;
     }
+
+
+
 
 
     // Convierte el request en una entidad User | Request (gRPC) -> Entity
@@ -45,8 +53,9 @@ public class UserMapper {
     }
 
 
-
-    // Convierte la entidad user en un DTO intermedio | Entity -> DTO
+    // =======================
+    // Entity -> DTO
+    // ======================= 
     public static UserDTO toDTO(User user) {
         return new UserDTO(
                 user.getUsername(),
@@ -58,6 +67,12 @@ public class UserMapper {
                 user.getActivate()
         );
     }
+
+
+    //-------------------------------------------------------------------------------------------------------//
+    //-----------------------------------------MAPPERS-----------------------------------------------------------//
+    //-------------------------------------------------------------------------------------------------------//
+    
     // =======================
     // DTO  -> Proto
     // =======================

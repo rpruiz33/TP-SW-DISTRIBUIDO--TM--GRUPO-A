@@ -18,8 +18,12 @@ public class EventMapper {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     //-------------------------------------------------------------------------------------------------------//
-    //-----------------------------------------DTO-----------------------------------------------------------//
+    //-----------------------------------------DTOS-----------------------------------------------------------//
     //-------------------------------------------------------------------------------------------------------//
+
+    // =======================
+    // DTO sin relaciones
+    // =======================
     @Data
     @Builder
     @NoArgsConstructor
@@ -33,9 +37,10 @@ public class EventMapper {
 
     }
 
-    //-------------------------------------------------------------------------------------------------------//
-    //-----------------------------------------DTO CON RELACIONES--------------------------------------------//
-    //-------------------------------------------------------------------------------------------------------//
+    // =======================
+    // DTO con donaciones
+    // =======================
+
     @Data
     @Builder
     @NoArgsConstructor
@@ -51,7 +56,7 @@ public class EventMapper {
     }
 
     // =======================
-    // Entity -> DTO básico
+    // Entity -> DTO sin relaciones
     // =======================
     public static EventDTO toDTO(Event e) {
         return new EventDTO(
@@ -63,7 +68,7 @@ public class EventMapper {
     }
 
     // =======================
-    // Entity -> DTO extendido
+    // Entity -> DTO con donaciones
     // =======================
 
     public static EventWithRelationsDTO toDTOWithRelations(Event e) {
@@ -77,8 +82,12 @@ public class EventMapper {
         );
     }
 
+    //-------------------------------------------------------------------------------------------------------//
+    //-----------------------------------------MAPPERS-----------------------------------------------------------//
+    //-------------------------------------------------------------------------------------------------------//
+
     // =======================
-    // DTO básico -> Proto
+    // DTO sin relaciones -> Proto
     // =======================
     public static MyServiceClass.EventProto toProto(EventDTO dto) {
         return MyServiceClass.EventProto.newBuilder()
@@ -90,7 +99,7 @@ public class EventMapper {
     }
 
     // =======================
-    // DTO extendido -> Proto Extendido
+    // DTO con eventos -> Proto con enventos
     // =======================
     public static MyServiceClass.EventProto toProto(EventWithRelationsDTO dto) {
         MyServiceClass.EventProto.Builder builder= MyServiceClass.EventProto.newBuilder()
@@ -120,5 +129,9 @@ public class EventMapper {
 
     public static MyServiceClass.EventProto toProto(Event e) {
         return toProto(toDTO(e));
+    }
+
+    public static MyServiceClass.EventProto toProtoWithRelations(Event e) {
+        return toProto(toDTOWithRelations(e));
     }
 }

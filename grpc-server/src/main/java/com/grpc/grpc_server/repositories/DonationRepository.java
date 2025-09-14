@@ -19,6 +19,7 @@ public interface DonationRepository extends JpaRepository<Donation, Long> {
         LEFT JOIN FETCH d.events dae
         LEFT JOIN FETCH dae.event
         """)
+        
     List<Donation> findAllWithEvents();
 
     @Query("SELECT d FROM Donation d WHERE d.idDonation = :id")

@@ -10,6 +10,11 @@ import lombok.NoArgsConstructor;
 
 public class DonationsAtEventsMapper {
 
+
+    //-------------------------------------------------------------------------------------------------------//
+    //-----------------------------------------DTOS-----------------------------------------------------------//
+    //-------------------------------------------------------------------------------------------------------//
+
     @Data
     @Builder
     @NoArgsConstructor
@@ -28,7 +33,7 @@ public class DonationsAtEventsMapper {
         private int quantityDelivered;
     }
 
-
+    
     public static DonationEventDTO withEventToDTO(DonationsAtEvents entity) {
         return new DonationEventDTO(
                 EventMapper.toDTO(entity.getEvent()),
@@ -43,6 +48,10 @@ public class DonationsAtEventsMapper {
         );
     }
 
+
+    //-------------------------------------------------------------------------------------------------------//
+    //-----------------------------------------MAPPERS-----------------------------------------------------------//
+    //-------------------------------------------------------------------------------------------------------//
     public static MyServiceClass.DonationEventProto toProto(DonationEventDTO dto) {
         return MyServiceClass.DonationEventProto.newBuilder()
                 .setEvent(EventMapper.toProto(dto.getEvent()))
@@ -56,4 +65,7 @@ public class DonationsAtEventsMapper {
                 .setQuantityDelivered(dto.getQuantityDelivered())
                 .build();
     }
+
+    
+
 }

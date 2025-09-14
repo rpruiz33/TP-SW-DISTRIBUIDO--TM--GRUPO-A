@@ -27,40 +27,30 @@ public class DonationServiceImpl implements DonationService {
 
 
 
-    public void getAllDonations(Empty request, StreamObserver<DonationListResponse> responseObserver){
+    public List<Donation> getAllDonations(){
 
-        List<Donation> lstDonation = donationRepository.findAllWithEvents();
+        return donationRepository.findAllWithEvents();
 
-        DonationListResponse dl = DonationListResponse.newBuilder()
-                .addAllDonations(lstDonation.stream().map(x ->DonationMapper.toProtoWithEvents(x))
-                        .collect(Collectors.toList())).build();
-
-        responseObserver.onNext(dl);
-        responseObserver.onCompleted();
     }
 
 
-    public void updateDonation(UpdateDonationRequest request, StreamObserver<UpdateDonationResponse> responseObserver){
-        var responseBuilder = UpdateDonationResponse.newBuilder();
+    public boolean updateDonation(UpdateDonationRequest request){
+        
+        boolean result;
 
         Donation d = donationRepository.findById(request.getId());
 
         if (d == null) {
-
-            responseBuilder.setSuccess(false).setMessage("Donacion no encontrada");
-            responseObserver.onNext(responseBuilder.build());
-            responseObserver.onCompleted();
-
+            result = false;
         } else {
             d.setDescription(request.getDescription());
             d.setAmount(request.getAmount());
 
             donationRepository.save(d);
-            responseBuilder.setSuccess(true).setMessage("Donacion actualizada");
+            result = true;
         }
 
-        responseObserver.onNext(responseBuilder.build());
-        responseObserver.onCompleted();
+        return result;
     }
 
 }

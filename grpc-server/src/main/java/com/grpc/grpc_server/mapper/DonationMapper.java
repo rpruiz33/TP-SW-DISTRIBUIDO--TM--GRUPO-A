@@ -12,8 +12,12 @@ import java.util.stream.Collectors;
 
 public class DonationMapper {
 
+    //-------------------------------------------------------------------------------------------------------//
+    //-----------------------------------------DTOS-----------------------------------------------------------//
+    //-------------------------------------------------------------------------------------------------------//
+
     // =======================
-    // DTO básico (sin eventos)
+    // DTO sin relaciones
     // =======================
     @Data
     @Builder
@@ -28,8 +32,9 @@ public class DonationMapper {
     }
 
     // =======================
-    // DTO extendido (con eventos)
+    // DTO con eventos
     // =======================
+    
     @Data
     @Builder
     @NoArgsConstructor
@@ -44,7 +49,7 @@ public class DonationMapper {
     }
 
     // =======================
-    // Entity -> DTO básico
+    // Entity -> DTO sin relaciones
     // =======================
     public static DonationDTO toDTO(Donation d) {
         return new DonationDTO(
@@ -57,7 +62,7 @@ public class DonationMapper {
     }
 
     // =======================
-    // Entity -> DTO extendido
+    // Entity -> DTO con evento
     // =======================
     public static DonationWithEventsDTO toDTOWithEvents(Donation d) {
         return new DonationWithEventsDTO(
@@ -74,6 +79,11 @@ public class DonationMapper {
         );
     }
 
+
+    //-------------------------------------------------------------------------------------------------------//
+    //-----------------------------------------MAPPERS-----------------------------------------------------------//
+    //-------------------------------------------------------------------------------------------------------//
+
     // =======================
     // DTO básico -> Proto
     // =======================
@@ -88,7 +98,7 @@ public class DonationMapper {
     }
 
     // =======================
-    // DTO extendido -> Proto
+    // DTO con evetos -> Proto con eventos
     // =======================
     public static MyServiceClass.DonationProto toProto(DonationWithEventsDTO dto) {
         MyServiceClass.DonationProto.Builder builder = MyServiceClass.DonationProto.newBuilder()
