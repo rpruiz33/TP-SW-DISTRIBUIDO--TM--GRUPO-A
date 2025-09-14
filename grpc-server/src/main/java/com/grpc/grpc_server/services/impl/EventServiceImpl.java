@@ -11,9 +11,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.protobuf.Int32Value;
+import com.grpc.grpc_server.MyServiceClass;
+import com.grpc.grpc_server.MyServiceClass.DeleteEventRequest;
+import com.grpc.grpc_server.MyServiceClass.UpdateEventRequest;
 import com.grpc.grpc_server.entities.Event;
 import com.grpc.grpc_server.entities.MemberAtEvent;
+import com.grpc.grpc_server.repositories.DonationsAtEventsRepository;
 import com.grpc.grpc_server.repositories.EventRepository;
+import com.grpc.grpc_server.repositories.MemberAtEventRepository;
 import com.grpc.grpc_server.repositories.UserRepository;
 import com.grpc.grpc_server.services.EventService;
 
@@ -28,16 +33,14 @@ public class EventServiceImpl implements EventService {
     private EventRepository eventRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private MemberAtEventRepository memberAtEventRepository;
+
+    @Autowired
+    private DonationsAtEventsRepository donationsAtEventsRepository;
 
     // Hora actual: 10:57 AM -03 del 12/09/2025
     private static final LocalDateTime NOW = LocalDateTime.of(2025, 9, 12, 10, 57);
 
-    /**
-     * Obtiene una lista de todos los eventos registrados.
-     *
-     * @return Lista de objetos Event.
-     */
     @Override
     public List<Event> getAllEvents() {
         
@@ -47,6 +50,29 @@ public class EventServiceImpl implements EventService {
             throw new RuntimeException("Error al obtener los eventos: " + e.getMessage(), e);
         }
     }
-   
+ 
+    @Transactional
+    public boolean deleteEvent(DeleteEventRequest request){
+        
+        boolean result = false;
+        
+        Event event = eventRepository.findByIdEvent(request.getId());
+
+        if(event == null){
+            result = false;
+        }else{
+        
+            // Borro relaciones primero
+            memberAtEventRepository.deleteByEvent(event);
+            donationsAtEventsRepository.deleteByEvent(event);
+
+            // Despues borro el evento en sí
+            eventRepository.delete(event);
+            
+            result = true;
+        }
+
+        return result;
+    }
     
 }

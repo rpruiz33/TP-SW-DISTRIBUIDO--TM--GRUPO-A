@@ -351,7 +351,7 @@ class EventServiceStub(object):
         self.DeleteEvent = channel.unary_unary(
                 '/EventService/DeleteEvent',
                 request_serializer=service__pb2.DeleteEventRequest.SerializeToString,
-                response_deserializer=service__pb2.GenericResponse.FromString,
+                response_deserializer=service__pb2.DeleteEventResponse.FromString,
                 _registered_method=True)
         self.AssignMemberToEvent = channel.unary_unary(
                 '/EventService/AssignMemberToEvent',
@@ -428,7 +428,7 @@ def add_EventServiceServicer_to_server(servicer, server):
             'DeleteEvent': grpc.unary_unary_rpc_method_handler(
                     servicer.DeleteEvent,
                     request_deserializer=service__pb2.DeleteEventRequest.FromString,
-                    response_serializer=service__pb2.GenericResponse.SerializeToString,
+                    response_serializer=service__pb2.DeleteEventResponse.SerializeToString,
             ),
             'AssignMemberToEvent': grpc.unary_unary_rpc_method_handler(
                     servicer.AssignMemberToEvent,
@@ -551,7 +551,7 @@ class EventService(object):
             target,
             '/EventService/DeleteEvent',
             service__pb2.DeleteEventRequest.SerializeToString,
-            service__pb2.GenericResponse.FromString,
+            service__pb2.DeleteEventResponse.FromString,
             options,
             channel_credentials,
             insecure,

@@ -97,7 +97,7 @@ service EventService {
   rpc GetAllEvents(Empty) returns (EventListResponse);
   rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse);
   rpc UpdateEvent(UpdateEventRequest) returns (GenericResponse);
-  rpc DeleteEvent(DeleteEventRequest) returns (GenericResponse);
+  rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse);
   rpc AssignMemberToEvent(AssignMemberRequest) returns (GenericResponse);
   rpc RemoveMemberFromEvent(RemoveMemberRequest) returns (GenericResponse);
 }
@@ -141,6 +141,11 @@ message UpdateEventRequest {
 
 message DeleteEventRequest {
   int32 id = 1;
+}
+
+message DeleteEventResponse {
+  bool success = 1;
+  string message = 2;
 }
 
 message AssignMemberRequest {

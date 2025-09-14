@@ -6,9 +6,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.grpc.grpc_server.entities.Event;
 import com.grpc.grpc_server.entities.MemberAtEvent;
 
 @Repository
 public interface MemberAtEventRepository extends JpaRepository<MemberAtEvent, Long> {
+
+    void deleteByEvent(Event deleteEvent);
+    
     
 }
