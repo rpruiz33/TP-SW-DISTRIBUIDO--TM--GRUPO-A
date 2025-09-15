@@ -38,7 +38,7 @@ public class EventMapper {
     }
 
     // =======================
-    // DTO con donaciones
+    // DTO con relaciones
     // =======================
 
     @Data

@@ -6,6 +6,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
@@ -53,6 +55,34 @@ public class EventServiceImpl implements EventService {
             throw new RuntimeException("Error al obtener los eventos: " + e.getMessage(), e);
         }
     }
+
+    public List<Event> getAllEventsWithRelations(){
+
+        System.out.println("HOLAAAAA");
+
+        // 1️⃣ Traemos eventos con donaciones
+        List<Event> eventsWithDonations = eventRepository.findAllWithDonations();
+
+        // 2️⃣ Traemos eventos con miembros
+        List<Event> eventsWithMembers = eventRepository.findAllWithMembers();
+
+        // 3️⃣ Combinamos los miembros dentro de los eventos
+        for (Event e : eventsWithDonations) {
+            Event memberEvent = eventsWithMembers.stream()
+                .filter(em -> em.getIdEvent().equals(e.getIdEvent()))
+                .findFirst()
+                .orElse(null);
+
+            if (memberEvent != null) {
+                e.setMembers(memberEvent.getMembers()); // List<MemberAtEvent>
+            }
+        }
+
+        System.out.println("HOLAAAAA22");
+
+        // 4️⃣ Retornamos la lista combinada
+        return eventsWithDonations;
+    }
  
     @Transactional
     public boolean deleteEvent(DeleteEventRequest request){
@@ -86,7 +116,7 @@ public class EventServiceImpl implements EventService {
         
         Event e = eventRepository.findByNameEvent(request.getNameEvent());
         
-        System.out.println("Holaaa1");
+
         if(e == null){
            
              Event event = new Event();
@@ -109,4 +139,6 @@ public class EventServiceImpl implements EventService {
     public Event getEventByName(String nameEvent){
         return eventRepository.findByNameEvent(nameEvent);
     }
+
+    
 }

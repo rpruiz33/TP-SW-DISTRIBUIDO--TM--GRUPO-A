@@ -95,6 +95,7 @@ message SendEmailResponse {
 // ========================
 service EventService {
   rpc GetAllEvents(Empty) returns (EventListResponse);
+  rpc GetAllEventsWithRelations(Empty) returns (EventListResponse);
   rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse);
   rpc UpdateEvent(UpdateEventRequest) returns (GenericResponse);
   rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse);
@@ -113,7 +114,6 @@ message EventProto {
   repeated UserProto users =5;
   repeated EventDonationProto donations=6;
 }
-
 
 
 message EventListResponse {

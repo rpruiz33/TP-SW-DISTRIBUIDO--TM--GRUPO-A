@@ -50,6 +50,28 @@ public class EventGrpcService extends EventServiceGrpc.EventServiceImplBase {
         responseObserver.onCompleted();
     }
 
+    @Override
+    public void getAllEventsWithRelations(MyServiceClass.Empty request, StreamObserver<MyServiceClass.EventListResponse> responseObserver) {
+
+         // 1️⃣ Obtener entidades desde la capa service
+        List<Event> events = eventService.getAllEventsWithRelations();
+
+        // 2️⃣ Mapear a Proto usando Mapper
+        List<MyServiceClass.EventProto> grpcEvents = events.stream()
+                .map(EventMapper::toProtoWithRelations)
+                .collect(Collectors.toList());
+
+        // 3️⃣ Construir y enviar la respuesta
+        MyServiceClass.EventListResponse response = MyServiceClass.EventListResponse.newBuilder()
+                .addAllEvents(grpcEvents)
+                .build();
+
+
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+
     
     @Override
     public void deleteEvent(DeleteEventRequest request, StreamObserver<DeleteEventResponse> responseObserver){

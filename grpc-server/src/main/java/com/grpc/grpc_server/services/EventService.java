@@ -11,6 +11,7 @@ import com.grpc.grpc_server.entities.Event;
 public interface EventService {
     
     List<Event> getAllEvents();
+    List<Event> getAllEventsWithRelations();
     boolean deleteEvent(DeleteEventRequest request);
     boolean createEvent(CreateEventRequest request);
 
