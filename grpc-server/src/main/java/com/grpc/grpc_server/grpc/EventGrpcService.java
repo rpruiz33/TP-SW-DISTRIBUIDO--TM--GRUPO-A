@@ -1,6 +1,8 @@
 package com.grpc.grpc_server.grpc;
 
 import com.grpc.grpc_server.MyServiceClass;
+import com.grpc.grpc_server.MyServiceClass.CreateEventRequest;
+import com.grpc.grpc_server.MyServiceClass.CreateEventResponse;
 import com.grpc.grpc_server.MyServiceClass.DeleteEventRequest;
 import com.grpc.grpc_server.MyServiceClass.DeleteEventResponse;
 import com.grpc.grpc_server.MyServiceClass.EventProto;
@@ -59,6 +61,22 @@ public class EventGrpcService extends EventServiceGrpc.EventServiceImplBase {
             responseBuilder.setSuccess(true).setMessage("Evento Eliminado");
         }else{
             responseBuilder.setSuccess(false).setMessage("No se pudo eliminar el Evento");
+        }
+
+        responseObserver.onNext(responseBuilder.build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void createEvent(CreateEventRequest request, StreamObserver<CreateEventResponse> responseObserver){
+       
+        boolean result = eventService.createEvent(request);
+        var responseBuilder = CreateEventResponse.newBuilder();
+
+        if (result){
+            responseBuilder.setSuccess(true).setMessage("Evento Agregado");
+        }else{
+            responseBuilder.setSuccess(false).setMessage("No se pudo agregar el Evento");
         }
 
         responseObserver.onNext(responseBuilder.build());

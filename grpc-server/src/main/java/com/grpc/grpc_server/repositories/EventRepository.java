@@ -27,4 +27,6 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
 
     @Query("SELECT d FROM Event d WHERE d.idEvent = :idEvent")
     Event findByIdEvent(@Param("idEvent") int idEvent);
+
+    Event findByNameEvent(String nameEvent);
 }
