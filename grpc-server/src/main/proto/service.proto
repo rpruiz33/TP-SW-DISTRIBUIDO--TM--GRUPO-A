@@ -181,6 +181,7 @@ service DonationService {
   rpc GetAllDonations(Empty) returns (DonationListResponse);
   rpc UpdateDonation(UpdateDonationRequest) returns (UpdateDonationResponse);
   rpc RegisterDelivery(RegisterDeliveryRequest) returns (GenericResponse);
+  rpc DeleteDonation(DeleteDonationRequest) returns (DeleteDonationResponse);
 }
 
 // ========================
@@ -219,6 +220,14 @@ message RegisterDeliveryRequest {
 }
 
 message GenericResponse {
+  bool success = 1;
+  string message = 2;
+}
+message DeleteDonationRequest{
+  int32 id = 1;
+}
+
+message DeleteDonationResponse{
   bool success = 1;
   string message = 2;
 }

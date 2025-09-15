@@ -101,6 +101,20 @@ def updateDonation():
         print("Error en update donation:", e)
         return jsonify({"message": "Error modificando donacion", "error": str(e)}), 500
 
+@app.route("/api/deletedonation/<int:id>", methods=["PUT"])
+def deleteDonation(id):
+    try:
+        response = grpc_client.deleteDonation(id)
+        return jsonify({            
+            "success": response.success,
+            "message": response.message
+            })
+    except Exception as e:
+       
+      return jsonify({"message": "Error eliminando donacion", "error": str(e)}), 500
+    
+
+    
 @app.route("/api/eventlist", methods=["GET"])
 def getAllEvents():
     try:

@@ -47,6 +47,9 @@ class MyServiceClient:
         print(amount)
         request = service_pb2.UpdateDonationRequest(id=id, category=category, description=description, amount=amount)
         return self.donation_stub.UpdateDonation(request)
+    def deleteDonation(self, id: int):
+        request = service_pb2.DeleteDonationRequest(id=id)
+        return self.donation_stub.DeleteDonation(request)
     
     def getAllEvents(self):
         """Llama al RPC GetAllEvents"""

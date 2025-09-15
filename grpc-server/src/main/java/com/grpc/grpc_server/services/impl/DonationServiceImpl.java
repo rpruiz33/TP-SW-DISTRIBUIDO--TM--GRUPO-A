@@ -53,4 +53,20 @@ public class DonationServiceImpl implements DonationService {
         return result;
     }
 
+
+    public boolean deleteDonation(DeleteDonationRequest request){
+
+        boolean result;
+
+        Donation d = donationRepository.findById(request.getId());
+        if (d == null) {
+            result = false;
+        } else {
+            d.setRemoved(true);
+            donationRepository.save(d);
+            result = true;
+        }
+        return result;
+
+}
 }

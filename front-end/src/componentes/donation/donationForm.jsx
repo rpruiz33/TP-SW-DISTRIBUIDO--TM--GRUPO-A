@@ -6,7 +6,6 @@ const DonationForm = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const donationToEdit = location.state?.donation || null;
-
   const [formData, setFormData] = useState({
     category: "",
     description: "",
@@ -29,26 +28,26 @@ const DonationForm = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // 👉 CREAR / EDITAR
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-     // Convertimos amount a número
     const payload = {
       ...formData,
-      id: parseInt(formData.id,10),
+      id: parseInt(formData.id, 10),
       amount: parseInt(formData.amount, 10),
     };
 
     try {
       let response;
       if (donationToEdit) {
-        // 👉 UPDATE
+        // UPDATE
         response = await axios.put(
           "http://localhost:5000/api/updatedonation",
           payload
         );
       } else {
-        // 👉 CREATE
+        // CREATE
         response = await axios.post(
           "http://localhost:5000/api/altadonation",
           payload
@@ -56,14 +55,38 @@ const DonationForm = () => {
       }
 
       if (response.data.success) {
-        alert(donationToEdit ? "✅ Donación actualizada!" : "✅ Donación creada!");
+        alert("Donación guardada con éxito");
         navigate("/donationlist");
-      } else {
-        alert("❌ " + response.data.message);
       }
     } catch (error) {
-      console.error(error);
-      alert("❌ Error en la operación");
+      console.error("Error al guardar la donación:", error);
+      alert("Hubo un error al guardar la donación. Por favor, intente nuevamente.");
+    }
+  };
+
+  // 👉 ELIMINAR
+  const handleDelete = async () => {
+    if (!formData.id) {
+      alert("No se puede eliminar, falta el ID de la donación");
+      return;
+    }
+
+    if (!window.confirm("¿Seguro que desea eliminar esta donación?")) return;
+
+    try {
+      const response = await axios.delete(
+        `http://localhost:5000/api/deletedonation/${formData.id}`
+      );
+
+      if (response.data.success) {
+        alert("Donación eliminada con éxito");
+        navigate("/donationlist");
+      } else {
+        alert("Error al eliminar la donación");
+      }
+    } catch (error) {
+      console.error("Error al eliminar la donación:", error);
+      alert("Hubo un error al eliminar. Intente nuevamente.");
     }
   };
 
@@ -77,7 +100,7 @@ const DonationForm = () => {
           {donationToEdit ? "Modificar Donación" : "Alta de Donación"}
         </h2>
 
-         {/* Category: editable solo si es creación */}
+        {/* Category */}
         <label>Categoria</label>
         {donationToEdit ? (
           <input
@@ -101,8 +124,7 @@ const DonationForm = () => {
           </select>
         )}
 
-
-        {/* Description: editable */}
+        {/* Description */}
         <label>Descripcion</label>
         <input
           type="text"
@@ -112,7 +134,7 @@ const DonationForm = () => {
           className="w-full p-2 border mb-2"
         />
 
-        {/* Amount: editable */}
+        {/* Amount */}
         <label>Cantidad</label>
         <input
           type="number"
@@ -122,11 +144,32 @@ const DonationForm = () => {
           className="w-full p-2 border mb-4"
         />
 
+        {/* Botón Guardar */}
         <button
           type="submit"
-          className="w-full bg-blue-600 text-black p-2 rounded"
+          className="w-full bg-blue-600 text-white p-2 rounded mb-2"
         >
           {donationToEdit ? "Guardar Cambios" : "Dar de Alta"}
+        </button>
+
+        {/* Botón Eliminar (solo si estoy editando) */}
+        {donationToEdit && (
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="w-full bg-red-600 text-white p-2 rounded mb-2"
+          >
+            Eliminar Donación
+          </button>
+        )}
+
+        {/* Botón Volver */}
+        <button
+          type="button"
+          onClick={() => navigate("/donationlist")}
+          className="w-full bg-gray-400 text-black p-2 rounded"
+        >
+          Volver al Listado
         </button>
       </form>
     </div>
