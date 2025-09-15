@@ -14,6 +14,7 @@ public interface EventService {
     List<Event> getAllEventsWithRelations();
     boolean deleteEvent(DeleteEventRequest request);
     boolean createEvent(CreateEventRequest request);
+    boolean toggleMemberToEvent(MyServiceClass.ToggleMemberRequest request);
 
     /* 
     

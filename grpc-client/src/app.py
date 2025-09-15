@@ -53,6 +53,15 @@ def getAllUsers():
         return json_response
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@app.route("/api/activeuserlist", methods=["GET"])
+def getActiveUsers():
+    try:
+        grpc_response = grpc_client.getActiveUsers()
+        json_response = MessageToJson(grpc_response)
+        return json_response
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/api/deleteuser/<string:username>", methods=["PUT"])
 def deleteUser(username):
@@ -159,11 +168,11 @@ def deleteEvent(id):
         print("Error en delete_event:", e)
         return jsonify({"message": "Error eliminando evento", "error": str(e)}), 500
 
-@app.route("/api/assignmember", methods=["POST"])
-def assignMember():
+@app.route("/api/togglemember", methods=["PUT"])
+def toggleMember():
     data = request.json
     try:
-        response = grpc_client.assignMemberToEvent(data.get("eventId"), data.get("username"))
+        response = grpc_client.toggleMemberToEvent(data.get("eventId"), data.get("username"),data.get("alreadyAssigned"))
         return jsonify({
             "success": response.success,
             "message": response.message
@@ -172,18 +181,6 @@ def assignMember():
         print("Error en assign member:", e)
         return jsonify({"message": "Error asignando miembro", "error": str(e)}), 500
 
-@app.route("/api/removemember", methods=["POST"])
-def removeMember():
-    data = request.json
-    try:
-        response = grpc_client.removeMemberFromEvent(data.get("eventId"), data.get("username"))
-        return jsonify({
-            "success": response.success,
-            "message": response.message
-        })
-    except Exception as e:
-        print("Error en remove member:", e)
-        return jsonify({"message": "Error quitando miembro", "error": str(e)}), 500
 
 @app.route("/api/registerdelivery", methods=["POST"])
 def registerDelivery():

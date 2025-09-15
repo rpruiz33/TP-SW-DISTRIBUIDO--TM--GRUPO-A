@@ -5,8 +5,8 @@ import Footer from './componentes/footer/footer';
 import Login from './componentes/login/login';
 import UserForm from './componentes/user/userForm';
 import UserList from './componentes/user/userList';
+import MemberManagment from './componentes/event/memberManagment';
 import DonationList from './componentes/donation/donationList';
-
 import DonationForm from './componentes/donation/donationForm';
 
 
@@ -32,9 +32,8 @@ function App() {
             <Route path="/donationlist" element={<DonationList />} />   
             <Route path="/donationform" element={<DonationForm />} />   
 
-
-            <Route path="/donationlist" element={<DonationList />} />
-             <Route path="/eventlist" element={<EventList/>} />
+            <Route path="/eventlist" element={<EventList/>} />
+            <Route path="/membermanagment" element={<MemberManagment />} />
 
    
           </Routes>

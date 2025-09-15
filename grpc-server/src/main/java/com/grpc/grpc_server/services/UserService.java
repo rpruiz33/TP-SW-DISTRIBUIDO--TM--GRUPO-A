@@ -14,6 +14,8 @@ public interface UserService {
 
 
     List<User> getAllUsers();
+    List<User> getActiveUsers();
+
     ///---------------------------------------------------------------------------------------------------------------------
 
     void login(MyServiceClass.LoginRequest request, StreamObserver<MyServiceClass.LoginResponse> responseObserver);

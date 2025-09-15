@@ -52,6 +52,11 @@ class MyServiceStub(object):
                 request_serializer=service__pb2.Empty.SerializeToString,
                 response_deserializer=service__pb2.UserListResponse.FromString,
                 _registered_method=True)
+        self.GetActiveUsers = channel.unary_unary(
+                '/MyService/GetActiveUsers',
+                request_serializer=service__pb2.Empty.SerializeToString,
+                response_deserializer=service__pb2.UserListResponse.FromString,
+                _registered_method=True)
         self.UpdateUser = channel.unary_unary(
                 '/MyService/UpdateUser',
                 request_serializer=service__pb2.UpdateUsuarioRequest.SerializeToString,
@@ -93,6 +98,12 @@ class MyServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetActiveUsers(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def UpdateUser(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -126,6 +137,11 @@ def add_MyServiceServicer_to_server(servicer, server):
             ),
             'GetAllUsers': grpc.unary_unary_rpc_method_handler(
                     servicer.GetAllUsers,
+                    request_deserializer=service__pb2.Empty.FromString,
+                    response_serializer=service__pb2.UserListResponse.SerializeToString,
+            ),
+            'GetActiveUsers': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetActiveUsers,
                     request_deserializer=service__pb2.Empty.FromString,
                     response_serializer=service__pb2.UserListResponse.SerializeToString,
             ),
@@ -240,6 +256,33 @@ class MyService(object):
             _registered_method=True)
 
     @staticmethod
+    def GetActiveUsers(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/MyService/GetActiveUsers',
+            service__pb2.Empty.SerializeToString,
+            service__pb2.UserListResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
     def UpdateUser(request,
             target,
             options=(),
@@ -338,6 +381,11 @@ class EventServiceStub(object):
                 request_serializer=service__pb2.Empty.SerializeToString,
                 response_deserializer=service__pb2.EventListResponse.FromString,
                 _registered_method=True)
+        self.GetAllEventsWithRelations = channel.unary_unary(
+                '/EventService/GetAllEventsWithRelations',
+                request_serializer=service__pb2.Empty.SerializeToString,
+                response_deserializer=service__pb2.EventListResponse.FromString,
+                _registered_method=True)
         self.CreateEvent = channel.unary_unary(
                 '/EventService/CreateEvent',
                 request_serializer=service__pb2.CreateEventRequest.SerializeToString,
@@ -353,14 +401,9 @@ class EventServiceStub(object):
                 request_serializer=service__pb2.DeleteEventRequest.SerializeToString,
                 response_deserializer=service__pb2.DeleteEventResponse.FromString,
                 _registered_method=True)
-        self.AssignMemberToEvent = channel.unary_unary(
-                '/EventService/AssignMemberToEvent',
-                request_serializer=service__pb2.AssignMemberRequest.SerializeToString,
-                response_deserializer=service__pb2.GenericResponse.FromString,
-                _registered_method=True)
-        self.RemoveMemberFromEvent = channel.unary_unary(
-                '/EventService/RemoveMemberFromEvent',
-                request_serializer=service__pb2.RemoveMemberRequest.SerializeToString,
+        self.ToggleMemberToEvent = channel.unary_unary(
+                '/EventService/ToggleMemberToEvent',
+                request_serializer=service__pb2.ToggleMemberRequest.SerializeToString,
                 response_deserializer=service__pb2.GenericResponse.FromString,
                 _registered_method=True)
 
@@ -372,6 +415,12 @@ class EventServiceServicer(object):
     """
 
     def GetAllEvents(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetAllEventsWithRelations(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -395,13 +444,7 @@ class EventServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def AssignMemberToEvent(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def RemoveMemberFromEvent(self, request, context):
+    def ToggleMemberToEvent(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -412,6 +455,11 @@ def add_EventServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'GetAllEvents': grpc.unary_unary_rpc_method_handler(
                     servicer.GetAllEvents,
+                    request_deserializer=service__pb2.Empty.FromString,
+                    response_serializer=service__pb2.EventListResponse.SerializeToString,
+            ),
+            'GetAllEventsWithRelations': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetAllEventsWithRelations,
                     request_deserializer=service__pb2.Empty.FromString,
                     response_serializer=service__pb2.EventListResponse.SerializeToString,
             ),
@@ -430,14 +478,9 @@ def add_EventServiceServicer_to_server(servicer, server):
                     request_deserializer=service__pb2.DeleteEventRequest.FromString,
                     response_serializer=service__pb2.DeleteEventResponse.SerializeToString,
             ),
-            'AssignMemberToEvent': grpc.unary_unary_rpc_method_handler(
-                    servicer.AssignMemberToEvent,
-                    request_deserializer=service__pb2.AssignMemberRequest.FromString,
-                    response_serializer=service__pb2.GenericResponse.SerializeToString,
-            ),
-            'RemoveMemberFromEvent': grpc.unary_unary_rpc_method_handler(
-                    servicer.RemoveMemberFromEvent,
-                    request_deserializer=service__pb2.RemoveMemberRequest.FromString,
+            'ToggleMemberToEvent': grpc.unary_unary_rpc_method_handler(
+                    servicer.ToggleMemberToEvent,
+                    request_deserializer=service__pb2.ToggleMemberRequest.FromString,
                     response_serializer=service__pb2.GenericResponse.SerializeToString,
             ),
     }
@@ -469,6 +512,33 @@ class EventService(object):
             request,
             target,
             '/EventService/GetAllEvents',
+            service__pb2.Empty.SerializeToString,
+            service__pb2.EventListResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetAllEventsWithRelations(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/EventService/GetAllEventsWithRelations',
             service__pb2.Empty.SerializeToString,
             service__pb2.EventListResponse.FromString,
             options,
@@ -563,7 +633,7 @@ class EventService(object):
             _registered_method=True)
 
     @staticmethod
-    def AssignMemberToEvent(request,
+    def ToggleMemberToEvent(request,
             target,
             options=(),
             channel_credentials=None,
@@ -576,35 +646,8 @@ class EventService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/EventService/AssignMemberToEvent',
-            service__pb2.AssignMemberRequest.SerializeToString,
-            service__pb2.GenericResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
-    def RemoveMemberFromEvent(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/EventService/RemoveMemberFromEvent',
-            service__pb2.RemoveMemberRequest.SerializeToString,
+            '/EventService/ToggleMemberToEvent',
+            service__pb2.ToggleMemberRequest.SerializeToString,
             service__pb2.GenericResponse.FromString,
             options,
             channel_credentials,

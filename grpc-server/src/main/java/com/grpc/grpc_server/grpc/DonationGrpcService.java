@@ -2,19 +2,14 @@ package com.grpc.grpc_server.grpc;
 
 import com.grpc.grpc_server.DonationServiceGrpc;
 import com.grpc.grpc_server.MyServiceClass;
-import com.grpc.grpc_server.MyServiceClass.DeleteDonationRequest;
 import com.grpc.grpc_server.MyServiceClass.DeleteDonationResponse;
 import com.grpc.grpc_server.MyServiceClass.UpdateDonationResponse;
 import com.grpc.grpc_server.entities.Donation;
 import com.grpc.grpc_server.mapper.DonationMapper;
 import com.grpc.grpc_server.services.impl.DonationServiceImpl;
-
 import io.grpc.stub.StreamObserver;
-
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.hibernate.sql.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.grpc.server.service.GrpcService;
 

@@ -9,6 +9,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.*;
 
+import com.grpc.grpc_server.entities.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,8 @@ import com.grpc.grpc_server.services.EventService;
  * Implementación del servicio para la gestión de eventos solidarios.
  * Maneja la creación, modificación, eliminación y asignación de miembros a eventos.
  */
+
+@Slf4j
 @Service
 public class EventServiceImpl implements EventService {
 
@@ -42,6 +46,10 @@ public class EventServiceImpl implements EventService {
 
     @Autowired
     private DonationsAtEventsRepository donationsAtEventsRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
 
     // Hora actual: 10:57 AM -03 del 12/09/2025
     private static final LocalDateTime NOW = LocalDateTime.of(2025, 9, 12, 10, 57);
@@ -91,9 +99,7 @@ public class EventServiceImpl implements EventService {
         
         Event event = eventRepository.findByIdEvent(request.getId());
 
-        if(event == null){
-            result = false;
-        }else{
+        if(event != null){
         
             // Borro relaciones primero
             memberAtEventRepository.deleteByEvent(event);
@@ -134,7 +140,54 @@ public class EventServiceImpl implements EventService {
 
         return result;
     }
-    
+
+    @Transactional
+    public boolean toggleMemberToEvent(MyServiceClass.ToggleMemberRequest request){
+
+        boolean result =false;
+        Event mainEvent = eventRepository.findByIdEvent(request.getEventId());
+        User member = userRepository.findByUsername(request.getUsername()).orElse(null);
+
+        //Si no se encontró alguna de las entidadees
+        if (mainEvent == null || member == null){
+            return result;
+        }
+        log.debug("EN EL METODO A PUNTO DEL IF");
+
+        //Logica en caso que ya este asignado el usuario al evento
+        if (request.getAlreadyAssigned()){
+            log.debug("Caso miembro asignado arranca");
+
+            MemberAtEvent existing = memberAtEventRepository.findByEventAndUser(mainEvent, member);
+
+            if(existing != null){
+                memberAtEventRepository.delete(existing);
+
+                // Actualizar listas
+                mainEvent.getMembers().remove(existing);
+                member.getEvents().remove(existing);
+            }
+            log.debug("Caso miembro asignado termina");
+
+            result=true;
+
+        }else{ //Logica en caso que se tenga que asignar el usuario
+            log.debug("Caso miembro sin asignar arranca");
+
+            MemberAtEvent newMember = new MemberAtEvent();
+            newMember.setEvent(mainEvent);
+            newMember.setUser(member);
+            memberAtEventRepository.save(newMember);
+            // Actualizar listas
+            mainEvent.getMembers().add(newMember);
+            member.getEvents().add(newMember);
+            log.debug("Caso miembro sin asignar terminaa");
+
+            result=true;
+        }
+
+        return result;
+    }
 
     public Event getEventByName(String nameEvent){
         return eventRepository.findByNameEvent(nameEvent);

@@ -31,6 +31,11 @@ class MyServiceClient:
         request = service_pb2.Empty()
         return self.user_stub.GetAllUsers(request)
     
+    def getActiveUsers(self):
+        """Llama al RPC Traer todos los Usuarios ACTIVOS"""
+        request = service_pb2.Empty()
+        return self.user_stub.GetActiveUsers(request)
+
     def updateUser(self, username: str, name: str, lastName: str, phone: str, email: str, role: str):
         request = service_pb2.UpdateUsuarioRequest(username=username, name=name, lastName=lastName, phone=phone, email=email, role=role)
         return self.user_stub.UpdateUser(request)
@@ -54,7 +59,7 @@ class MyServiceClient:
     def getAllEvents(self):
         """Llama al RPC GetAllEvents"""
         request = service_pb2.Empty()
-        return self.event_stub.GetAllEvents(request)
+        return self.event_stub.GetAllEventsWithRelations(request)
     
     def createEvent(self, nameEvent: str, descriptionEvent: str, dateRegistration: str):
         """Llama al RPC CreateEvent"""
@@ -71,15 +76,11 @@ class MyServiceClient:
         request = service_pb2.DeleteEventRequest(id=id)
         return self.event_stub.DeleteEvent(request)
     
-    def assignMemberToEvent(self, eventId: int, username: str):
-        """Llama al RPC AssignMemberToEvent"""
-        request = service_pb2.AssignMemberRequest(eventId=eventId, username=username)
-        return self.event_stub.AssignMemberToEvent(request)
-    
-    def removeMemberFromEvent(self, eventId: int, username: str):
-        """Llama al RPC RemoveMemberFromEvent"""
-        request = service_pb2.RemoveMemberRequest(eventId=eventId, username=username)
-        return self.event_stub.RemoveMemberFromEvent(request)
+    def toggleMemberToEvent(self, eventId: int, username: str, alreadyAssigned:bool):
+        """Llama al RPC ToggleMemberToEvent"""
+        request = service_pb2.ToggleMemberRequest(eventId=eventId, username=username,alreadyAssigned=alreadyAssigned)
+        return self.event_stub.ToggleMemberToEvent(request)
+
     
     def registerDelivery(self, donationId: int, eventId: int, quantity: int, registeredBy: str):
         """Llama al RPC RegisterDelivery"""

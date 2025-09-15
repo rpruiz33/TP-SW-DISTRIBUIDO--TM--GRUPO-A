@@ -47,6 +47,27 @@ public class UserGrpcService extends MyServiceGrpc.MyServiceImplBase {
         responseObserver.onCompleted();
     }
 
+    @Override
+    public void getActiveUsers(MyServiceClass.Empty request, StreamObserver<MyServiceClass.UserListResponse> responseObserver){
+
+        // 1️⃣ Obtener entidades desde la capa service
+        List<User> users = userService.getActiveUsers();
+
+        // 2️⃣ Mapear a Proto usando Mapper
+        List<MyServiceClass.UserProto> grpcUsers = users.stream()
+                .map(UserMapper::toProto)
+                .collect(Collectors.toList());
+
+        // 3️⃣ Construir y enviar la respuesta
+        MyServiceClass.UserListResponse response = MyServiceClass.UserListResponse.newBuilder()
+                .addAllUsers(grpcUsers)
+                .build();
+
+
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
     
     
     @Override

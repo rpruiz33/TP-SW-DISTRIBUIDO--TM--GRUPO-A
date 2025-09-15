@@ -71,8 +71,6 @@ public class EventGrpcService extends EventServiceGrpc.EventServiceImplBase {
         responseObserver.onCompleted();
     }
 
-
-    
     @Override
     public void deleteEvent(DeleteEventRequest request, StreamObserver<DeleteEventResponse> responseObserver){
 
@@ -105,5 +103,25 @@ public class EventGrpcService extends EventServiceGrpc.EventServiceImplBase {
         responseObserver.onCompleted();
     }
 
-    
+    @Override
+    public void toggleMemberToEvent(MyServiceClass.ToggleMemberRequest request, StreamObserver<MyServiceClass.GenericResponse> responseObserver){
+
+        boolean result =eventService.toggleMemberToEvent(request);
+        var responseBuilder = MyServiceClass.GenericResponse.newBuilder();
+
+
+        if (result && request.getAlreadyAssigned()){
+            responseBuilder.setSuccess(true).setMessage("Miembro Desafectado con Éxito!");
+
+        }else if(result && !request.getAlreadyAssigned()){
+            responseBuilder.setSuccess(true).setMessage("Miembro Asignado con Éxito!");
+
+        }else {
+            responseBuilder.setSuccess(false).setMessage("Error al Asignar/Desafectar el Usuario!");
+
+        }
+        responseObserver.onNext(responseBuilder.build());
+        responseObserver.onCompleted();
+
+    }
 }

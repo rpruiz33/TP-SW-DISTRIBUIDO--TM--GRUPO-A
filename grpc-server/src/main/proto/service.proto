@@ -10,6 +10,7 @@ service MyService {
   rpc Login(LoginRequest) returns (LoginResponse);
   rpc AltaUser(AltaUsuarioRequest) returns (AltaUsuarioResponse);
   rpc GetAllUsers(Empty) returns (UserListResponse);
+  rpc GetActiveUsers(Empty) returns (UserListResponse);
   rpc UpdateUser(UpdateUsuarioRequest) returns (AltaUsuarioResponse);
   rpc DeleteUser(DeleteUsuarioRequest) returns (DeleteUsuarioResponse);
   rpc SendEmail(SendEmailRequest) returns (SendEmailResponse);
@@ -99,8 +100,7 @@ service EventService {
   rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse);
   rpc UpdateEvent(UpdateEventRequest) returns (GenericResponse);
   rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse);
-  rpc AssignMemberToEvent(AssignMemberRequest) returns (GenericResponse);
-  rpc RemoveMemberFromEvent(RemoveMemberRequest) returns (GenericResponse);
+  rpc ToggleMemberToEvent(ToggleMemberRequest) returns (GenericResponse);
 }
 
 // ========================
@@ -148,15 +148,12 @@ message DeleteEventResponse {
   string message = 2;
 }
 
-message AssignMemberRequest {
+message ToggleMemberRequest {
   int32 eventId = 1;
   string username = 2;
+  optional bool alreadyAssigned = 3;
 }
 
-message RemoveMemberRequest {
-  int32 eventId = 1;
-  string username = 2;
-}
 
 // Mensaje vacío (si no hay parámetros de entrada)
 message Empty {}

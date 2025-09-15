@@ -1,5 +1,4 @@
-use empuje_comunitario;
-
+ use empuje_comunitario;
 insert into role ( name_rol) values ("Presidente"),("Vocal"),("Coordinador"),("Voluntario");
 
 INSERT INTO user(activate,id_role,phone,username,email,last_name,name,password) 
@@ -31,8 +30,8 @@ INSERT INTO events (date_registration, name_event, description_event) VALUES
 -- ==============================================
 INSERT INTO donation (amount, id_user_modification, id_user_registration, removed, date_modification, date_registration, description, category)
 VALUES
-  (10, NULL, 1, b'0', NULL, NOW(), 'Donación de arroz y fideos', 'ALIMENTO'),
-  (5, NULL, 2, b'0', NULL, NOW(), 'Donación de juguetes nuevos', 'JUGUETE'),
+  (10, NULL, 1, b'1', NULL, NOW(), 'Donación de arroz y fideos', 'ALIMENTO'),
+  (5, NULL, 2, b'1', NULL, NOW(), 'Donación de juguetes nuevos', 'JUGUETE'),
   (20, NULL, 1, b'0', NULL, NOW(), 'Donación de camisetas y abrigos', 'ROPA'),
   (15, NULL, 3, b'0', NULL, NOW(), 'Medicamentos básicos', 'MEDICINA'),
   (8, NULL, 2, b'0', NULL, NOW(), 'Caja de alimentos secos', 'ALIMENTO'),
@@ -57,3 +56,13 @@ VALUES
   (8, 4, 25),
   (9, 2, 6),
   (10, 5, 4);
+  
+INSERT INTO member_at_event (user_id, event_id)
+VALUES
+  (1, 1),
+  (2, 1),
+  (3, 1 ),
+  (1, 2 ),
+  (2, 2 ),
+  (1, 3 ),
+  (3, 3);

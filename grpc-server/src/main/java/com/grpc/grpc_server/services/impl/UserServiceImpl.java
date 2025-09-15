@@ -37,6 +37,12 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    public List<User> getActiveUsers (){
+
+        return  userRepository.findByActivate(true);
+
+    }
+
     ///---------------------------------------------------------------------------------------------------------------------
 
     //Libreria que permite la encriptacion de contraseñas
@@ -147,6 +153,7 @@ public class UserServiceImpl implements UserService {
 }
 
 
+    @Transactional
     public void deleteUser(DeleteUsuarioRequest request, StreamObserver<DeleteUsuarioResponse> responseObserver) {
     var responseBuilder = DeleteUsuarioResponse.newBuilder();
 
@@ -175,5 +182,7 @@ public class UserServiceImpl implements UserService {
     responseObserver.onNext(responseBuilder.build());
     responseObserver.onCompleted();
 }
+
+
 
 }
