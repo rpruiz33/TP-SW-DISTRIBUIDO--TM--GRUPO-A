@@ -692,6 +692,11 @@ class DonationServiceStub(object):
                 request_serializer=service__pb2.DeleteDonationRequest.SerializeToString,
                 response_deserializer=service__pb2.DeleteDonationResponse.FromString,
                 _registered_method=True)
+        self.AltaDonation = channel.unary_unary(
+                '/DonationService/AltaDonation',
+                request_serializer=service__pb2.AltaDonationRequest.SerializeToString,
+                response_deserializer=service__pb2.AltaDonationResponse.FromString,
+                _registered_method=True)
 
 
 class DonationServiceServicer(object):
@@ -724,6 +729,12 @@ class DonationServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def AltaDonation(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_DonationServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -746,6 +757,11 @@ def add_DonationServiceServicer_to_server(servicer, server):
                     servicer.DeleteDonation,
                     request_deserializer=service__pb2.DeleteDonationRequest.FromString,
                     response_serializer=service__pb2.DeleteDonationResponse.SerializeToString,
+            ),
+            'AltaDonation': grpc.unary_unary_rpc_method_handler(
+                    servicer.AltaDonation,
+                    request_deserializer=service__pb2.AltaDonationRequest.FromString,
+                    response_serializer=service__pb2.AltaDonationResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -859,6 +875,33 @@ class DonationService(object):
             '/DonationService/DeleteDonation',
             service__pb2.DeleteDonationRequest.SerializeToString,
             service__pb2.DeleteDonationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def AltaDonation(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/DonationService/AltaDonation',
+            service__pb2.AltaDonationRequest.SerializeToString,
+            service__pb2.AltaDonationResponse.FromString,
             options,
             channel_credentials,
             insecure,

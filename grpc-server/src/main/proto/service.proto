@@ -1,4 +1,5 @@
 syntax = "proto3";
+import "google/protobuf/timestamp.proto";
 
 option java_package = "com.grpc.grpc_server";
 option java_outer_classname = "MyServiceClass";
@@ -179,6 +180,7 @@ service DonationService {
   rpc UpdateDonation(UpdateDonationRequest) returns (UpdateDonationResponse);
   rpc RegisterDelivery(RegisterDeliveryRequest) returns (GenericResponse);
   rpc DeleteDonation(DeleteDonationRequest) returns (DeleteDonationResponse);
+  rpc AltaDonation(AltaDonationRequest) returns (AltaDonationResponse);
 }
 
 // ========================
@@ -225,6 +227,24 @@ message DeleteDonationRequest{
 }
 
 message DeleteDonationResponse{
+  bool success = 1;
+  string message = 2;
+}
+
+message AltaDonationRequest {
+  int32 id = 1;
+  string category = 2;
+  string description = 3;
+  int32 amount = 4;
+  bool removed = 5;
+
+  google.protobuf.Timestamp date_modification = 6;
+  google.protobuf.Timestamp date_registration = 7;
+
+  UserProto userModification = 8; 
+}
+
+message AltaDonationResponse{
   bool success = 1;
   string message = 2;
 }

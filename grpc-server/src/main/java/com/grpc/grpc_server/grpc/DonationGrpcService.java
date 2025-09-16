@@ -1,5 +1,11 @@
 package com.grpc.grpc_server.grpc;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.grpc.server.service.GrpcService;
+
 import com.grpc.grpc_server.DonationServiceGrpc;
 import com.grpc.grpc_server.MyServiceClass;
 import com.grpc.grpc_server.MyServiceClass.DeleteDonationResponse;
@@ -7,11 +13,8 @@ import com.grpc.grpc_server.MyServiceClass.UpdateDonationResponse;
 import com.grpc.grpc_server.entities.Donation;
 import com.grpc.grpc_server.mapper.DonationMapper;
 import com.grpc.grpc_server.services.impl.DonationServiceImpl;
+
 import io.grpc.stub.StreamObserver;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.grpc.server.service.GrpcService;
 
 @GrpcService
 public class DonationGrpcService extends DonationServiceGrpc.DonationServiceImplBase {
@@ -72,5 +75,15 @@ public class DonationGrpcService extends DonationServiceGrpc.DonationServiceImpl
         responseObserver.onCompleted();
     }
 
+    
+
+    @Override
+    public void altaDonation(MyServiceClass.AltaDonationRequest request, StreamObserver<MyServiceClass.AltaDonationResponse> responseObserver){
+        donationService.altaDonation(request);
+        var responseBuilder = MyServiceClass.AltaDonationResponse.newBuilder();
+        responseBuilder.setSuccess(true).setMessage("Donacion creada");
+        responseObserver.onNext(responseBuilder.build());
+        responseObserver.onCompleted();
+    }
     }
 
