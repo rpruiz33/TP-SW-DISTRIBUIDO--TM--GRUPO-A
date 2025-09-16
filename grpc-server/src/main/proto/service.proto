@@ -91,6 +91,22 @@ message SendEmailResponse {
   string message = 2;     // Mensaje de respuesta (éxito o error)
 }
 
+// ========================
+// Service de DonationsAtEvents
+// ========================
+service DonationsAtEventsService {
+  rpc CreateDonationAtEvent(CreateDonationAtEventRequest) returns (GenericResponse);
+}
+
+
+// ========================
+// Messages de DonationsAtEvents
+// ========================
+message CreateDonationAtEventRequest {
+  int32 idEvent = 1;
+  string description = 2;
+  int32 quantityDelivered = 3;
+}
 
 // ========================
 // Service de eventos
@@ -115,7 +131,6 @@ message EventProto {
   repeated UserProto users =5;
   repeated EventDonationProto donations=6;
 }
-
 
 message EventListResponse {
   repeated EventProto events = 1;

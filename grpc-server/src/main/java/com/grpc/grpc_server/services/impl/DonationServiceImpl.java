@@ -74,5 +74,7 @@ public class DonationServiceImpl implements DonationService {
         donationRepository.save(d);
     };
 
-
+    public Donation getDonationByDescription(String description){
+        return donationRepository.findByDescription(description);
+    }
 }

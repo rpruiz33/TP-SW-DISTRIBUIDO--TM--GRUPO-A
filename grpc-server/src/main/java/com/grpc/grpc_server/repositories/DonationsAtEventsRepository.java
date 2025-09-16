@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.grpc.grpc_server.entities.Donation;
 import com.grpc.grpc_server.entities.DonationsAtEvents;
 import com.grpc.grpc_server.entities.Event;
 
@@ -14,4 +15,6 @@ import com.grpc.grpc_server.entities.Event;
 public interface DonationsAtEventsRepository extends JpaRepository<DonationsAtEvents, Long> {
 
     void deleteByEvent(Event deleteEvent);
+
+    DonationsAtEvents findByEventAndDonation(Event event, Donation donation);
 }

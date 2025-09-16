@@ -11,4 +11,6 @@ public interface DonationService {
     boolean updateDonation(MyServiceClass.UpdateDonationRequest request);
     boolean deleteDonation(MyServiceClass.DeleteDonationRequest request);
     void altaDonation(MyServiceClass.AltaDonationRequest request);
+    
+    Donation getDonationByDescription(String description);
 }
