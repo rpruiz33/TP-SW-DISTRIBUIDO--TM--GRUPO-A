@@ -86,3 +86,20 @@ class MyServiceClient:
         """Llama al RPC RegisterDelivery"""
         request = service_pb2.RegisterDeliveryRequest(donationId=donationId, eventId=eventId, quantity=quantity, registeredBy=registeredBy)
         return self.donation_stub.RegisterDelivery(request)
+    
+
+    def altaDonation(self, category: str, description: str, amount: int, removed: bool,
+        date_registration: str, date_modification: str,
+        user_registration: str, user_modification: str):
+    
+        request = service_pb2.AltaDonationRequest(
+                category=category,
+                description=description,
+                amount=amount,
+                removed=removed,
+                date_registration=date_registration,
+                date_modification=date_modification,
+                userRegistration=service_pb2.UserProto(username=user_registration),
+                userModification=service_pb2.UserProto(username=user_modification)
+    )
+        return self.donation_stub.AltaDonation(request)

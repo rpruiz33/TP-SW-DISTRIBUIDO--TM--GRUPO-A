@@ -194,6 +194,28 @@ def registerDelivery():
     except Exception as e:
         print("Error en register delivery:", e)
         return jsonify({"message": "Error registrando entrega", "error": str(e)}), 500
+    
+@app.route("/api/altadonation", methods=["POST"])
+def altadonation():
+    data = request.json
+    try:
+        grpc_response = grpc_client.altaDonation(
+            category=data.get("category"),
+            description=data.get("description"),
+            amount=data.get("amount"),
+            removed=data.get("removed"),
+            date_registration=data.get("date_registration"),
+            date_modification=data.get("date_modification"),
+            user_registration=data.get("userRegistration"),
+            user_modification=data.get("userModification")
+        )
+        return jsonify({
+            "success": grpc_response.success,
+            "message": grpc_response.message
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
