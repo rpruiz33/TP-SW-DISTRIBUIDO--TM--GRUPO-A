@@ -52,7 +52,7 @@ public class EventServiceImpl implements EventService {
 
 
     // Hora actual: 10:57 AM -03 del 12/09/2025
-    private static final LocalDateTime NOW = LocalDateTime.of(2025, 9, 12, 10, 57);
+    private static final LocalDateTime NOW = LocalDateTime.now();
 
     @Override
     public List<Event> getAllEvents() {
@@ -99,7 +99,7 @@ public class EventServiceImpl implements EventService {
         
         Event event = eventRepository.findByIdEvent(request.getId());
 
-        if(event != null){
+        if(event != null && event.getDateRegistration().isAfter(NOW)){
         
             // Borro relaciones primero
             memberAtEventRepository.deleteByEvent(event);
@@ -121,18 +121,15 @@ public class EventServiceImpl implements EventService {
         ///valido que no exista un evento con el mismo nombre
         
         Event e = eventRepository.findByNameEvent(request.getNameEvent());
-        
+        LocalDateTime fecha = LocalDateTime.parse(request.getDateRegistration());
 
-        if(e == null){
+        if(e == null && fecha.isAfter(NOW)){
            
-             Event event = new Event();
+            Event event = new Event();
            
             event.setNameEvent(request.getNameEvent());
             event.setDescriptionEvent(request.getDescriptionEvent());
- 
-            LocalDateTime fecha = LocalDateTime.parse(request.getDateRegistration());
             event.setDateRegistration(fecha);
-            
             
             eventRepository.save(event);
             result = true;
@@ -193,5 +190,34 @@ public class EventServiceImpl implements EventService {
         return eventRepository.findByNameEvent(nameEvent);
     }
 
-    
+    public Event getEventIdEvent(int idEvent){
+        return eventRepository.findByIdEvent(idEvent);
+    }
+
+
+    ///AHORA SOLO ACTUALIZA ATRIBUTOS DE LA CLASE
+    public boolean updateEvent(UpdateEventRequest request){
+
+        boolean result = false;
+
+       
+        Event e = getEventIdEvent(request.getId());
+
+
+        if(getEventByName(request.getNameEvent()) == null && e != null){
+
+            //Event event = new Event(); 
+            LocalDateTime fecha = LocalDateTime.parse(request.getDateRegistration());
+
+            e.setNameEvent(request.getNameEvent());
+            e.setDescriptionEvent(request.getDescriptionEvent());
+            e.setDateRegistration(fecha);
+
+            eventRepository.save(e);
+            result = true;
+        }
+
+        return result;
+    }
+
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import com.grpc.grpc_server.MyServiceClass;
 import com.grpc.grpc_server.MyServiceClass.CreateEventRequest;
 import com.grpc.grpc_server.MyServiceClass.DeleteEventRequest;
+import com.grpc.grpc_server.MyServiceClass.UpdateEventRequest;
 import com.grpc.grpc_server.entities.Event;
 
 public interface EventService {
@@ -16,12 +17,13 @@ public interface EventService {
     boolean createEvent(CreateEventRequest request);
     boolean toggleMemberToEvent(MyServiceClass.ToggleMemberRequest request);
 
+    boolean updateEvent(UpdateEventRequest request);
+
     /* 
-    
-    Event updateEvent(Integer id, String nameEvent, String descriptionEvent, LocalDateTime dateTime, List<String> participantUsernames);
     void assignMember(Integer eventId, String username);
     void removeMember(Integer eventId, String username);
     */
 
     Event getEventByName(String nameEvent);
+    Event getEventIdEvent(int idEvent);
 }
