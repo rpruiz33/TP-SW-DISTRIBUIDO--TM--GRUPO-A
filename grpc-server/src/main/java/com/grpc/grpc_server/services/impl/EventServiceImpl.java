@@ -1,33 +1,26 @@
 package com.grpc.grpc_server.services.impl;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.*;
 
-import com.grpc.grpc_server.entities.User;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.protobuf.Int32Value;
 import com.grpc.grpc_server.MyServiceClass;
 import com.grpc.grpc_server.MyServiceClass.CreateEventRequest;
 import com.grpc.grpc_server.MyServiceClass.DeleteEventRequest;
 import com.grpc.grpc_server.MyServiceClass.UpdateEventRequest;
 import com.grpc.grpc_server.entities.Event;
 import com.grpc.grpc_server.entities.MemberAtEvent;
+import com.grpc.grpc_server.entities.User;
 import com.grpc.grpc_server.repositories.DonationsAtEventsRepository;
 import com.grpc.grpc_server.repositories.EventRepository;
 import com.grpc.grpc_server.repositories.MemberAtEventRepository;
 import com.grpc.grpc_server.repositories.UserRepository;
 import com.grpc.grpc_server.services.EventService;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Implementación del servicio para la gestión de eventos solidarios.
@@ -195,29 +188,41 @@ public class EventServiceImpl implements EventService {
     }
 
 
-    ///AHORA SOLO ACTUALIZA ATRIBUTOS DE LA CLASE
-    public boolean updateEvent(UpdateEventRequest request){
-        
-        boolean result = false;
+   public boolean updateEvent(UpdateEventRequest request) {
+    boolean result = false;
 
-       
-        Event e = getEventIdEvent(request.getId());
+    Event e = getEventIdEvent(request.getId());
 
-
-        if(getEventByName(request.getNameEvent()) == null && e != null){
-
-            //Event event = new Event(); 
-            LocalDateTime fecha = LocalDateTime.parse(request.getDateRegistration());
-
-            e.setNameEvent(request.getNameEvent());
-            e.setDescriptionEvent(request.getDescriptionEvent());
-            e.setDateRegistration(fecha);
-
-            eventRepository.save(e);
-            result = true;
+    if (e != null) {
+        // Validar nombre duplicado SOLO si el nuevo nombre es distinto al actual
+        Event existing = getEventByName(request.getNameEvent());
+        if (existing != null && existing.getIdEvent() != e.getIdEvent()) {
+            return false; // otro evento ya tiene ese nombre
         }
 
-        return result;
+        // Si mandaron nombre, actualizar
+        if (request.getNameEvent() != null && !request.getNameEvent().isEmpty()) {
+            e.setNameEvent(request.getNameEvent());
+        }
+
+        // Si mandaron descripción, actualizar
+        if (request.getDescriptionEvent() != null && !request.getDescriptionEvent().isEmpty()) {
+            e.setDescriptionEvent(request.getDescriptionEvent());
+        }
+
+        // Si mandaron fecha, actualizar
+        if (request.getDateRegistration() != null && !request.getDateRegistration().isEmpty()) {
+            LocalDateTime fecha = LocalDateTime.parse(request.getDateRegistration());
+            e.setDateRegistration(fecha);
+        }
+
+        eventRepository.save(e);
+        result = true;
     }
 
+    return result;
 }
+
+
+}
+

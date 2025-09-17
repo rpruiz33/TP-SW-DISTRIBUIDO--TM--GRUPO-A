@@ -8,7 +8,7 @@ import UserList from './componentes/user/userList';
 import MemberManagment from './componentes/event/memberManagment';
 import DonationList from './componentes/donation/donationList';
 import DonationForm from './componentes/donation/donationForm';
-
+import EventUpdate from './componentes/event/EventUpdate';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import EventList from './componentes/event/eventList';
@@ -34,7 +34,7 @@ function App() {
 
             <Route path="/eventlist" element={<EventList/>} />
             <Route path="/membermanagment" element={<MemberManagment />} />
-
+            <Route path="/eventupdate" element={<EventUpdate />} />
    
           </Routes>
         </div>
