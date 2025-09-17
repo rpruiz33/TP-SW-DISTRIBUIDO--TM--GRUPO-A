@@ -74,12 +74,10 @@ public boolean altaDonation(MyServiceClass.AltaDonationRequest request) {
         Donation d = new Donation();
  
         Category cat =  Category.valueOf((request.getCategory()).toUpperCase()) ;
-                        log.debug("asdsdsdf");
         d.setDescription(request.getDescription());
-            log.debug("asdsdsdf");
         d.setAmount(request.getAmount());
         d.setCategory(cat);
-         log.debug("333333333");
+        d.setRemoved(false);
         donationRepository.save(d);
      return true;
 

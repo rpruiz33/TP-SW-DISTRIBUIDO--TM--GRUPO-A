@@ -364,6 +364,87 @@ class MyService(object):
             _registered_method=True)
 
 
+class DonationsAtEventsServiceStub(object):
+    """========================
+    Service de DonationsAtEvents
+    ========================
+    """
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.CreateDonationAtEvent = channel.unary_unary(
+                '/DonationsAtEventsService/CreateDonationAtEvent',
+                request_serializer=service__pb2.CreateDonationAtEventRequest.SerializeToString,
+                response_deserializer=service__pb2.GenericResponse.FromString,
+                _registered_method=True)
+
+
+class DonationsAtEventsServiceServicer(object):
+    """========================
+    Service de DonationsAtEvents
+    ========================
+    """
+
+    def CreateDonationAtEvent(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_DonationsAtEventsServiceServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'CreateDonationAtEvent': grpc.unary_unary_rpc_method_handler(
+                    servicer.CreateDonationAtEvent,
+                    request_deserializer=service__pb2.CreateDonationAtEventRequest.FromString,
+                    response_serializer=service__pb2.GenericResponse.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'DonationsAtEventsService', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('DonationsAtEventsService', rpc_method_handlers)
+
+
+ # This class is part of an EXPERIMENTAL API.
+class DonationsAtEventsService(object):
+    """========================
+    Service de DonationsAtEvents
+    ========================
+    """
+
+    @staticmethod
+    def CreateDonationAtEvent(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/DonationsAtEventsService/CreateDonationAtEvent',
+            service__pb2.CreateDonationAtEventRequest.SerializeToString,
+            service__pb2.GenericResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+
 class EventServiceStub(object):
     """========================
     Service de eventos
