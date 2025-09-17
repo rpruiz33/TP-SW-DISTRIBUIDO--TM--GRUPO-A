@@ -4,6 +4,6 @@ public enum Category {
     ROPA,
     ALIMENTO,
     JUGUETE,
-    MEDICINA
+    UTIL_ESCOLAR
     // agregar según tu DER
 }

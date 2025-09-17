@@ -18,8 +18,8 @@ public interface UserService {
 
     ///---------------------------------------------------------------------------------------------------------------------
 
-    void login(MyServiceClass.LoginRequest request, StreamObserver<MyServiceClass.LoginResponse> responseObserver);
-    void altaUser(MyServiceClass.AltaUsuarioRequest request, StreamObserver<MyServiceClass.AltaUsuarioResponse> responseObserver);
-    void updateUser(MyServiceClass.UpdateUsuarioRequest request, StreamObserver<MyServiceClass.AltaUsuarioResponse> responseObserver);
-    void deleteUser(MyServiceClass.DeleteUsuarioRequest request, StreamObserver<MyServiceClass.DeleteUsuarioResponse> responseObserver);
+    String login(MyServiceClass.LoginRequest request);
+    boolean altaUser(MyServiceClass.AltaUsuarioRequest request);
+    boolean updateUser(MyServiceClass.UpdateUsuarioRequest request);
+    String deleteUser(MyServiceClass.DeleteUsuarioRequest request);
 }

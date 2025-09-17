@@ -3,6 +3,9 @@ package com.grpc.grpc_server.services.impl;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.grpc.grpc_server.entities.User;
+import com.grpc.grpc_server.mapper.DonationMapper;
+import com.grpc.grpc_server.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +27,8 @@ public class DonationServiceImpl implements DonationService {
 
     @Autowired
     private DonationRepository donationRepository;
-
+    @Autowired
+    private UserRepository userRepository;
 
 
     public List<Donation> getAllDonations(){
@@ -39,19 +43,35 @@ public class DonationServiceImpl implements DonationService {
 
     }
 
+    public boolean altaDonation(MyServiceClass.AltaDonationRequest request) {
+
+        boolean result =false;
+        Donation d = new Donation();
+
+        //Usuario que da el alta
+        User u = userRepository.findByEmailOrUsername(request.getUsername(),request.getUsername()).orElse(null);
+
+        if ( u != null) {
+            d = DonationMapper.toEntity(request,u);
+            donationRepository.save(d);
+            result =true;
+        }
+
+        return result;
+    }
 
     public boolean updateDonation(UpdateDonationRequest request){
         
-        boolean result;
+        boolean result = false;
 
         Donation d = donationRepository.findById(request.getId());
+        User u = userRepository.findByEmailOrUsername(request.getUsername(),request.getUsername()).orElse(null);
 
-        if (d == null) {
-            result = false;
-        } else {
+        if (d != null && u != null){
             d.setDescription(request.getDescription());
             d.setAmount(request.getAmount());
-
+            d.setUserModification(u);
+            d.setDateModification(LocalDateTime.now());
             donationRepository.save(d);
             result = true;
         }
@@ -62,34 +82,22 @@ public class DonationServiceImpl implements DonationService {
 
     public boolean deleteDonation(DeleteDonationRequest request){
 
-        boolean result;
+        boolean result=false;
 
         Donation d = donationRepository.findById(request.getId());
-        if (d == null) {
-            result = false;
-        } else {
+        User u  = userRepository.findByEmailOrUsername(request.getUsername(),request.getUsername()).orElse(null);
+
+        if (d != null && u !=  null) {
+
             d.setRemoved(true);
+            d.setUserModification(u);
+            d.setDateModification(LocalDateTime.now());
             donationRepository.save(d);
             result = true;
         }
         return result;
 
-}
-public boolean altaDonation(MyServiceClass.AltaDonationRequest request) {
-
-        Donation d = new Donation();
- 
-        Category cat =  Category.valueOf((request.getCategory()).toUpperCase()) ;
-        d.setDescription(request.getDescription());
-        d.setAmount(request.getAmount());
-        d.setCategory(cat);
-        d.setRemoved(false);
-        donationRepository.save(d);
-     return true;
-
-    
-    }        
- 
+    }
 
     public Donation getDonationByDescription(String description){
         return donationRepository.findByDescription(description);

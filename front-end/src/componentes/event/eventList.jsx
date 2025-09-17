@@ -37,26 +37,26 @@ export default function EventList() {
   const donationManagment = (event) => {
     navigate("/donationmanagment", { state: { event } });
   };
-  
-const deleteEvent = async (event) => {
-  if (!window.confirm(`¿Seguro que deseas eliminar el evento "${event.nameEvent}"?`)) return;
 
-  try {
-    const response = await axios.delete(`http://localhost:5000/api/deleteevent/${event.id}`);
+  const deleteEvent = async (event) => {
+    if (!window.confirm(`¿Seguro que deseas eliminar el evento "${event.nameEvent}"?`)) return;
 
-if (response.data.message && response.data.message.includes("eliminado")) {
-  alert("Evento eliminado con éxito");
-  setEvents((prevEvents) => prevEvents.filter((e) => e.id !== event.id));
-} else {
-  alert("No se pudo eliminar el evento");
-} 
-////forzado sino me lo borra de la db pero no recarga la lista
-window.location.reload();
-  } catch (error) {
-    console.error("Error al eliminar el evento:", error);
-    alert("Hubo un error al eliminar el evento. Intente nuevamente.");
-  }
-};
+    try {
+      const response = await axios.delete(`http://localhost:5000/api/deleteevent/${event.id}`);
+
+      if (response.data.message && response.data.message.includes("eliminado")) {
+        alert("Evento eliminado con éxito");
+        setEvents((prevEvents) => prevEvents.filter((e) => e.id !== event.id));
+      } else {
+        alert("No se pudo eliminar el evento");
+      }
+      ////forzado sino me lo borra de la db pero no recarga la lista
+      window.location.reload();
+    } catch (error) {
+      console.error("Error al eliminar el evento:", error);
+      alert("Hubo un error al eliminar el evento. Intente nuevamente.");
+    }
+  };
 
   return (
     <div className="p-6">
@@ -74,7 +74,7 @@ window.location.reload();
             <tr className="bg-gray-100">
               <th className="px-4 py-2 border">Nombre</th>
               <th className="px-4 py-2 border">Descripcion</th>
-              <th className="px-4 py-2 border">Fecha del Evento</th>
+              <th className="px-4 py-2 border">Fecha y Hora del Evento</th>
               <th className="px-4 py-2 border">Miembros</th>
               <th className="px-4 py-2 border">Donaciones</th>
               <th className="px-4 py-2 border">Acciones</th>
@@ -88,7 +88,7 @@ window.location.reload();
                 <td className="px-4 py-2 border">{event.dateRegistration || "N/A"}</td>
 
                 <td className="px-4 py-2 border">
-                  {event.users  && event.users.length > 0 ? (
+                  {event.users && event.users.length > 0 ? (
                     <details className="cursor-pointer">
                       <summary className="text-blue-600 hover:underline">
                         Ver Miembros
@@ -100,7 +100,7 @@ window.location.reload();
                             className="py-1 border-b border-gray-200"
                           >
                             <span className="font-semibold">
-                              {user.name +" " +  user.lastName}
+                              {user.name + " " + user.lastName}
                             </span>{" "}
                           </li>
                         ))}
@@ -124,7 +124,7 @@ window.location.reload();
                             className="py-1 border-b border-gray-200"
                           >
                             <span className="font-semibold">
-                              {donation.donation.category +" " + donation.donation.description}
+                              {donation.donation.category + " " + donation.donation.description}
                             </span>{" "}
                             -  {donation.quantityDelivered} unidades entregadas.
                           </li>
@@ -137,33 +137,38 @@ window.location.reload();
                 </td>
 
                 <td className="px-4 py-2 border space-x-2">
-                <button
-      
-                  className="px-2 py-1 bg-yellow-500 text-black rounded hover:bg-yellow-600"
-                onClick={() => navigate("/eventform", { state: { event } })}
-              >
-                Modificar
-              </button>
-
-
-              <button
-                onClick={() => deleteEvent(event)}
-                className="px-2 py-1 bg-red-500 text-black rounded hover:bg-red-600"
-              >
-                Eliminar
-              </button>
                   <button
-                    className="px-2 py-1 bg-red-500 text-black rounded hover:bg-red-600"                  
-                    onClick={() => memberManagment(event)}
+
+                    className="px-2 py-1 bg-yellow-500 text-black rounded hover:bg-yellow-600"
+                    onClick={() => navigate("/eventform", { state: { event } })}
                   >
-                    Gestionar miembros
+                    Modificar
                   </button>
+
+
                   <button
+                    onClick={() => deleteEvent(event)}
                     className="px-2 py-1 bg-red-500 text-black rounded hover:bg-red-600"
-                    onClick={() => donationManagment(event)}
                   >
-                    Asignar donaciones
+                    Eliminar
                   </button>
+                  {new Date(event.dateRegistration) > new Date() && (
+                    <button
+                      className="px-2 py-1 bg-red-500 text-black rounded hover:bg-red-600"
+                      onClick={() => memberManagment(event)}
+                    >
+                      Gestionar miembros
+                    </button>
+                  )}
+
+                  {new Date(event.dateRegistration) < new Date() && (
+                    <button
+                      className="px-2 py-1 bg-red-500 text-black rounded hover:bg-red-600"
+                      onClick={() => donationManagment(event)}
+                    >
+                      Asignar Donaciones
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}

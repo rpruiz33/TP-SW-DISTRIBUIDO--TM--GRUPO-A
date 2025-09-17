@@ -100,7 +100,7 @@ export default function EventForm() {
 
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2">
-            Fecha de Registro
+            Fecha y Hora del Evento
           </label>
           <input
             type="datetime-local"

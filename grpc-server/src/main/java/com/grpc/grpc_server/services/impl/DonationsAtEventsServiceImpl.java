@@ -1,7 +1,10 @@
 package com.grpc.grpc_server.services.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+import com.grpc.grpc_server.entities.User;
+import com.grpc.grpc_server.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +33,8 @@ public class DonationsAtEventsServiceImpl implements DonationsAtEventsService {
 
     @Autowired
     private EventRepository eventRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Transactional
     public boolean registerDonationAtEvent(CreateDonationAtEventRequest request) {
@@ -38,11 +43,12 @@ public class DonationsAtEventsServiceImpl implements DonationsAtEventsService {
 
         Donation donation = donationRepository.findByDescription(request.getDescription());
         Event event = eventRepository.findByIdEvent(request.getIdEvent());
+        User user = userRepository.findByEmailOrUsername(request.getUsername(),request.getUsername()).orElse(null);
 
         DonationsAtEvents dae= getDonationsAtEvents(event, donation);
 
         
-        if(donation != null){ //chequear que exista la donación
+        if(donation != null && user !=null){ //chequear que exista la donación y el usuario que la asigna
 
             if (donation.getAmount() > request.getQuantityDelivered()) { ///chequear que haya esa cantidad en el inventario
 
@@ -65,6 +71,9 @@ public class DonationsAtEventsServiceImpl implements DonationsAtEventsService {
 
                 // Restar stock
                 donation.setAmount(donation.getAmount() - request.getQuantityDelivered());
+                //Cambiar datos de auditoria
+                donation.setDateModification(LocalDateTime.now());
+                donation.setUserModification(user);
 
                 donationRepository.save(donation);
 

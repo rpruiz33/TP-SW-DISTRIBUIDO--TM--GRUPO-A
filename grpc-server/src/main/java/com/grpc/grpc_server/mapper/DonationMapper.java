@@ -1,12 +1,15 @@
 package com.grpc.grpc_server.mapper;
 
 import com.grpc.grpc_server.MyServiceClass;
+import com.grpc.grpc_server.entities.Category;
 import com.grpc.grpc_server.entities.Donation;
+import com.grpc.grpc_server.entities.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,6 +49,21 @@ public class DonationMapper {
         private int amount;
         private boolean removed;
         private List<DonationsAtEventsMapper.DonationEventDTO> events;
+    }
+
+    // =======================
+    // Request Proto -> Entity
+    // =======================
+    public static Donation toEntity(MyServiceClass.AltaDonationRequest request, User u) {
+        Donation d = new Donation();
+        d.setCategory(Category.valueOf(request.getCategory().toUpperCase()));
+        d.setDescription(request.getDescription());
+        d.setAmount(request.getAmount());
+        d.setRemoved(false);
+        d.setDateRegistration(LocalDateTime.now());
+        d.setUserRegistration(u);
+
+        return d;
     }
 
     // =======================

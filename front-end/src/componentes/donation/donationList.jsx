@@ -36,9 +36,15 @@ const DonationList = () => {
   const deleteDonation = async (donation) => {
     if (!window.confirm("¿Seguro que deseas eliminar esta donación?")) return;
 
+    const protoData ={
+      id: donation.id,
+      username: localStorage.getItem("usernameOrEmail")
+    }
+
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/deletedonation/${donation.id}`
+        `http://localhost:5000/api/deletedonation`,
+        protoData
       );
 
       if (response.data.success) {

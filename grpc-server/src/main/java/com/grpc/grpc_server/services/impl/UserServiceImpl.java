@@ -1,13 +1,16 @@
 package com.grpc.grpc_server.services.impl;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicReference;
 
-import com.grpc.grpc_server.MyServiceClass;
+import com.grpc.grpc_server.entities.Event;
+import com.grpc.grpc_server.entities.MemberAtEvent;
+import com.grpc.grpc_server.repositories.MemberAtEventRepository;
 import com.grpc.grpc_server.services.UserService;
 import io.grpc.stub.StreamObserver;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.grpc.server.service.GrpcService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,10 +30,18 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private MemberAtEventRepository memberAtEventRepository;
+
     @Autowired
     private EmailService emailService;
 
+    //Libreria que permite la encriptacion de contraseñas
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+
+    ///---------------------------------------------------------------------------------------------------------------------
     public List<User> getAllUsers (){
 
         return  userRepository.findAll();
@@ -43,145 +54,155 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    ///---------------------------------------------------------------------------------------------------------------------
 
-    //Libreria que permite la encriptacion de contraseñas
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
-
-
-    public void login(LoginRequest request, StreamObserver<LoginResponse> responseObserver) {
-        var responseBuilder = LoginResponse.newBuilder();
-
-        userRepository.findByEmailOrUsername(request.getUsername(), request.getUsername())
-            .ifPresentOrElse(user -> {
-                if (passwordEncoder.matches( request.getPassword(), user.getPassword())) {
-                    responseBuilder.setSuccess(true).setMessage("Login successful").setRoleName(user.getRole().getNameRole());
-                } else {
-                    responseBuilder.setSuccess(false).setMessage("Invalid password");
-                }
-            }, () -> {
-                responseBuilder.setSuccess(false).setMessage("User not found");
-            });
-
-        responseObserver.onNext(responseBuilder.build());
-        responseObserver.onCompleted();
+    public String login(LoginRequest request) {
+        return userRepository.findByEmailOrUsername(request.getUsername(), request.getUsername())
+                .map(user -> {
+                    if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+                        return user.getRole().getNameRole(); // ✅ éxito → devuelve rol
+                    } else {
+                        return ""; // ✅ usuario encontrado pero contraseña incorrecta
+                    }
+                })
+                .orElse("User not found"); // ✅ no encontró usuario
     }
 
-    public void altaUser(AltaUsuarioRequest request, StreamObserver<AltaUsuarioResponse> responseObserver) {
-    var responseBuilder = AltaUsuarioResponse.newBuilder();
 
-    if (userRepository.existsByEmail(request.getEmail()) || userRepository.existsByUsername(request.getUsername())) {
-        responseBuilder.setSuccess(false).setMessage("User already exists");
-    } else {
-        if (request.getEmail().isEmpty() || request.getUsername().isEmpty() || 
-            request.getName().isEmpty() || request.getLastName().isEmpty() || 
-            request.getRole().isEmpty()) {
+    public boolean altaUser(AltaUsuarioRequest request) {
 
-            responseBuilder.setSuccess(false).setMessage("Faltan completar campos");
+        boolean result;
+
+        if (userRepository.existsByEmail(request.getEmail()) || userRepository.existsByUsername(request.getUsername())) {
+            result=false;
         } else {
-            Role rol = roleRepository.findByNameRole(request.getRole());
+            if (request.getEmail().isEmpty() || request.getUsername().isEmpty() ||
+                request.getName().isEmpty() || request.getLastName().isEmpty() ||
+                request.getRole().isEmpty()) {
 
-            if (rol == null) {
-                responseBuilder.setSuccess(false);
-                responseBuilder.setMessage("Rol no encontrado: " + request.getRole());
-                responseObserver.onNext(responseBuilder.build());
-                responseObserver.onCompleted();
-                return;
-            }
+                result=false;
+            } else {
+                Role rol = roleRepository.findByNameRole(request.getRole());
 
-            User newUser = UserMapper.toEntity(request, rol);
+                if (rol == null) {
 
-            String passPlana = PasswordUtils.generateRandomPassword();
-            newUser.setPassword(PasswordUtils.encryptPassword(passPlana));
+                    result=false;
+                }
 
-            userRepository.save(newUser);
+                User newUser = UserMapper.toEntity(request, rol);
 
-            // 🚀 Enviar mail con la contraseña
-            try {
-                emailService.sendEmail(
-                    newUser.getEmail(),
-                    "Registro exitoso",
-                    "Hola " + newUser.getName() + ",\n\nTu usuario fue creado exitosamente.\n" +
-                    "Tu contraseña es: " + passPlana + "\n\n."
-                );
-                responseBuilder.setSuccess(true).setMessage("User registered successfully. Email sent.");
-            } catch (Exception e) {
-                responseBuilder.setSuccess(true).setMessage("User registered, but failed to send email: " + e.getMessage());
+                String passPlana = PasswordUtils.generateRandomPassword();
+                newUser.setPassword(PasswordUtils.encryptPassword(passPlana));
+
+                userRepository.save(newUser);
+                result=true;
+
+                /* 🚀 Enviar mail con la contraseña
+                try {
+                    emailService.sendEmail(
+                        newUser.getEmail(),
+                        "Registro exitoso",
+                        "Hola " + newUser.getName() + ",\n\nTu usuario fue creado exitosamente.\n" +
+                        "Tu contraseña es: " + passPlana + "\n\n."
+                    );
+                    result=true;
+                } catch (Exception e) {
+                    result=false;
+                }
+                */
+
             }
         }
-    }
 
-    responseObserver.onNext(responseBuilder.build());
-    responseObserver.onCompleted();
+        return      result;
     }
     
 
-    public void updateUser(UpdateUsuarioRequest request, StreamObserver<AltaUsuarioResponse> responseObserver) {
-    var responseBuilder = AltaUsuarioResponse.newBuilder();
-    User user = userRepository.findByUsername(request.getUsername()).orElse(null);
+    public boolean updateUser(UpdateUsuarioRequest request) {
 
-    if (user == null) {
+        boolean result;
+        User user = userRepository.findByUsername(request.getUsername()).orElse(null);
 
-        responseBuilder.setSuccess(false).setMessage("Usuario no encontrado");
-        responseObserver.onNext(responseBuilder.build());
-        responseObserver.onCompleted();
-
+        if (user == null) {
+            result =false;
         } else {
 
-        user.setName(request.getName());
-        user.setLastName(request.getLastName());
-        user.setPhone(request.getPhone());
-        user.setEmail(request.getEmail());
+            user.setName(request.getName());
+            user.setLastName(request.getLastName());
+            user.setPhone(request.getPhone());
+            user.setEmail(request.getEmail());
 
-        Role rol = roleRepository.findByNameRole(request.getRole());
+            Role rol = roleRepository.findByNameRole(request.getRole());
 
-        if (rol == null) {
-         responseBuilder.setSuccess(false).setMessage("Usuario no encontrado");
-         responseObserver.onNext(responseBuilder.build());
-         responseObserver.onCompleted();
+            if (rol == null) {
+                result =false;
+            }
+
+            user.setRole(rol);
+
+            userRepository.save(user);
+            result =true;
         }
 
-        user.setRole(rol);
-
-        userRepository.save(user);
-        responseBuilder.setSuccess(true).setMessage("Usuario actualizado");
+        return  result;
     }
-
-    responseObserver.onNext(responseBuilder.build());
-    responseObserver.onCompleted();
-}
 
 
     @Transactional
-    public void deleteUser(DeleteUsuarioRequest request, StreamObserver<DeleteUsuarioResponse> responseObserver) {
-    var responseBuilder = DeleteUsuarioResponse.newBuilder();
+    public String deleteUser(DeleteUsuarioRequest request) {
+        String result;
 
-    if (request == null || request.getUsername() == null || request.getUsername().isEmpty()) {
-        responseBuilder.setSuccess(false).setMessage("El nombre de usuario no puede estar vacío");
+        if (request == null || request.getUsername() == null || request.getUsername().isEmpty()) {
+            return "Error datos inválidos";
+        }
 
-        responseObserver.onCompleted();
-        return;
+        User u = userRepository.findByUsername(request.getUsername()).orElse(null);
+
+
+        if (u != null && u.getActivate()) {
+            // 🔹 Desactivar usuario
+            u.setActivate(false);
+
+            // 🔹 Remover de todos los eventos futuros
+            LocalDate hoy = LocalDate.now();
+            List<MemberAtEvent> futurasAsociaciones = new ArrayList<>();
+
+            for (MemberAtEvent mae : u.getEvents()) {
+                Event e = mae.getEvent();
+                if (e != null && e.getDateRegistration() != null &&
+                        e.getDateRegistration().isAfter(hoy.atStartOfDay())) {
+
+                    futurasAsociaciones.add(mae);
+                }
+            }
+
+            for (MemberAtEvent mae : futurasAsociaciones) {
+                Event e = mae.getEvent();
+
+                // Eliminar de la tabla intermedia
+                memberAtEventRepository.delete(mae);
+
+                // Actualizar listas en memoria
+                u.getEvents().remove(mae);
+                if (e != null) {
+                    e.getMembers().remove(mae);
+                }
+            }
+
+            userRepository.save(u);
+            return "Usuario dado de baja";
+
+        } else if (u != null && !u.getActivate()) {
+
+            u.setActivate(true);
+            userRepository.save(u);
+            result = "Usuario dado de alta";
+        } else {
+            result = "Error usuario no encontrado";
+        }
+
+        return result;
     }
 
-     User u = userRepository.findByUsername(request.getUsername()).orElse(null);
-
-    if (u!= null && u.getActivate()){
-        u.setActivate(false);
-        userRepository.save(u);
-        responseBuilder.setSuccess(true).setMessage("Usuario dado de baja");
-    }else if (u!= null && u.getActivate()==false){
-        u.setActivate(true);
-        userRepository.save(u);
-        responseBuilder.setSuccess(true).setMessage("Usuario dado de alta");
-    }else {
-        responseBuilder.setSuccess(false).setMessage("Usuario no encontrado");
-
-    }
-
-    responseObserver.onNext(responseBuilder.build());
-    responseObserver.onCompleted();
-}
 
 
 

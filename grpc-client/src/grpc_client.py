@@ -56,12 +56,23 @@ class MyServiceClient:
          request = service_pb2.Empty()
          return self.donation_stub.GetActiveDonations(request)
     
-    def updateDonation(self, id: int, category: str, description: str, amount: int):
+    def altaDonation(self, category: str, description: str, amount: int, username:str):
+        
+        request = service_pb2.AltaDonationRequest(
+            category=category,
+            description=description,
+            amount=amount,
+            username=username
+        )
+        return self.donation_stub.AltaDonation(request)
+    
+    def updateDonation(self, id: int, category: str, description: str, amount: int, username: str):
         print(amount)
-        request = service_pb2.UpdateDonationRequest(id=id, category=category, description=description, amount=amount)
+        request = service_pb2.UpdateDonationRequest(id=id, category=category, description=description, amount=amount, username=username)
         return self.donation_stub.UpdateDonation(request)
-    def deleteDonation(self, id: int):
-        request = service_pb2.DeleteDonationRequest(id=id)
+    
+    def deleteDonation(self, id: int, username: str):
+        request = service_pb2.DeleteDonationRequest(id=id, username=username)
         return self.donation_stub.DeleteDonation(request)
     
     def getAllEvents(self):
@@ -90,38 +101,12 @@ class MyServiceClient:
         return self.event_stub.ToggleMemberToEvent(request)
 
     
-    def createDonationAtEvent(self, idEvent: int, description:str , quantityDelivered:int):
+    def createDonationAtEvent(self, idEvent: int, description:str , quantityDelivered:int, username:str):
         """Llama al RPC CreateDonationAtEvent"""
-        request = service_pb2.CreateDonationAtEventRequest(idEvent=idEvent, description=description, quantityDelivered=quantityDelivered)
+        request = service_pb2.CreateDonationAtEventRequest(idEvent=idEvent, description=description, quantityDelivered=quantityDelivered,username=username)
         return self.donation_event_stub.CreateDonationAtEvent(request)
     
 
-    def altaDonation(self, category: str, description: str, amount: int):
-        
-        # Convertir string ISO a Timestamp
-        # ts_registration = Timestamp()
-        # ts_registration.FromJsonString(date_registration)  # ejemplo: "2025-09-16T12:00:00Z"
-        
-        # ts_modification = Timestamp()
-        # ts_modification.FromJsonString(date_modification)  # mismo formato
-        
-        # Construir el UserProto
-        #user_modification = service_pb2.UserProto(
-        #    id=user_modification_id,
-        #    name=user_modification_name
-        
-        #)
-        
-        # Armar el request completo
-        request = service_pb2.AltaDonationRequest(
-            category=category,
-            description=description,
-            amount=amount,
-            # removed=False,
-            # date_modification=ts_modification,
-            # date_registration=ts_registration,
-            # userModification=user_modification
-        )
-        return self.donation_stub.AltaDonation(request)
+
 
 

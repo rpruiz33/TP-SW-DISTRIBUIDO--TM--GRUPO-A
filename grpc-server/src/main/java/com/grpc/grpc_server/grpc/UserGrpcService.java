@@ -68,26 +68,87 @@ public class UserGrpcService extends MyServiceGrpc.MyServiceImplBase {
         responseObserver.onCompleted();
     }
 
-    
-    
+
+
     @Override
-    public void login(MyServiceClass.LoginRequest request, StreamObserver<LoginResponse> responseObserver){
-        userService.login(request,responseObserver);
+    public void login(MyServiceClass.LoginRequest request, StreamObserver<LoginResponse> responseObserver) {
+        String result = userService.login(request);
+
+        var response = MyServiceClass.LoginResponse.newBuilder();
+
+        if (!result.isEmpty() && !"User not found".equals(result)) {
+            //  caso exitoso → tiene un rol válido
+            response.setSuccess(true).setMessage("Login Completado").setRoleName(result);
+        } else if ("User not found".equals(result)) {
+            //  usuario no existe
+            response.setSuccess(false).setMessage("Usuario no encontrado");
+        } else {
+            //  contraseña incorrecta
+            response.setSuccess(false).setMessage("Credenciales incorrectas");
+        }
+
+        responseObserver.onNext(response.build());
+        responseObserver.onCompleted();
     }
+
 
     @Override
     public void altaUser(MyServiceClass.AltaUsuarioRequest request, StreamObserver<MyServiceClass.AltaUsuarioResponse> responseObserver){
-        userService.altaUser(request,responseObserver);
+        boolean result= userService.altaUser(request);
+
+        var responseBuilder = MyServiceClass.AltaUsuarioResponse.newBuilder();
+
+        if (result){
+            responseBuilder.setSuccess(true).setMessage("Usuario creada");
+        }else{
+            responseBuilder.setSuccess(false).setMessage("No se pudo crear el usuario");
+        }
+
+        responseObserver.onNext(responseBuilder.build());
+        responseObserver.onCompleted();
+
     }
 
     @Override
     public void updateUser(MyServiceClass.UpdateUsuarioRequest request, StreamObserver<MyServiceClass.AltaUsuarioResponse> responseObserver){
-        userService.updateUser(request,responseObserver);
+
+        boolean result= userService.updateUser(request);
+
+        var responseBuilder = MyServiceClass.AltaUsuarioResponse.newBuilder();
+
+        if (result){
+            responseBuilder.setSuccess(true).setMessage("Usuario modificado");
+        }else{
+            responseBuilder.setSuccess(false).setMessage("No se pudo modificar el usuario");
+        }
+
+        responseObserver.onNext(responseBuilder.build());
+        responseObserver.onCompleted();
     }
 
     @Override
-    public void deleteUser(MyServiceClass.DeleteUsuarioRequest request, StreamObserver<MyServiceClass.DeleteUsuarioResponse> responseObserver){
-        userService.deleteUser(request,responseObserver);
+    public void deleteUser(MyServiceClass.DeleteUsuarioRequest request,
+                           StreamObserver<MyServiceClass.DeleteUsuarioResponse> responseObserver) {
+
+        String result = userService.deleteUser(request);
+
+        var responseBuilder = MyServiceClass.DeleteUsuarioResponse.newBuilder();
+
+        switch (result) {
+            case "Usuario dado de baja":
+            case "Usuario dado de alta":
+                responseBuilder.setSuccess(true).setMessage(result);
+                break;
+
+            case "Error datos inválidos":
+            case "Error usuario no encontrado":
+            default:
+                responseBuilder.setSuccess(false).setMessage(result);
+                break;
+        }
+
+        responseObserver.onNext(responseBuilder.build());
+        responseObserver.onCompleted();
     }
 
 }

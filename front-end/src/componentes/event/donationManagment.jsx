@@ -46,7 +46,8 @@ const DonationManagment = () => {
         const protoPayload = {
             idEvent: mainEvent.id,
             description: donation.description,
-            quantityDelivered: quantity
+            quantityDelivered: quantity,
+            username: localStorage.getItem("usernameOrEmail")
         }
 
         try{

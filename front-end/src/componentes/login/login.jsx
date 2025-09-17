@@ -22,6 +22,7 @@ const Login = () => {
                 const roleName = response.data.role_name; 
                 const normalizedRole = roleName.toUpperCase(); // 🔹 Siempre en mayúsculas
                 localStorage.setItem("userRole", normalizedRole);
+                localStorage.setItem("usernameOrEmail",email);
 
                 if (normalizedRole === "PRESIDENTE") {
                     alert("Bienvenido Presidente");

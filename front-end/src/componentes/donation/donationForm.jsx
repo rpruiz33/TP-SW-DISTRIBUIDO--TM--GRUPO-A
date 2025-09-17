@@ -34,6 +34,7 @@ const DonationForm = () => {
     e.preventDefault();
 
     const payload = {
+      username: localStorage.getItem("usernameOrEmail"),
       ...formData,
       id: parseInt(formData.id, 10),
       amount: parseInt(formData.amount, 10),
@@ -95,9 +96,11 @@ const DonationForm = () => {
             className="w-full p-2 border mb-2"
           >
             <option value="">Seleccione una categoría</option>
-            <option value="ALIMENTO">ALIMENTOS</option>
+            <option value="ALIMENTO">ALIMENTO</option>
             <option value="ROPA">ROPA</option>
-            <option value="MEDICAMENTOS">MEDICAMENTOS</option>
+            <option value="JUGUETE">JUGUETE</option>
+            <option value="UTIL_ESCOLAR">UTIL ESCOLAR</option>
+
           </select>
         )}
 

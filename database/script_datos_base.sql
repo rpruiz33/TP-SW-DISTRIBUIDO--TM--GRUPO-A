@@ -19,11 +19,15 @@ VALUES (
 -- Insertar Eventos
 -- ==============================================
 INSERT INTO events (date_registration, name_event, description_event) VALUES
-  (NOW(), 'Evento Solidario 1', 'Recolección de alimentos en el barrio'),
-  (NOW(), 'Evento Solidario 2', 'Campaña de donación de ropa'),
-  (NOW(), 'Evento Solidario 3', 'Entrega de juguetes para niños'),
-  (NOW(), 'Evento Solidario 4', 'Jornada de vacunación'),
-  (NOW(), 'Evento Solidario 5', 'Colecta general de insumos médicos');
+  -- Eventos pasados
+  (DATE_SUB(NOW(), INTERVAL 10 DAY), 'Evento Solidario Pasado 1', 'Recolección de alimentos en el barrio'),
+  (DATE_SUB(NOW(), INTERVAL 5 DAY), 'Evento Solidario Pasado 2', 'Campaña de donación de ropa'),
+  (DATE_SUB(NOW(), INTERVAL 1 DAY), 'Evento Solidario Pasado 3', 'Entrega de juguetes para niños'),
+  
+  -- Eventos futuros
+  (DATE_ADD(NOW(), INTERVAL 1 DAY), 'Evento Solidario Futuro 1', 'Jornada de vacunación'),
+  (DATE_ADD(NOW(), INTERVAL 5 DAY), 'Evento Solidario Futuro 2', 'Colecta general de insumos médicos'),
+  (DATE_ADD(NOW(), INTERVAL 10 DAY), 'Evento Solidario Futuro 3', 'Campaña de reforestación');
 
 -- ==============================================
 -- Insertar Donaciones
@@ -33,11 +37,11 @@ VALUES
   (10, NULL, 1, b'0', NULL, NOW(), 'Donación de arroz y fideos', 'ALIMENTO'),
   (5, NULL, 2, b'0', NULL, NOW(), 'Donación de juguetes nuevos', 'JUGUETE'),
   (20, NULL, 1, b'0', NULL, NOW(), 'Donación de camisetas y abrigos', 'ROPA'),
-  (15, NULL, 3, b'0', NULL, NOW(), 'Medicamentos básicos', 'MEDICINA'),
+  (15, NULL, 3, b'0', NULL, NOW(), 'Lapices de colores básicos', 'UTIL_ESCOLAR'),
   (8, NULL, 2, b'0', NULL, NOW(), 'Caja de alimentos secos', 'ALIMENTO'),
   (12, NULL, 3, b'0', NULL, NOW(), 'Zapatos para niños', 'ROPA'),
   (7, NULL, 1, b'0', NULL, NOW(), 'Juguetes de segunda mano', 'JUGUETE'),
-  (25, NULL, 3, b'0', NULL, NOW(), 'Pastillas y jarabes', 'MEDICINA'),
+  (25, NULL, 3, b'0', NULL, NOW(), 'Mochilas negras', 'UTIL_ESCOLAR'),
   (6, NULL, 2, b'0', NULL, NOW(), 'Caja de leche en polvo', 'ALIMENTO'),
   (4, NULL, 1, b'0', NULL, NOW(), 'Bufandas y gorros de lana', 'ROPA');
 
