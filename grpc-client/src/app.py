@@ -195,27 +195,44 @@ def registerDelivery():
         print("Error en register delivery:", e)
         return jsonify({"message": "Error registrando entrega", "error": str(e)}), 500
     
+from flask import request, jsonify
+from google.protobuf.timestamp_pb2 import Timestamp
+
 @app.route("/api/altadonation", methods=["POST"])
 def altadonation():
     data = request.json
+
+    print(data)
+
     try:
+        # Parsear fechas a ISO (espera string tipo "2025-09-16T15:30:00Z")
+        # ts_registration = Timestamp()
+        # ts_registration.FromJsonString(data.get("date_registration"))
+        
+        # ts_modification = Timestamp()
+        # ts_modification.FromJsonString(data.get("date_modification"))
+
+        # Preparar campos de usuario de modificación
+        #user_modification_id = data.get("user_modification_id", 0)
+        #user_modification_name = data.get("user_modification_name", "")
+
         grpc_response = grpc_client.altaDonation(
             category=data.get("category"),
             description=data.get("description"),
-            amount=data.get("amount"),
-            removed=data.get("removed"),
-            date_registration=data.get("date_registration"),
-            date_modification=data.get("date_modification"),
-            user_registration=data.get("userRegistration"),
-            user_modification=data.get("userModification")
+            amount=int(data.get("amount")),
+            #removed=bool(data.get("removed")),
+            #date_registration=data.get("date_registration"),
+            #date_modification=data.get("date_modification")
+           # user_modification_id=user_modification_id,
+            #user_modification_name=user_modification_name
         )
+
         return jsonify({
             "success": grpc_response.success,
             "message": grpc_response.message
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)

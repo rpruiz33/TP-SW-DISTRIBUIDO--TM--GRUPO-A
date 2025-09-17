@@ -2,6 +2,8 @@ import os
 import sys
 import grpc
 
+from google.protobuf.timestamp_pb2 import Timestamp
+
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(CURRENT_DIR, '../proto'))  
 import service_pb2
@@ -88,18 +90,33 @@ class MyServiceClient:
         return self.donation_stub.RegisterDelivery(request)
     
 
-    def altaDonation(self, category: str, description: str, amount: int, removed: bool,
-        date_registration: str, date_modification: str,
-        user_registration: str, user_modification: str):
-    
+
+    def altaDonation(self, category: str, description: str, amount: int):
+        
+        # Convertir string ISO a Timestamp
+        # ts_registration = Timestamp()
+        # ts_registration.FromJsonString(date_registration)  # ejemplo: "2025-09-16T12:00:00Z"
+        
+        # ts_modification = Timestamp()
+        # ts_modification.FromJsonString(date_modification)  # mismo formato
+        
+        # Construir el UserProto
+        #user_modification = service_pb2.UserProto(
+        #    id=user_modification_id,
+        #    name=user_modification_name
+        
+        #)
+        
+        # Armar el request completo
         request = service_pb2.AltaDonationRequest(
-                category=category,
-                description=description,
-                amount=amount,
-                removed=removed,
-                date_registration=date_registration,
-                date_modification=date_modification,
-                userRegistration=service_pb2.UserProto(username=user_registration),
-                userModification=service_pb2.UserProto(username=user_modification)
-    )
+            category=category,
+            description=description,
+            amount=amount,
+            # removed=False,
+            # date_modification=ts_modification,
+            # date_registration=ts_registration,
+            # userModification=user_modification
+        )
         return self.donation_stub.AltaDonation(request)
+
+

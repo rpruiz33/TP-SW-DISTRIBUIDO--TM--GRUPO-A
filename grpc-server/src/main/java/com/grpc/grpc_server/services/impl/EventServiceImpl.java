@@ -197,7 +197,7 @@ public class EventServiceImpl implements EventService {
 
     ///AHORA SOLO ACTUALIZA ATRIBUTOS DE LA CLASE
     public boolean updateEvent(UpdateEventRequest request){
-
+        
         boolean result = false;
 
        

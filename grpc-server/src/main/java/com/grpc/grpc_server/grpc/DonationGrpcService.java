@@ -9,6 +9,7 @@ import org.springframework.grpc.server.service.GrpcService;
 import com.grpc.grpc_server.DonationServiceGrpc;
 import com.grpc.grpc_server.MyServiceClass;
 import com.grpc.grpc_server.MyServiceClass.DeleteDonationResponse;
+import com.grpc.grpc_server.MyServiceClass.DeleteDonationResponse.Builder;
 import com.grpc.grpc_server.MyServiceClass.UpdateDonationResponse;
 import com.grpc.grpc_server.entities.Donation;
 import com.grpc.grpc_server.mapper.DonationMapper;
@@ -63,7 +64,7 @@ public class DonationGrpcService extends DonationServiceGrpc.DonationServiceImpl
      @Override
     public void deleteDonation(MyServiceClass.DeleteDonationRequest request, StreamObserver<MyServiceClass.DeleteDonationResponse> responseObserver){
          boolean result = donationService.deleteDonation(request);
-        var responseBuilder = DeleteDonationResponse.newBuilder();
+        Builder responseBuilder = DeleteDonationResponse.newBuilder();
 
         if (result){
             responseBuilder.setSuccess(true).setMessage("Donacion eliminada");
@@ -77,13 +78,21 @@ public class DonationGrpcService extends DonationServiceGrpc.DonationServiceImpl
 
     
 
-    @Override
-    public void altaDonation(MyServiceClass.AltaDonationRequest request, StreamObserver<MyServiceClass.AltaDonationResponse> responseObserver){
-        donationService.altaDonation(request);
-        var responseBuilder = MyServiceClass.AltaDonationResponse.newBuilder();
+  @Override
+public void altaDonation(MyServiceClass.AltaDonationRequest request, StreamObserver<MyServiceClass.AltaDonationResponse> responseObserver) {
+    boolean result = donationService.altaDonation(request);
+    var responseBuilder = MyServiceClass.AltaDonationResponse.newBuilder();
+
+    if (result){
         responseBuilder.setSuccess(true).setMessage("Donacion creada");
-        responseObserver.onNext(responseBuilder.build());
-        responseObserver.onCompleted();
+    }else{
+        responseBuilder.setSuccess(false).setMessage("No se pudo crear la Donacion");
     }
+
+    responseObserver.onNext(responseBuilder.build());
+    responseObserver.onCompleted();
+}
+
+
     }
 

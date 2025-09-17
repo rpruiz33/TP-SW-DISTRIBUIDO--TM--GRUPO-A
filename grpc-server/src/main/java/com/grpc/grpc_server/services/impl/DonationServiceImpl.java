@@ -1,13 +1,16 @@
 package com.grpc.grpc_server.services.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.grpc.grpc_server.MyServiceClass;
 import com.grpc.grpc_server.MyServiceClass.AltaDonationRequest;
 import com.grpc.grpc_server.MyServiceClass.DeleteDonationRequest;
 import com.grpc.grpc_server.MyServiceClass.UpdateDonationRequest;
+import com.grpc.grpc_server.entities.Category;
 import com.grpc.grpc_server.entities.Donation;
 import com.grpc.grpc_server.repositories.DonationRepository;
 import com.grpc.grpc_server.services.DonationService;
@@ -66,13 +69,23 @@ public class DonationServiceImpl implements DonationService {
         return result;
 
 }
-    public void altaDonation(AltaDonationRequest request){
+public boolean altaDonation(MyServiceClass.AltaDonationRequest request) {
+
         Donation d = new Donation();
+ 
+        Category cat =  Category.valueOf((request.getCategory()).toUpperCase()) ;
+                        log.debug("asdsdsdf");
         d.setDescription(request.getDescription());
+            log.debug("asdsdsdf");
         d.setAmount(request.getAmount());
-        d.setRemoved(false);
+        d.setCategory(cat);
+         log.debug("333333333");
         donationRepository.save(d);
-    };
+     return true;
+
+    
+    }        
+ 
 
     public Donation getDonationByDescription(String description){
         return donationRepository.findByDescription(description);

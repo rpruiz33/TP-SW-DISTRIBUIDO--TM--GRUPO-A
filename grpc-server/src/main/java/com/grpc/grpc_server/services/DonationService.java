@@ -10,7 +10,7 @@ public interface DonationService {
     List<Donation> getAllDonations();
     boolean updateDonation(MyServiceClass.UpdateDonationRequest request);
     boolean deleteDonation(MyServiceClass.DeleteDonationRequest request);
-    void altaDonation(MyServiceClass.AltaDonationRequest request);
+    boolean altaDonation(MyServiceClass.AltaDonationRequest request);
     
     Donation getDonationByDescription(String description);
 }

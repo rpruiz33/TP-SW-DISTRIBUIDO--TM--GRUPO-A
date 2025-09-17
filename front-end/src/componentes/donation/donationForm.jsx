@@ -7,6 +7,7 @@ const DonationForm = () => {
   const navigate = useNavigate();
   const donationToEdit = location.state?.donation || null;
   const [formData, setFormData] = useState({
+    id: "",
     category: "",
     description: "",
     amount: "",
@@ -118,7 +119,7 @@ const DonationForm = () => {
             className="w-full p-2 border mb-2"
           >
             <option value="">Seleccione una categoría</option>
-            <option value="ALIMENTOS">ALIMENTOS</option>
+            <option value="ALIMENTO">ALIMENTOS</option>
             <option value="ROPA">ROPA</option>
             <option value="MEDICAMENTOS">MEDICAMENTOS</option>
           </select>
