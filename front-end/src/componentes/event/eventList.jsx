@@ -33,6 +33,25 @@ export default function EventList() {
   const membermanagment = (event) => {
     navigate("/membermanagment", { state: { event } });
   };
+const deleteEvent = async (event) => {
+  if (!window.confirm(`¿Seguro que deseas eliminar el evento "${event.nameEvent}"?`)) return;
+
+  try {
+    const response = await axios.delete(`http://localhost:5000/api/deleteevent/${event.id}`);
+
+if (response.data.message && response.data.message.includes("eliminado")) {
+  alert("Evento eliminado con éxito");
+  setEvents((prevEvents) => prevEvents.filter((e) => e.id !== event.id));
+} else {
+  alert("No se pudo eliminar el evento");
+} 
+////forzado sino me lo borra de la db pero no recarga la lista
+window.location.reload();
+  } catch (error) {
+    console.error("Error al eliminar el evento:", error);
+    alert("Hubo un error al eliminar el evento. Intente nuevamente.");
+  }
+};
 
   return (
     <div className="p-6">
@@ -120,11 +139,12 @@ export default function EventList() {
               </button>
 
 
-                  <button
-                    className="px-2 py-1 bg-red-500 text-black rounded hover:bg-red-600"
-                  >
-                    Eliminar
-                  </button>
+              <button
+                onClick={() => deleteEvent(event)}
+                className="px-2 py-1 bg-red-500 text-black rounded hover:bg-red-600"
+              >
+                Eliminar
+              </button>
                   <button
                     className="px-2 py-1 bg-red-500 text-black rounded hover:bg-red-600"                  
                     onClick={() => membermanagment(event)}
