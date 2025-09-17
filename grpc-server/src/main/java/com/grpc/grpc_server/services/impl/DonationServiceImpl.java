@@ -33,6 +33,12 @@ public class DonationServiceImpl implements DonationService {
 
     }
 
+    public List<Donation> getActiveDonations(){
+
+        return donationRepository.findByRemoved(false);
+
+    }
+
 
     public boolean updateDonation(UpdateDonationRequest request){
         

@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rservice.proto\"2\n\x0cLoginRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"D\n\rLoginResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x11\n\trole_name\x18\x03 \x01(\t\"r\n\x12\x41ltaUsuarioRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x10\n\x08lastName\x18\x03 \x01(\t\x12\r\n\x05phone\x18\x04 \x01(\t\x12\r\n\x05\x65mail\x18\x05 \x01(\t\x12\x0c\n\x04role\x18\x06 \x01(\t\"7\n\x13\x41ltaUsuarioResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"\x8f\x01\n\tUserProto\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x10\n\x08lastName\x18\x03 \x01(\t\x12\r\n\x05phone\x18\x04 \x01(\t\x12\r\n\x05\x65mail\x18\x05 \x01(\t\x12\x0c\n\x04role\x18\x06 \x01(\t\x12\x16\n\tactivated\x18\x07 \x01(\x08H\x00\x88\x01\x01\x42\x0c\n\n_activated\"-\n\x10UserListResponse\x12\x19\n\x05users\x18\x01 \x03(\x0b\x32\n.UserProto\"t\n\x14UpdateUsuarioRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x10\n\x08lastName\x18\x03 \x01(\t\x12\r\n\x05phone\x18\x04 \x01(\t\x12\r\n\x05\x65mail\x18\x05 \x01(\t\x12\x0c\n\x04role\x18\x06 \x01(\t\"(\n\x14\x44\x65leteUsuarioRequest\x12\x10\n\x08username\x18\x01 \x01(\t\"9\n\x15\x44\x65leteUsuarioResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"=\n\x10SendEmailRequest\x12\n\n\x02to\x18\x01 \x01(\t\x12\x0f\n\x07subject\x18\x02 \x01(\t\x12\x0c\n\x04\x62ody\x18\x03 \x01(\t\"5\n\x11SendEmailResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"_\n\x1c\x43reateDonationAtEventRequest\x12\x0f\n\x07idEvent\x18\x01 \x01(\x05\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\x12\x19\n\x11quantityDelivered\x18\x03 \x01(\x05\"\xa2\x01\n\nEventProto\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x11\n\tnameEvent\x18\x02 \x01(\t\x12\x18\n\x10\x64\x65scriptionEvent\x18\x03 \x01(\t\x12\x18\n\x10\x64\x61teRegistration\x18\x04 \x01(\t\x12\x19\n\x05users\x18\x05 \x03(\x0b\x32\n.UserProto\x12&\n\tdonations\x18\x06 \x03(\x0b\x32\x13.EventDonationProto\"0\n\x11\x45ventListResponse\x12\x1b\n\x06\x65vents\x18\x01 \x03(\x0b\x32\x0b.EventProto\"[\n\x12\x43reateEventRequest\x12\x11\n\tnameEvent\x18\x01 \x01(\t\x12\x18\n\x10\x64\x65scriptionEvent\x18\x02 \x01(\t\x12\x18\n\x10\x64\x61teRegistration\x18\x03 \x01(\t\"H\n\x13\x43reateEventResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x0f\n\x07\x65ventId\x18\x03 \x01(\x05\"g\n\x12UpdateEventRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x11\n\tnameEvent\x18\x02 \x01(\t\x12\x18\n\x10\x64\x65scriptionEvent\x18\x03 \x01(\t\x12\x18\n\x10\x64\x61teRegistration\x18\x04 \x01(\t\" \n\x12\x44\x65leteEventRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"7\n\x13\x44\x65leteEventResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"j\n\x13ToggleMemberRequest\x12\x0f\n\x07\x65ventId\x18\x01 \x01(\x05\x12\x10\n\x08username\x18\x02 \x01(\t\x12\x1c\n\x0f\x61lreadyAssigned\x18\x03 \x01(\x08H\x00\x88\x01\x01\x42\x12\n\x10_alreadyAssigned\"\x07\n\x05\x45mpty\"K\n\x12\x44onationEventProto\x12\x1a\n\x05\x65vent\x18\x01 \x01(\x0b\x32\x0b.EventProto\x12\x19\n\x11quantityDelivered\x18\x02 \x01(\x05\"Q\n\x12\x45ventDonationProto\x12 \n\x08\x64onation\x18\x01 \x01(\x0b\x32\x0e.DonationProto\x12\x19\n\x11quantityDelivered\x18\x02 \x01(\x05\"\x99\x01\n\rDonationProto\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x10\n\x08\x63\x61tegory\x18\x02 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x03 \x01(\t\x12\x0e\n\x06\x61mount\x18\x04 \x01(\x05\x12\x14\n\x07removed\x18\x05 \x01(\x08H\x00\x88\x01\x01\x12#\n\x06\x65vents\x18\x06 \x03(\x0b\x32\x13.DonationEventProtoB\n\n\x08_removed\"9\n\x14\x44onationListResponse\x12!\n\tdonations\x18\x01 \x03(\x0b\x32\x0e.DonationProto\"Z\n\x15UpdateDonationRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x10\n\x08\x63\x61tegory\x18\x02 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x03 \x01(\t\x12\x0e\n\x06\x61mount\x18\x04 \x01(\x05\":\n\x16UpdateDonationResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"f\n\x17RegisterDeliveryRequest\x12\x12\n\ndonationId\x18\x01 \x01(\x05\x12\x0f\n\x07\x65ventId\x18\x02 \x01(\x05\x12\x10\n\x08quantity\x18\x03 \x01(\x05\x12\x14\n\x0cregisteredBy\x18\x04 \x01(\t\"3\n\x0fGenericResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"#\n\x15\x44\x65leteDonationRequest\x12\n\n\x02id\x18\x01 \x01(\x05\":\n\x16\x44\x65leteDonationResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"L\n\x13\x41ltaDonationRequest\x12\x10\n\x08\x63\x61tegory\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x05\"8\n\x14\x41ltaDonationResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t2\xed\x02\n\tMyService\x12&\n\x05Login\x12\r.LoginRequest\x1a\x0e.LoginResponse\x12\x35\n\x08\x41ltaUser\x12\x13.AltaUsuarioRequest\x1a\x14.AltaUsuarioResponse\x12(\n\x0bGetAllUsers\x12\x06.Empty\x1a\x11.UserListResponse\x12+\n\x0eGetActiveUsers\x12\x06.Empty\x1a\x11.UserListResponse\x12\x39\n\nUpdateUser\x12\x15.UpdateUsuarioRequest\x1a\x14.AltaUsuarioResponse\x12;\n\nDeleteUser\x12\x15.DeleteUsuarioRequest\x1a\x16.DeleteUsuarioResponse\x12\x32\n\tSendEmail\x12\x11.SendEmailRequest\x1a\x12.SendEmailResponse2d\n\x18\x44onationsAtEventsService\x12H\n\x15\x43reateDonationAtEvent\x12\x1d.CreateDonationAtEventRequest\x1a\x10.GenericResponse2\xdc\x02\n\x0c\x45ventService\x12*\n\x0cGetAllEvents\x12\x06.Empty\x1a\x12.EventListResponse\x12\x37\n\x19GetAllEventsWithRelations\x12\x06.Empty\x1a\x12.EventListResponse\x12\x38\n\x0b\x43reateEvent\x12\x13.CreateEventRequest\x1a\x14.CreateEventResponse\x12\x34\n\x0bUpdateEvent\x12\x13.UpdateEventRequest\x1a\x10.GenericResponse\x12\x38\n\x0b\x44\x65leteEvent\x12\x13.DeleteEventRequest\x1a\x14.DeleteEventResponse\x12=\n\x13ToggleMemberToEvent\x12\x14.ToggleMemberRequest\x1a\x10.GenericResponse2\xc6\x02\n\x0f\x44onationService\x12\x30\n\x0fGetAllDonations\x12\x06.Empty\x1a\x15.DonationListResponse\x12\x41\n\x0eUpdateDonation\x12\x16.UpdateDonationRequest\x1a\x17.UpdateDonationResponse\x12>\n\x10RegisterDelivery\x12\x18.RegisterDeliveryRequest\x1a\x10.GenericResponse\x12\x41\n\x0e\x44\x65leteDonation\x12\x16.DeleteDonationRequest\x1a\x17.DeleteDonationResponse\x12;\n\x0c\x41ltaDonation\x12\x14.AltaDonationRequest\x1a\x15.AltaDonationResponseB&\n\x14\x63om.grpc.grpc_serverB\x0eMyServiceClassb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rservice.proto\"2\n\x0cLoginRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"D\n\rLoginResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x11\n\trole_name\x18\x03 \x01(\t\"r\n\x12\x41ltaUsuarioRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x10\n\x08lastName\x18\x03 \x01(\t\x12\r\n\x05phone\x18\x04 \x01(\t\x12\r\n\x05\x65mail\x18\x05 \x01(\t\x12\x0c\n\x04role\x18\x06 \x01(\t\"7\n\x13\x41ltaUsuarioResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"\x8f\x01\n\tUserProto\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x10\n\x08lastName\x18\x03 \x01(\t\x12\r\n\x05phone\x18\x04 \x01(\t\x12\r\n\x05\x65mail\x18\x05 \x01(\t\x12\x0c\n\x04role\x18\x06 \x01(\t\x12\x16\n\tactivated\x18\x07 \x01(\x08H\x00\x88\x01\x01\x42\x0c\n\n_activated\"-\n\x10UserListResponse\x12\x19\n\x05users\x18\x01 \x03(\x0b\x32\n.UserProto\"t\n\x14UpdateUsuarioRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x10\n\x08lastName\x18\x03 \x01(\t\x12\r\n\x05phone\x18\x04 \x01(\t\x12\r\n\x05\x65mail\x18\x05 \x01(\t\x12\x0c\n\x04role\x18\x06 \x01(\t\"(\n\x14\x44\x65leteUsuarioRequest\x12\x10\n\x08username\x18\x01 \x01(\t\"9\n\x15\x44\x65leteUsuarioResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"=\n\x10SendEmailRequest\x12\n\n\x02to\x18\x01 \x01(\t\x12\x0f\n\x07subject\x18\x02 \x01(\t\x12\x0c\n\x04\x62ody\x18\x03 \x01(\t\"5\n\x11SendEmailResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"_\n\x1c\x43reateDonationAtEventRequest\x12\x0f\n\x07idEvent\x18\x01 \x01(\x05\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\x12\x19\n\x11quantityDelivered\x18\x03 \x01(\x05\"\xa2\x01\n\nEventProto\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x11\n\tnameEvent\x18\x02 \x01(\t\x12\x18\n\x10\x64\x65scriptionEvent\x18\x03 \x01(\t\x12\x18\n\x10\x64\x61teRegistration\x18\x04 \x01(\t\x12\x19\n\x05users\x18\x05 \x03(\x0b\x32\n.UserProto\x12&\n\tdonations\x18\x06 \x03(\x0b\x32\x13.EventDonationProto\"0\n\x11\x45ventListResponse\x12\x1b\n\x06\x65vents\x18\x01 \x03(\x0b\x32\x0b.EventProto\"[\n\x12\x43reateEventRequest\x12\x11\n\tnameEvent\x18\x01 \x01(\t\x12\x18\n\x10\x64\x65scriptionEvent\x18\x02 \x01(\t\x12\x18\n\x10\x64\x61teRegistration\x18\x03 \x01(\t\"7\n\x13\x43reateEventResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"g\n\x12UpdateEventRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x11\n\tnameEvent\x18\x02 \x01(\t\x12\x18\n\x10\x64\x65scriptionEvent\x18\x03 \x01(\t\x12\x18\n\x10\x64\x61teRegistration\x18\x04 \x01(\t\" \n\x12\x44\x65leteEventRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"7\n\x13\x44\x65leteEventResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"j\n\x13ToggleMemberRequest\x12\x0f\n\x07\x65ventId\x18\x01 \x01(\x05\x12\x10\n\x08username\x18\x02 \x01(\t\x12\x1c\n\x0f\x61lreadyAssigned\x18\x03 \x01(\x08H\x00\x88\x01\x01\x42\x12\n\x10_alreadyAssigned\"\x07\n\x05\x45mpty\"K\n\x12\x44onationEventProto\x12\x1a\n\x05\x65vent\x18\x01 \x01(\x0b\x32\x0b.EventProto\x12\x19\n\x11quantityDelivered\x18\x02 \x01(\x05\"Q\n\x12\x45ventDonationProto\x12 \n\x08\x64onation\x18\x01 \x01(\x0b\x32\x0e.DonationProto\x12\x19\n\x11quantityDelivered\x18\x02 \x01(\x05\"\x99\x01\n\rDonationProto\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x10\n\x08\x63\x61tegory\x18\x02 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x03 \x01(\t\x12\x0e\n\x06\x61mount\x18\x04 \x01(\x05\x12\x14\n\x07removed\x18\x05 \x01(\x08H\x00\x88\x01\x01\x12#\n\x06\x65vents\x18\x06 \x03(\x0b\x32\x13.DonationEventProtoB\n\n\x08_removed\"9\n\x14\x44onationListResponse\x12!\n\tdonations\x18\x01 \x03(\x0b\x32\x0e.DonationProto\"Z\n\x15UpdateDonationRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x10\n\x08\x63\x61tegory\x18\x02 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x03 \x01(\t\x12\x0e\n\x06\x61mount\x18\x04 \x01(\x05\":\n\x16UpdateDonationResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"3\n\x0fGenericResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"#\n\x15\x44\x65leteDonationRequest\x12\n\n\x02id\x18\x01 \x01(\x05\":\n\x16\x44\x65leteDonationResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"L\n\x13\x41ltaDonationRequest\x12\x10\n\x08\x63\x61tegory\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x05\"8\n\x14\x41ltaDonationResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t2\xed\x02\n\tMyService\x12&\n\x05Login\x12\r.LoginRequest\x1a\x0e.LoginResponse\x12\x35\n\x08\x41ltaUser\x12\x13.AltaUsuarioRequest\x1a\x14.AltaUsuarioResponse\x12(\n\x0bGetAllUsers\x12\x06.Empty\x1a\x11.UserListResponse\x12+\n\x0eGetActiveUsers\x12\x06.Empty\x1a\x11.UserListResponse\x12\x39\n\nUpdateUser\x12\x15.UpdateUsuarioRequest\x1a\x14.AltaUsuarioResponse\x12;\n\nDeleteUser\x12\x15.DeleteUsuarioRequest\x1a\x16.DeleteUsuarioResponse\x12\x32\n\tSendEmail\x12\x11.SendEmailRequest\x1a\x12.SendEmailResponse2d\n\x18\x44onationsAtEventsService\x12H\n\x15\x43reateDonationAtEvent\x12\x1d.CreateDonationAtEventRequest\x1a\x10.GenericResponse2\xdc\x02\n\x0c\x45ventService\x12*\n\x0cGetAllEvents\x12\x06.Empty\x1a\x12.EventListResponse\x12\x37\n\x19GetAllEventsWithRelations\x12\x06.Empty\x1a\x12.EventListResponse\x12\x38\n\x0b\x43reateEvent\x12\x13.CreateEventRequest\x1a\x14.CreateEventResponse\x12\x34\n\x0bUpdateEvent\x12\x13.UpdateEventRequest\x1a\x10.GenericResponse\x12\x38\n\x0b\x44\x65leteEvent\x12\x13.DeleteEventRequest\x1a\x14.DeleteEventResponse\x12=\n\x13ToggleMemberToEvent\x12\x14.ToggleMemberRequest\x1a\x10.GenericResponse2\xbb\x02\n\x0f\x44onationService\x12\x30\n\x0fGetAllDonations\x12\x06.Empty\x1a\x15.DonationListResponse\x12\x33\n\x12GetActiveDonations\x12\x06.Empty\x1a\x15.DonationListResponse\x12\x41\n\x0eUpdateDonation\x12\x16.UpdateDonationRequest\x1a\x17.UpdateDonationResponse\x12\x41\n\x0e\x44\x65leteDonation\x12\x16.DeleteDonationRequest\x1a\x17.DeleteDonationResponse\x12;\n\x0c\x41ltaDonation\x12\x14.AltaDonationRequest\x1a\x15.AltaDonationResponseB&\n\x14\x63om.grpc.grpc_serverB\x0eMyServiceClassb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -63,47 +63,45 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_CREATEEVENTREQUEST']._serialized_start=1154
   _globals['_CREATEEVENTREQUEST']._serialized_end=1245
   _globals['_CREATEEVENTRESPONSE']._serialized_start=1247
-  _globals['_CREATEEVENTRESPONSE']._serialized_end=1319
-  _globals['_UPDATEEVENTREQUEST']._serialized_start=1321
-  _globals['_UPDATEEVENTREQUEST']._serialized_end=1424
-  _globals['_DELETEEVENTREQUEST']._serialized_start=1426
-  _globals['_DELETEEVENTREQUEST']._serialized_end=1458
-  _globals['_DELETEEVENTRESPONSE']._serialized_start=1460
-  _globals['_DELETEEVENTRESPONSE']._serialized_end=1515
-  _globals['_TOGGLEMEMBERREQUEST']._serialized_start=1517
-  _globals['_TOGGLEMEMBERREQUEST']._serialized_end=1623
-  _globals['_EMPTY']._serialized_start=1625
-  _globals['_EMPTY']._serialized_end=1632
-  _globals['_DONATIONEVENTPROTO']._serialized_start=1634
-  _globals['_DONATIONEVENTPROTO']._serialized_end=1709
-  _globals['_EVENTDONATIONPROTO']._serialized_start=1711
-  _globals['_EVENTDONATIONPROTO']._serialized_end=1792
-  _globals['_DONATIONPROTO']._serialized_start=1795
-  _globals['_DONATIONPROTO']._serialized_end=1948
-  _globals['_DONATIONLISTRESPONSE']._serialized_start=1950
-  _globals['_DONATIONLISTRESPONSE']._serialized_end=2007
-  _globals['_UPDATEDONATIONREQUEST']._serialized_start=2009
-  _globals['_UPDATEDONATIONREQUEST']._serialized_end=2099
-  _globals['_UPDATEDONATIONRESPONSE']._serialized_start=2101
-  _globals['_UPDATEDONATIONRESPONSE']._serialized_end=2159
-  _globals['_REGISTERDELIVERYREQUEST']._serialized_start=2161
-  _globals['_REGISTERDELIVERYREQUEST']._serialized_end=2263
-  _globals['_GENERICRESPONSE']._serialized_start=2265
-  _globals['_GENERICRESPONSE']._serialized_end=2316
-  _globals['_DELETEDONATIONREQUEST']._serialized_start=2318
-  _globals['_DELETEDONATIONREQUEST']._serialized_end=2353
-  _globals['_DELETEDONATIONRESPONSE']._serialized_start=2355
-  _globals['_DELETEDONATIONRESPONSE']._serialized_end=2413
-  _globals['_ALTADONATIONREQUEST']._serialized_start=2415
-  _globals['_ALTADONATIONREQUEST']._serialized_end=2491
-  _globals['_ALTADONATIONRESPONSE']._serialized_start=2493
-  _globals['_ALTADONATIONRESPONSE']._serialized_end=2549
-  _globals['_MYSERVICE']._serialized_start=2552
-  _globals['_MYSERVICE']._serialized_end=2917
-  _globals['_DONATIONSATEVENTSSERVICE']._serialized_start=2919
-  _globals['_DONATIONSATEVENTSSERVICE']._serialized_end=3019
-  _globals['_EVENTSERVICE']._serialized_start=3022
-  _globals['_EVENTSERVICE']._serialized_end=3370
-  _globals['_DONATIONSERVICE']._serialized_start=3373
-  _globals['_DONATIONSERVICE']._serialized_end=3699
+  _globals['_CREATEEVENTRESPONSE']._serialized_end=1302
+  _globals['_UPDATEEVENTREQUEST']._serialized_start=1304
+  _globals['_UPDATEEVENTREQUEST']._serialized_end=1407
+  _globals['_DELETEEVENTREQUEST']._serialized_start=1409
+  _globals['_DELETEEVENTREQUEST']._serialized_end=1441
+  _globals['_DELETEEVENTRESPONSE']._serialized_start=1443
+  _globals['_DELETEEVENTRESPONSE']._serialized_end=1498
+  _globals['_TOGGLEMEMBERREQUEST']._serialized_start=1500
+  _globals['_TOGGLEMEMBERREQUEST']._serialized_end=1606
+  _globals['_EMPTY']._serialized_start=1608
+  _globals['_EMPTY']._serialized_end=1615
+  _globals['_DONATIONEVENTPROTO']._serialized_start=1617
+  _globals['_DONATIONEVENTPROTO']._serialized_end=1692
+  _globals['_EVENTDONATIONPROTO']._serialized_start=1694
+  _globals['_EVENTDONATIONPROTO']._serialized_end=1775
+  _globals['_DONATIONPROTO']._serialized_start=1778
+  _globals['_DONATIONPROTO']._serialized_end=1931
+  _globals['_DONATIONLISTRESPONSE']._serialized_start=1933
+  _globals['_DONATIONLISTRESPONSE']._serialized_end=1990
+  _globals['_UPDATEDONATIONREQUEST']._serialized_start=1992
+  _globals['_UPDATEDONATIONREQUEST']._serialized_end=2082
+  _globals['_UPDATEDONATIONRESPONSE']._serialized_start=2084
+  _globals['_UPDATEDONATIONRESPONSE']._serialized_end=2142
+  _globals['_GENERICRESPONSE']._serialized_start=2144
+  _globals['_GENERICRESPONSE']._serialized_end=2195
+  _globals['_DELETEDONATIONREQUEST']._serialized_start=2197
+  _globals['_DELETEDONATIONREQUEST']._serialized_end=2232
+  _globals['_DELETEDONATIONRESPONSE']._serialized_start=2234
+  _globals['_DELETEDONATIONRESPONSE']._serialized_end=2292
+  _globals['_ALTADONATIONREQUEST']._serialized_start=2294
+  _globals['_ALTADONATIONREQUEST']._serialized_end=2370
+  _globals['_ALTADONATIONRESPONSE']._serialized_start=2372
+  _globals['_ALTADONATIONRESPONSE']._serialized_end=2428
+  _globals['_MYSERVICE']._serialized_start=2431
+  _globals['_MYSERVICE']._serialized_end=2796
+  _globals['_DONATIONSATEVENTSSERVICE']._serialized_start=2798
+  _globals['_DONATIONSATEVENTSSERVICE']._serialized_end=2898
+  _globals['_EVENTSERVICE']._serialized_start=2901
+  _globals['_EVENTSERVICE']._serialized_end=3249
+  _globals['_DONATIONSERVICE']._serialized_start=3252
+  _globals['_DONATIONSERVICE']._serialized_end=3567
 # @@protoc_insertion_point(module_scope)

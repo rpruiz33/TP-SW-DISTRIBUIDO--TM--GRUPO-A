@@ -45,6 +45,29 @@ public class DonationGrpcService extends DonationServiceGrpc.DonationServiceImpl
         
     }
 
+
+    @Override
+    public void getActiveDonations(MyServiceClass.Empty request, StreamObserver<MyServiceClass.DonationListResponse> responseObserver){
+
+        // 1️⃣ Obtener entidades desde la capa service
+        List<Donation> donations = donationService.getActiveDonations();
+
+        // 2️⃣ Mapear a Proto usando Mapper
+        List<MyServiceClass.DonationProto> grpcDonations = donations.stream()
+                .map(DonationMapper::toProto)
+                .collect(Collectors.toList());
+
+        // 3️⃣ Construir y enviar la respuesta
+        MyServiceClass.DonationListResponse response = MyServiceClass.DonationListResponse.newBuilder()
+                .addAllDonations(grpcDonations)
+                .build();
+
+
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+
+    }
+
     @Override
     public void updateDonation(MyServiceClass.UpdateDonationRequest request, StreamObserver<MyServiceClass.UpdateDonationResponse> responseObserver){
         

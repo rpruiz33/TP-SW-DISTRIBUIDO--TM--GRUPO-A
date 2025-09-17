@@ -30,9 +30,14 @@ export default function EventList() {
     }
   };
 
-  const membermanagment = (event) => {
+  const memberManagment = (event) => {
     navigate("/membermanagment", { state: { event } });
   };
+
+  const donationManagment = (event) => {
+    navigate("/donationmanagment", { state: { event } });
+  };
+  
 const deleteEvent = async (event) => {
   if (!window.confirm(`¿Seguro que deseas eliminar el evento "${event.nameEvent}"?`)) return;
 
@@ -70,6 +75,8 @@ window.location.reload();
               <th className="px-4 py-2 border">Nombre</th>
               <th className="px-4 py-2 border">Descripcion</th>
               <th className="px-4 py-2 border">Fecha del Evento</th>
+              <th className="px-4 py-2 border">Miembros</th>
+              <th className="px-4 py-2 border">Donaciones</th>
               <th className="px-4 py-2 border">Acciones</th>
             </tr>
           </thead>
@@ -133,7 +140,7 @@ window.location.reload();
                 <button
       
                   className="px-2 py-1 bg-yellow-500 text-black rounded hover:bg-yellow-600"
-                onClick={() => navigate("/eventupdate", { state: { event } })}
+                onClick={() => navigate("/eventform", { state: { event } })}
               >
                 Modificar
               </button>
@@ -147,12 +154,13 @@ window.location.reload();
               </button>
                   <button
                     className="px-2 py-1 bg-red-500 text-black rounded hover:bg-red-600"                  
-                    onClick={() => membermanagment(event)}
+                    onClick={() => memberManagment(event)}
                   >
                     Gestionar miembros
                   </button>
                   <button
                     className="px-2 py-1 bg-red-500 text-black rounded hover:bg-red-600"
+                    onClick={() => donationManagment(event)}
                   >
                     Asignar donaciones
                   </button>

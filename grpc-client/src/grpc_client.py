@@ -17,6 +17,8 @@ class MyServiceClient:
         self.user_stub = service_pb2_grpc.MyServiceStub(self.channel)
         self.donation_stub = service_pb2_grpc.DonationServiceStub(self.channel)
         self.event_stub = service_pb2_grpc.EventServiceStub(self.channel)
+        self.donation_event_stub = service_pb2_grpc.DonationsAtEventsServiceStub(self.channel)
+
 
     def login(self, username: str, password: str):
         """Llama al RPC Login"""
@@ -49,6 +51,10 @@ class MyServiceClient:
     def getAllDonations(self):
          request = service_pb2.Empty()
          return self.donation_stub.GetAllDonations(request)
+    
+    def getActiveDonations(self):
+         request = service_pb2.Empty()
+         return self.donation_stub.GetActiveDonations(request)
     
     def updateDonation(self, id: int, category: str, description: str, amount: int):
         print(amount)
@@ -84,12 +90,11 @@ class MyServiceClient:
         return self.event_stub.ToggleMemberToEvent(request)
 
     
-    def registerDelivery(self, donationId: int, eventId: int, quantity: int, registeredBy: str):
-        """Llama al RPC RegisterDelivery"""
-        request = service_pb2.RegisterDeliveryRequest(donationId=donationId, eventId=eventId, quantity=quantity, registeredBy=registeredBy)
-        return self.donation_stub.RegisterDelivery(request)
+    def createDonationAtEvent(self, idEvent: int, description:str , quantityDelivered:int):
+        """Llama al RPC CreateDonationAtEvent"""
+        request = service_pb2.CreateDonationAtEventRequest(idEvent=idEvent, description=description, quantityDelivered=quantityDelivered)
+        return self.donation_event_stub.CreateDonationAtEvent(request)
     
-
 
     def altaDonation(self, category: str, description: str, amount: int):
         

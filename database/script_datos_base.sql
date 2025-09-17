@@ -30,8 +30,8 @@ INSERT INTO events (date_registration, name_event, description_event) VALUES
 -- ==============================================
 INSERT INTO donation (amount, id_user_modification, id_user_registration, removed, date_modification, date_registration, description, category)
 VALUES
-  (10, NULL, 1, b'1', NULL, NOW(), 'Donación de arroz y fideos', 'ALIMENTO'),
-  (5, NULL, 2, b'1', NULL, NOW(), 'Donación de juguetes nuevos', 'JUGUETE'),
+  (10, NULL, 1, b'0', NULL, NOW(), 'Donación de arroz y fideos', 'ALIMENTO'),
+  (5, NULL, 2, b'0', NULL, NOW(), 'Donación de juguetes nuevos', 'JUGUETE'),
   (20, NULL, 1, b'0', NULL, NOW(), 'Donación de camisetas y abrigos', 'ROPA'),
   (15, NULL, 3, b'0', NULL, NOW(), 'Medicamentos básicos', 'MEDICINA'),
   (8, NULL, 2, b'0', NULL, NOW(), 'Caja de alimentos secos', 'ALIMENTO'),

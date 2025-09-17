@@ -758,15 +758,15 @@ class DonationServiceStub(object):
                 request_serializer=service__pb2.Empty.SerializeToString,
                 response_deserializer=service__pb2.DonationListResponse.FromString,
                 _registered_method=True)
+        self.GetActiveDonations = channel.unary_unary(
+                '/DonationService/GetActiveDonations',
+                request_serializer=service__pb2.Empty.SerializeToString,
+                response_deserializer=service__pb2.DonationListResponse.FromString,
+                _registered_method=True)
         self.UpdateDonation = channel.unary_unary(
                 '/DonationService/UpdateDonation',
                 request_serializer=service__pb2.UpdateDonationRequest.SerializeToString,
                 response_deserializer=service__pb2.UpdateDonationResponse.FromString,
-                _registered_method=True)
-        self.RegisterDelivery = channel.unary_unary(
-                '/DonationService/RegisterDelivery',
-                request_serializer=service__pb2.RegisterDeliveryRequest.SerializeToString,
-                response_deserializer=service__pb2.GenericResponse.FromString,
                 _registered_method=True)
         self.DeleteDonation = channel.unary_unary(
                 '/DonationService/DeleteDonation',
@@ -792,13 +792,13 @@ class DonationServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def UpdateDonation(self, request, context):
+    def GetActiveDonations(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def RegisterDelivery(self, request, context):
+    def UpdateDonation(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -824,15 +824,15 @@ def add_DonationServiceServicer_to_server(servicer, server):
                     request_deserializer=service__pb2.Empty.FromString,
                     response_serializer=service__pb2.DonationListResponse.SerializeToString,
             ),
+            'GetActiveDonations': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetActiveDonations,
+                    request_deserializer=service__pb2.Empty.FromString,
+                    response_serializer=service__pb2.DonationListResponse.SerializeToString,
+            ),
             'UpdateDonation': grpc.unary_unary_rpc_method_handler(
                     servicer.UpdateDonation,
                     request_deserializer=service__pb2.UpdateDonationRequest.FromString,
                     response_serializer=service__pb2.UpdateDonationResponse.SerializeToString,
-            ),
-            'RegisterDelivery': grpc.unary_unary_rpc_method_handler(
-                    servicer.RegisterDelivery,
-                    request_deserializer=service__pb2.RegisterDeliveryRequest.FromString,
-                    response_serializer=service__pb2.GenericResponse.SerializeToString,
             ),
             'DeleteDonation': grpc.unary_unary_rpc_method_handler(
                     servicer.DeleteDonation,
@@ -886,6 +886,33 @@ class DonationService(object):
             _registered_method=True)
 
     @staticmethod
+    def GetActiveDonations(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/DonationService/GetActiveDonations',
+            service__pb2.Empty.SerializeToString,
+            service__pb2.DonationListResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
     def UpdateDonation(request,
             target,
             options=(),
@@ -902,33 +929,6 @@ class DonationService(object):
             '/DonationService/UpdateDonation',
             service__pb2.UpdateDonationRequest.SerializeToString,
             service__pb2.UpdateDonationResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
-    def RegisterDelivery(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/DonationService/RegisterDelivery',
-            service__pb2.RegisterDeliveryRequest.SerializeToString,
-            service__pb2.GenericResponse.FromString,
             options,
             channel_credentials,
             insecure,

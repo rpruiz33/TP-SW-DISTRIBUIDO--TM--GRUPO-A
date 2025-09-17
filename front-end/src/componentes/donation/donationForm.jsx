@@ -65,31 +65,7 @@ const DonationForm = () => {
     }
   };
 
-  // 👉 ELIMINAR
-  const handleDelete = async () => {
-    if (!formData.id) {
-      alert("No se puede eliminar, falta el ID de la donación");
-      return;
-    }
 
-    if (!window.confirm("¿Seguro que desea eliminar esta donación?")) return;
-
-    try {
-      const response = await axios.delete(
-        `http://localhost:5000/api/deletedonation/${formData.id}`
-      );
-
-      if (response.data.success) {
-        alert("Donación eliminada con éxito");
-        navigate("/donationlist");
-      } else {
-        alert("Error al eliminar la donación");
-      }
-    } catch (error) {
-      console.error("Error al eliminar la donación:", error);
-      alert("Hubo un error al eliminar. Intente nuevamente.");
-    }
-  };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -153,16 +129,6 @@ const DonationForm = () => {
           {donationToEdit ? "Guardar Cambios" : "Dar de Alta"}
         </button>
 
-        {/* Botón Eliminar (solo si estoy editando) */}
-        {donationToEdit && (
-          <button
-            type="button"
-            onClick={handleDelete}
-            className="w-full bg-red-600 text-white p-2 rounded mb-2"
-          >
-            Eliminar Donación
-          </button>
-        )}
 
         {/* Botón Volver */}
         <button

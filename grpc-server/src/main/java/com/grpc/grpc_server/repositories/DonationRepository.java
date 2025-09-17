@@ -22,8 +22,13 @@ public interface DonationRepository extends JpaRepository<Donation, Long> {
         
     List<Donation> findAllWithEvents();
 
+    List<Donation> findByRemoved(boolean status);
+
+
     @Query("SELECT d FROM Donation d WHERE d.idDonation = :id")
     Donation findById(@Param("id") int id);
+
+
 
     @Query("SELECT d FROM Donation d WHERE d.description = :description")
     Donation findByDescription(@Param("description") String description);

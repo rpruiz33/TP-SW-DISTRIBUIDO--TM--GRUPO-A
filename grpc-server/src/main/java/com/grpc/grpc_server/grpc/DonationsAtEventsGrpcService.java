@@ -32,9 +32,9 @@ public class DonationsAtEventsGrpcService extends  DonationsAtEventsServiceGrpc.
         var responseBuilder = GenericResponse.newBuilder();
 
         if (result){
-            responseBuilder.setSuccess(true).setMessage("Agregado Correctamente");
+            responseBuilder.setSuccess(true).setMessage("Donacion Agregada al Evento Correctamente");
         }else{
-            responseBuilder.setSuccess(false).setMessage("No se pudo Agregar");
+            responseBuilder.setSuccess(false).setMessage("No se pudo Agregar Donacion al Evento");
         }
 
         responseObserver.onNext(responseBuilder.build());

@@ -1,34 +1,66 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-export default function EventUpdate() {
+export default function EventForm() {
   const location = useLocation();
   const navigate = useNavigate();
-  const event = location.state?.event;
+  const event = location.state?.event || null ;
 
   const [formData, setFormData] = useState({
-    id: event?.id || "",
-    nameEvent: event?.nameEvent || "",
-    descriptionEvent: event?.descriptionEvent || "",
-    dateRegistration: event?.dateRegistration || "",
+    id: "",
+    nameEvent: "",
+    descriptionEvent:  "",
+    dateRegistration: "",
   });
+
+ // Si venimos a editar, cargamos los valores existentes
+  useEffect(() => {
+    if (event) {
+      setFormData({
+        id: event.id || "",
+        nameEvent: event.nameEvent || "",
+        descriptionEvent: event.descriptionEvent || "",
+        dateRegistration: event.dateRegistration || "",
+      });
+    }
+  }, [event]);
+
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+  //Reutilizamos segun se quiera editar o crear 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
+    
     try {
-      await axios.put(`http://localhost:5000/api/updateevent`, formData);
-      alert("Evento actualizado correctamente");
-      navigate("/eventlist"); // Volver a la lista
+      let response;
+      if (event){ //Si existe el evento, editamos
+
+        response= await axios.put(`http://localhost:5000/api/updateevent`, formData);
+
+
+      } else{ //Sino creamos
+
+        response=await axios.post(`http://localhost:5000/api/createevent`,formData);
+
+      }
+
+      if (response.data.success){
+        alert("Evento guardado correctamente");
+        navigate("/eventlist"); // Volver a la lista
+      }else{
+        alert(response.data.message);
+      }
+
     } catch (err) {
-      console.error("Error al actualizar evento:", err);
-      alert("No se pudo actualizar el evento");
+      console.error("Error al guardar evento:", err);
+      alert("No se pudo guardar el evento");
     }
   };
 

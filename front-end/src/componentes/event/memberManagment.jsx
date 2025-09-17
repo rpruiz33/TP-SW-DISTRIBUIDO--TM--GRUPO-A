@@ -93,7 +93,6 @@ const MemberManagment = () => {
               <th className="px-4 py-2 border">Teléfono</th>
               <th className="px-4 py-2 border">Email</th>
               <th className="px-4 py-2 border">Rol</th>
-              <th className="px-4 py-2 border">Activo</th>
               <th className="px-4 py-2 border">Acciones</th>
             </tr>
           </thead>
@@ -110,9 +109,6 @@ const MemberManagment = () => {
                   <td className="px-4 py-2 border">{user.phone || "N/A"}</td>
                   <td className="px-4 py-2 border">{user.email || "N/A"}</td>
                   <td className="px-4 py-2 border">{user.role || "N/A"}</td>
-                  <td className="px-4 py-2 border text-red">
-                    {user.activated != null ? (user.activated ? "Sí" : "No") : "N/A"}
-                  </td>
 
                   <td className="px-4 py-2 border space-x-2">
                     <button

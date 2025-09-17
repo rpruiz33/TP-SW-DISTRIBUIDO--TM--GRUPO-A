@@ -145,7 +145,6 @@ message CreateEventRequest {
 message CreateEventResponse {
   bool success = 1;
   string message = 2;
-  int32 eventId = 3;
 }
 
 message UpdateEventRequest {
@@ -192,8 +191,8 @@ message EventDonationProto {
 // ========================
 service DonationService {
   rpc GetAllDonations(Empty) returns (DonationListResponse);
+  rpc GetActiveDonations(Empty) returns (DonationListResponse);
   rpc UpdateDonation(UpdateDonationRequest) returns (UpdateDonationResponse);
-  rpc RegisterDelivery(RegisterDeliveryRequest) returns (GenericResponse);
   rpc DeleteDonation(DeleteDonationRequest) returns (DeleteDonationResponse);
   rpc AltaDonation(AltaDonationRequest) returns (AltaDonationResponse);
 }
@@ -224,13 +223,6 @@ message UpdateDonationRequest {
 message UpdateDonationResponse {
   bool success = 1;
   string message = 2;
-}
-
-message RegisterDeliveryRequest {
-  int32 donationId = 1;
-  int32 eventId = 2;
-  int32 quantity = 3;
-  string registeredBy = 4;
 }
 
 message GenericResponse {

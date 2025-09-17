@@ -8,6 +8,7 @@ import com.grpc.grpc_server.entities.Donation;
 public interface DonationService {
 
     List<Donation> getAllDonations();
+    List<Donation> getActiveDonations();
     boolean updateDonation(MyServiceClass.UpdateDonationRequest request);
     boolean deleteDonation(MyServiceClass.DeleteDonationRequest request);
     boolean altaDonation(MyServiceClass.AltaDonationRequest request);
