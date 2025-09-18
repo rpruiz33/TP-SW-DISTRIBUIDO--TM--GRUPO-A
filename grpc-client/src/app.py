@@ -192,7 +192,10 @@ def updateEvent():
 def deleteEvent(id):
     try:
         response = grpc_client.deleteEvent(id)
-        return jsonify({"message": f"Evento {id} eliminado", "response": str(response)})
+        return jsonify({
+            "success": response.success,
+            "message": response.message
+            })
     except Exception as e:
         print("Error en delete_event:", e)
         return jsonify({"message": "Error eliminando evento", "error": str(e)}), 500

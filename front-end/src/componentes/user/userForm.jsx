@@ -46,7 +46,7 @@ export default function UserForm() {
         response = await axios.post("http://localhost:5000/api/altauser", formData);
       }
       if (response.data.success) {
-        alert(userToEdit ? "✅ Usuario actualizado!" : "✅ Usuario creado!");
+        alert(response.data.message);
         navigate("/userlist");
       } else {
         alert("❌ " + response.data.message);

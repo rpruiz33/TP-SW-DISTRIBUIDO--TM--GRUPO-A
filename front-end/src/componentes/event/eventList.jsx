@@ -43,12 +43,13 @@ export default function EventList() {
 
     try {
       const response = await axios.delete(`http://localhost:5000/api/deleteevent/${event.id}`);
-
-      if (response.data.message && response.data.message.includes("eliminado")) {
-        alert("Evento eliminado con éxito");
+  
+      if (response.data.success) {
+        
+        alert(response.data.message);
         setEvents((prevEvents) => prevEvents.filter((e) => e.id !== event.id));
       } else {
-        alert("No se pudo eliminar el evento");
+        alert(response.data.message);
       }
       ////forzado sino me lo borra de la db pero no recarga la lista
       window.location.reload();
@@ -100,7 +101,7 @@ export default function EventList() {
                             className="py-1 border-b border-gray-200"
                           >
                             <span className="font-semibold">
-                              {user.name + " " + user.lastName}
+                              {user.username}
                             </span>{" "}
                           </li>
                         ))}
@@ -152,7 +153,7 @@ export default function EventList() {
                   >
                     Eliminar
                   </button>
-                  {new Date(event.dateRegistration) > new Date() && (
+                  {true && (
                     <button
                       className="px-2 py-1 bg-red-500 text-black rounded hover:bg-red-600"
                       onClick={() => memberManagment(event)}

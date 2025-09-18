@@ -125,6 +125,7 @@ const DonationManagment = () => {
                                             }}
                                             placeholder="Cantidad"
                                             className="w-24 p-1 border rounded"
+                                            required
                                         />
 
                                     </td>
