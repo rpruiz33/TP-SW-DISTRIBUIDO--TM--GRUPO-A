@@ -2,29 +2,25 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
-
-//Componente dedicado a gestionar las donaciones YA ASIGNADAS al evento
-const DonationManagment = () => {
+const AssignNewDonation = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [donations, setDonations] = useState([]);
     const [error, setError] = useState("");
 
     // si no hay evento, inicializamos con donations vacío para evitar errores
-    const mainEvent = location.state?.event || { donations: [] };
+    const mainEvent = location.state?.mainEvent || { donations: [] };
 
-    //  estado local para manejar cantidades ingresadas en cada fila
+    // estado local para manejar cantidades ingresadas en cada fila
     const [quantities, setQuantities] = useState({});
 
     useEffect(() => {
-        getAlreadyAssignedDonations();
+        getDonations();
     }, []);
 
-
-
-    const getAlreadyAssignedDonations = async () => {
+    const getDonations = async () => {
         try {
-            const response = await axios.get("http://localhost:5000/api/assigneddonationlist");
+            const response = await axios.get("http://localhost:5000/api/activedonationlist");
             console.log("Respuesta completa:", response.data);
             if (Array.isArray(response.data)) {
                 setDonations(response.data);
@@ -40,7 +36,6 @@ const DonationManagment = () => {
         }
     };
 
-    //UPDATE DE LA CANTIDAD DE LA NUEVA DONACION ASIGNADA
     const assignDonation = async (donation) => {
         const quantity = quantities[donation.id] || 0;
 
@@ -49,47 +44,44 @@ const DonationManagment = () => {
             return;
         }
 
-
         const protoPayload = {
             idEvent: mainEvent.id,
             description: donation.description,
             quantityDelivered: quantity,
             username: localStorage.getItem("usernameOrEmail")
-        }
+        };
 
         try {
             const response = await axios.post("http://localhost:5000/api/assigndonation", protoPayload);
 
             if (response.data.success) {
-                alert("Se asignaron " + quantity + " " + donation.description + " al evento")
+                alert("Se asignaron " + quantity + " " + donation.description + " al evento");
+                navigate("/donationmanagment", { state: { mainEvent } });
             } else {
                 alert(response.data.message);
             }
-
         } catch {
             console.error(error);
             alert("❌ Error en la operación");
         }
-
     };
 
+    // 🔹 Filtrar donaciones ya asignadas al evento
+    const assignedIds = new Set(
+        (mainEvent.donations || []).map((d) => d.donation?.id || d.id)
+    );
 
-    const handleNewDonationAssignment = (mainEvent) => {
-        navigate("/assignnewdonation", { state: { mainEvent } });
-    };
+    const availableDonations = donations.filter(
+        (donation) => !assignedIds.has(donation.id)
+    );
 
     return (
         <div className="p-6">
             <h1 className="text-2xl text-white font-bold mb-4">
-                Gestión de Donaciones del Evento {mainEvent.nameEvent}
+                Asignación de nuevas donaciones al evento : {mainEvent.nameEvent}
             </h1>
             {error && <div className="text-red-500 mb-4">{error}</div>}
-            <button
-                onClick={() => handleNewDonationAssignment(mainEvent)}
-                className="mb-4 px-4 py-2 bg-blue-500 text-black rounded hover:bg-blue-600"
-            >
-                Asignar una nueva donación
-            </button>
+
             <div className="overflow-x-auto">
                 <table className="min-w-full bg-white border border-gray-200">
                     <thead>
@@ -97,18 +89,16 @@ const DonationManagment = () => {
                             <th className="px-4 py-2 border">Categoría</th>
                             <th className="px-4 py-2 border">Descripción</th>
                             <th className="px-4 py-2 border">Cantidad disponible</th>
-                            <th className="px-4 py-2 border">Cantidad asignada</th>
-
+                            <th className="px-4 py-2 border">Cantidad a asignar</th>
                             <th className="px-4 py-2 border">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {donations.map((donation, index) => {
+                        {availableDonations.map((donation, index) => {
                             return (
                                 <tr key={donation.id || index} className="text-center">
                                     <td className="px-4 py-2 border">{donation.category || "N/A"}</td>
                                     <td className="px-4 py-2 border">{donation.description || "N/A"}</td>
-                                    <td className="px-4 py-2 border">{donation.amount || 0}</td>
                                     <td className="px-4 py-2 border">{donation.amount || 0}</td>
 
                                     <td className="px-4 py-2 border">
@@ -118,7 +108,6 @@ const DonationManagment = () => {
                                             onChange={(e) => {
                                                 let value = parseInt(e.target.value, 10);
 
-                                                // Si no es número válido → lo dejamos vacío
                                                 if (isNaN(value)) {
                                                     setQuantities({
                                                         ...quantities,
@@ -127,12 +116,10 @@ const DonationManagment = () => {
                                                     return;
                                                 }
 
-                                                // Forzar mínimo 1
                                                 if (value < 1) {
                                                     value = 1;
                                                 }
 
-                                                // Forzar máximo (amount - 1)
                                                 if (value > donation.amount) {
                                                     value = donation.amount;
                                                 }
@@ -145,7 +132,6 @@ const DonationManagment = () => {
                                             placeholder="Cantidad"
                                             className="w-24 p-1 border rounded"
                                         />
-
                                     </td>
 
                                     <td className="px-4 py-2 border space-x-2">
@@ -153,7 +139,7 @@ const DonationManagment = () => {
                                             onClick={() => assignDonation(donation)}
                                             className="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600"
                                         >
-                                            Actualizar cantidad
+                                            Asignar
                                         </button>
                                     </td>
                                 </tr>
@@ -166,4 +152,4 @@ const DonationManagment = () => {
     );
 };
 
-export default DonationManagment;
+export default AssignNewDonation;

@@ -10,6 +10,9 @@ import DonationList from './componentes/donation/donationList';
 import DonationForm from './componentes/donation/donationForm';
 import EventForm from './componentes/event/eventForm';
 import DonationManagment from './componentes/event/donationManagment';
+import AssignNewDonation from './componentes/event/assignNewDonation';
+
+
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import EventList from './componentes/event/eventList';
@@ -36,6 +39,8 @@ function App() {
             <Route path="/eventlist" element={<EventList/>} />
             <Route path="/membermanagment" element={<MemberManagment />} />
             <Route path="/donationmanagment" element={<DonationManagment />} />
+            <Route path="/assignnewdonation" element={<AssignNewDonation />} />
+
             <Route path="/eventform" element={<EventForm />} />
    
           </Routes>

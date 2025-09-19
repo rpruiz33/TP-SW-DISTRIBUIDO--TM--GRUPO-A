@@ -106,7 +106,11 @@ class MyServiceClient:
         request = service_pb2.CreateDonationAtEventRequest(idEvent=idEvent, description=description, quantityDelivered=quantityDelivered,username=username)
         return self.donation_event_stub.CreateDonationAtEvent(request)
     
-
+    def getAllDonationsAtEvent(self, idEvent: int):
+        """Llama al RPC GetAllDonationsAtEvent"""
+        request = service_pb2.GetAllDonationsAtEventRequest(idEvent=idEvent)
+        return self.donation_event_stub.GetAllDonationsAtEvent(request)
+    
 
 
 

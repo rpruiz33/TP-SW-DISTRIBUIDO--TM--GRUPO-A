@@ -96,6 +96,7 @@ message SendEmailResponse {
 // ========================
 service DonationsAtEventsService {
   rpc CreateDonationAtEvent(CreateDonationAtEventRequest) returns (GenericResponse);
+  rpc GetAllDonationsAtEvent(GetAllDonationsAtEventRequest) returns (GetAllDonationsAtEventResponse);
 }
 
 
@@ -107,6 +108,15 @@ message CreateDonationAtEventRequest {
   string description = 2;
   int32 quantityDelivered = 3;
   string username = 4;
+}
+
+
+message GetAllDonationsAtEventRequest{
+  int32 idEvent = 1;
+}
+
+message GetAllDonationsAtEventResponse{
+  repeated EventDonationProto donations = 1;
 }
 
 // ========================

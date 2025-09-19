@@ -32,7 +32,7 @@ const Login = () => {
                     navigate('/dashboard');
                 }
             } else {
-                setError("Credenciales inválidas");
+                setError(response.data.message);
             }
         } catch (err) {
             console.error(err);

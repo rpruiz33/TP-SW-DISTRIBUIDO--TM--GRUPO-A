@@ -214,7 +214,7 @@ def toggleMember():
         return jsonify({"message": "Error asignando miembro", "error": str(e)}), 500
 
 
-@app.route("/api/assignDonation", methods=["POST"])
+@app.route("/api/assigndonation", methods=["POST"])
 def createDonationAtEvent():
     data = request.json
     try:
@@ -227,6 +227,17 @@ def createDonationAtEvent():
         print("Error en register delivery:", e)
         return jsonify({"message": "Error registrando entrega", "error": str(e)}), 500
     
+@app.route("/api/assigneddonationlist", methods=["GET"])
+def getAllDonationsAtEvent():
+    data=request.json
+    try:
+        grpc_response = grpc_client.getAllDonationsAtEvent(data.get("idEvent"))
+        json_response = MessageToJson(grpc_response)
+        return json_response
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)

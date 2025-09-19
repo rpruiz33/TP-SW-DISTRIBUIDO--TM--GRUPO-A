@@ -138,7 +138,7 @@ const DonationList = () => {
                 onClick={() => deleteDonation(donation)}
                 className="px-2 py-1 bg-red-500 text-black rounded hover:bg-red-600"
               >
-                Eliminar
+                 {donation.removed != null ? (donation.removed? "Activar" : "Eliminar") : "N/A"}
               </button>
             </td>
           </tr>

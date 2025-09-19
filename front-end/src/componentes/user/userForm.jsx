@@ -79,7 +79,6 @@ export default function UserForm() {
           name="username"
           value={formData.username}
           onChange={handleChange}
-          disabled={!!userToEdit} // 👈 bloqueado si es update
           className="w-full p-2 border mb-2"
         />
 
