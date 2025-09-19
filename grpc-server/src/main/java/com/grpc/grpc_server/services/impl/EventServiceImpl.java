@@ -1,0 +1,228 @@
+package com.grpc.grpc_server.services.impl;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.grpc.grpc_server.MyServiceClass;
+import com.grpc.grpc_server.MyServiceClass.CreateEventRequest;
+import com.grpc.grpc_server.MyServiceClass.DeleteEventRequest;
+import com.grpc.grpc_server.MyServiceClass.UpdateEventRequest;
+import com.grpc.grpc_server.entities.Event;
+import com.grpc.grpc_server.entities.MemberAtEvent;
+import com.grpc.grpc_server.entities.User;
+import com.grpc.grpc_server.repositories.DonationsAtEventsRepository;
+import com.grpc.grpc_server.repositories.EventRepository;
+import com.grpc.grpc_server.repositories.MemberAtEventRepository;
+import com.grpc.grpc_server.repositories.UserRepository;
+import com.grpc.grpc_server.services.EventService;
+
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * Implementación del servicio para la gestión de eventos solidarios.
+ * Maneja la creación, modificación, eliminación y asignación de miembros a eventos.
+ */
+
+@Slf4j
+@Service
+public class EventServiceImpl implements EventService {
+
+    @Autowired
+    private EventRepository eventRepository;
+
+    @Autowired
+    private MemberAtEventRepository memberAtEventRepository;
+
+    @Autowired
+    private DonationsAtEventsRepository donationsAtEventsRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+
+    // Hora actual: 10:57 AM -03 del 12/09/2025
+    private static final LocalDateTime NOW = LocalDateTime.now();
+
+    @Override
+    public List<Event> getAllEvents() {
+        
+        try {
+            return eventRepository.findAll();
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener los eventos: " + e.getMessage(), e);
+        }
+    }
+
+    public List<Event> getAllEventsWithRelations(){
+
+        System.out.println("HOLAAAAA");
+
+        // 1️⃣ Traemos eventos con donaciones
+        List<Event> eventsWithDonations = eventRepository.findAllWithDonations();
+
+        // 2️⃣ Traemos eventos con miembros
+        List<Event> eventsWithMembers = eventRepository.findAllWithMembers();
+
+        // 3️⃣ Combinamos los miembros dentro de los eventos
+        for (Event e : eventsWithDonations) {
+            Event memberEvent = eventsWithMembers.stream()
+                .filter(em -> em.getIdEvent().equals(e.getIdEvent()))
+                .findFirst()
+                .orElse(null);
+
+            if (memberEvent != null) {
+                e.setMembers(memberEvent.getMembers()); // List<MemberAtEvent>
+            }
+        }
+
+        System.out.println("HOLAAAAA22");
+
+        // 4️⃣ Retornamos la lista combinada
+        return eventsWithDonations;
+    }
+ 
+    @Transactional
+    public boolean deleteEvent(DeleteEventRequest request){
+        
+        boolean result = false;
+        
+        Event event = eventRepository.findByIdEvent(request.getId());
+
+        if(event != null && event.getDateRegistration().isAfter(NOW)){
+        
+            // Borro relaciones primero
+            memberAtEventRepository.deleteByEvent(event);
+            donationsAtEventsRepository.deleteByEvent(event);
+
+            // Despues borro el evento en sí
+            eventRepository.delete(event);
+            
+            result = true;
+        }
+
+        return result;
+    }
+
+    public boolean createEvent(CreateEventRequest request){
+
+        boolean result = false;
+
+        ///valido que no exista un evento con el mismo nombre
+        
+        Event e = eventRepository.findByNameEvent(request.getNameEvent());
+        LocalDateTime fecha = LocalDateTime.parse(request.getDateRegistration());
+
+        if(e == null && fecha.isAfter(NOW)){
+           
+            Event event = new Event();
+           
+            event.setNameEvent(request.getNameEvent());
+            event.setDescriptionEvent(request.getDescriptionEvent());
+            event.setDateRegistration(fecha);
+            
+            eventRepository.save(event);
+            result = true;
+        }
+
+        return result;
+    }
+
+    @Transactional
+    public boolean toggleMemberToEvent(MyServiceClass.ToggleMemberRequest request){
+
+        boolean result =false;
+        Event mainEvent = eventRepository.findByIdEvent(request.getEventId());
+        User member = userRepository.findByUsername(request.getUsername()).orElse(null);
+
+        //Si no se encontró alguna de las entidadees
+        if (mainEvent == null || member == null){
+            return result;
+        }
+        log.debug("EN EL METODO A PUNTO DEL IF");
+
+        //Logica en caso que ya este asignado el usuario al evento
+        if (request.getAlreadyAssigned()){
+            log.debug("Caso miembro asignado arranca");
+
+            MemberAtEvent existing = memberAtEventRepository.findByEventAndUser(mainEvent, member);
+
+            if(existing != null){
+                memberAtEventRepository.delete(existing);
+
+                // Actualizar listas
+                mainEvent.getMembers().remove(existing);
+                member.getEvents().remove(existing);
+            }
+            log.debug("Caso miembro asignado termina");
+
+            result=true;
+
+        }else{ //Logica en caso que se tenga que asignar el usuario
+            log.debug("Caso miembro sin asignar arranca");
+
+            MemberAtEvent newMember = new MemberAtEvent();
+            newMember.setEvent(mainEvent);
+            newMember.setUser(member);
+            memberAtEventRepository.save(newMember);
+            // Actualizar listas
+            mainEvent.getMembers().add(newMember);
+            member.getEvents().add(newMember);
+            log.debug("Caso miembro sin asignar terminaa");
+
+            result=true;
+        }
+
+        return result;
+    }
+
+    public Event getEventByName(String nameEvent){
+        return eventRepository.findByNameEvent(nameEvent);
+    }
+
+    public Event getEventIdEvent(int idEvent){
+        return eventRepository.findByIdEvent(idEvent);
+    }
+
+
+   public boolean updateEvent(UpdateEventRequest request) {
+    boolean result = false;
+
+    Event e = getEventIdEvent(request.getId());
+
+    if (e != null) {
+        // Validar nombre duplicado SOLO si el nuevo nombre es distinto al actual
+        Event existing = getEventByName(request.getNameEvent());
+        if (existing != null && existing.getIdEvent() != e.getIdEvent()) {
+            return false; // otro evento ya tiene ese nombre
+        }
+
+        // Si mandaron nombre, actualizar
+        if (request.getNameEvent() != null && !request.getNameEvent().isEmpty()) {
+            e.setNameEvent(request.getNameEvent());
+        }
+
+        // Si mandaron descripción, actualizar
+        if (request.getDescriptionEvent() != null && !request.getDescriptionEvent().isEmpty()) {
+            e.setDescriptionEvent(request.getDescriptionEvent());
+        }
+
+        // Si mandaron fecha, actualizar
+        if (request.getDateRegistration() != null && !request.getDateRegistration().isEmpty()) {
+            LocalDateTime fecha = LocalDateTime.parse(request.getDateRegistration());
+            e.setDateRegistration(fecha);
+        }
+
+        eventRepository.save(e);
+        result = true;
+    }
+
+    return result;
+}
+
+
+}
+

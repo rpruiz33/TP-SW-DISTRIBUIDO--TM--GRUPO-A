@@ -1,0 +1,264 @@
+syntax = "proto3";
+
+
+option java_package = "com.grpc.grpc_server";
+option java_outer_classname = "MyServiceClass";
+
+// ========================
+// Service de Usuario
+// ========================
+service MyService {
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc AltaUser(AltaUsuarioRequest) returns (AltaUsuarioResponse);
+  rpc GetAllUsers(Empty) returns (UserListResponse);
+  rpc GetActiveUsers(Empty) returns (UserListResponse);
+  rpc UpdateUser(UpdateUsuarioRequest) returns (AltaUsuarioResponse);
+  rpc DeleteUser(DeleteUsuarioRequest) returns (DeleteUsuarioResponse);
+  rpc SendEmail(SendEmailRequest) returns (SendEmailResponse);
+}
+
+// ========================
+// Messages de Usuarios
+// ========================
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  bool success = 1;
+  string message = 2;
+  string role_name = 3;
+}
+
+message AltaUsuarioRequest {
+  string username = 1;
+  string name = 2;
+  string lastName = 3;
+  string phone = 4;
+  string email = 5;
+  string role = 6;
+}
+
+message AltaUsuarioResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message UserProto {
+  string username = 1;
+  string name = 2;
+  string lastName = 3;
+  string phone = 4;
+  string email = 5;
+  string role = 6;
+  optional bool activated = 7;
+}
+
+message UserListResponse {
+  repeated UserProto users = 1;
+}
+
+message UpdateUsuarioRequest {
+  string username = 1;
+  string name = 2;
+  string lastName = 3;
+  string phone = 4;
+  string email = 5;
+  string role = 6;
+}
+
+message DeleteUsuarioRequest {
+  string username = 1;
+}
+
+message DeleteUsuarioResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// ========================
+// Nuevos Messages para enviar correo
+// ========================
+message SendEmailRequest {
+  string to = 1;          // Destinatario del correo
+  string subject = 2;     // Asunto del correo
+  string body = 3;        // Cuerpo del correo
+}
+
+message SendEmailResponse {
+  bool success = 1;       // Indica si el envío fue exitoso
+  string message = 2;     // Mensaje de respuesta (éxito o error)
+}
+
+// ========================
+// Service de DonationsAtEvents
+// ========================
+service DonationsAtEventsService {
+  rpc CreateDonationAtEvent(DonationAtEventRequest) returns (GenericResponse);
+  rpc UpdateDonationAtEvent(DonationAtEventRequest) returns (GenericResponse);
+  rpc GetAllDonationsAtEvent(GetAllDonationsAtEventRequest) returns (GetAllDonationsAtEventResponse);
+}
+
+message GetAllDonationsAtEventRequest{
+  int32 idEvent = 1;
+}
+
+message GetAllDonationsAtEventResponse{
+  repeated EventDonationProto donations = 1;
+}
+
+// ========================
+// Messages de DonationsAtEvents
+// ========================
+message DonationAtEventRequest {
+  int32 idEvent = 1;
+  string description = 2;
+  int32 quantityDelivered = 3;
+  string username = 4;
+}
+
+// ========================
+// Service de eventos
+// ========================
+service EventService {
+  rpc GetAllEvents(Empty) returns (EventListResponse);
+  rpc GetAllEventsWithRelations(Empty) returns (EventListResponse);
+  rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse);
+  rpc UpdateEvent(UpdateEventRequest) returns (GenericResponse);
+  rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse);
+  rpc ToggleMemberToEvent(ToggleMemberRequest) returns (GenericResponse);
+}
+
+// ========================
+// Messages de eventos
+// ========================
+message EventProto {
+  int32 id = 1;
+  string nameEvent = 2;
+  string descriptionEvent = 3;
+  string dateRegistration = 4;
+  repeated UserProto users =5;
+  repeated EventDonationProto donations=6;
+}
+
+message EventListResponse {
+  repeated EventProto events = 1;
+}
+
+message CreateEventRequest {
+  string nameEvent = 1;
+  string descriptionEvent = 2;
+  string dateRegistration = 3;
+}
+
+message CreateEventResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message UpdateEventRequest {
+  int32 id = 1;
+  string nameEvent = 2;
+  string descriptionEvent = 3;
+  string dateRegistration = 4;
+}
+
+message DeleteEventRequest {
+  int32 id = 1;
+}
+
+message DeleteEventResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message ToggleMemberRequest {
+  int32 eventId = 1;
+  string username = 2;
+  optional bool alreadyAssigned = 3;
+}
+
+
+// Mensaje vacío (si no hay parámetros de entrada)
+message Empty {}
+
+// ========================
+// Messages de donacion x evento
+// ========================
+message DonationEventProto {
+  EventProto event = 1;
+  int32 quantityDelivered = 2;
+}
+
+message EventDonationProto {
+  DonationProto donation = 1;
+  int32 quantityDelivered = 2;
+}
+
+// ========================
+// Service de donacion
+// ========================
+service DonationService {
+  rpc GetAllDonations(Empty) returns (DonationListResponse);
+  rpc GetActiveDonations(Empty) returns (DonationListResponse);
+  rpc UpdateDonation(UpdateDonationRequest) returns (UpdateDonationResponse);
+  rpc DeleteDonation(DeleteDonationRequest) returns (DeleteDonationResponse);
+  rpc AltaDonation(AltaDonationRequest) returns (AltaDonationResponse);
+}
+
+// ========================
+// Messages de donacion
+// ========================
+message DonationProto {
+  int32 id = 1;
+  string category = 2;
+  string description = 3;
+  int32 amount = 4;
+  optional bool removed = 5;
+  repeated DonationEventProto events = 6;
+}
+
+message DonationListResponse {
+  repeated DonationProto donations = 1;
+}
+
+message UpdateDonationRequest {
+  int32 id = 1;
+  string category = 2;
+  string description = 3;
+  int32 amount = 4;
+  string username=5;
+}
+
+message UpdateDonationResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message GenericResponse {
+  bool success = 1;
+  string message = 2;
+}
+message DeleteDonationRequest{
+  int32 id = 1;
+  string username = 2;
+}
+
+message DeleteDonationResponse{
+  bool success = 1;
+  string message = 2;
+}
+
+message AltaDonationRequest {
+
+  string category = 1;
+  string description = 2;
+  int32 amount = 3;
+  string username=4;
+}
+
+message AltaDonationResponse{
+  bool success = 1;
+  string message = 2;
+}

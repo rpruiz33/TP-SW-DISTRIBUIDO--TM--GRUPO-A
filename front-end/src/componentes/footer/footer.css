@@ -1,0 +1,11 @@
+*{
+    margin: 0;
+    padding: 0;
+  
+}
+
+
+  .bg-nav {
+    background-color: #232D4F !important;
+    color: white;
+  }
