@@ -70,83 +70,75 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    public boolean altaUser(AltaUsuarioRequest request) {
+    public String altaUser(AltaUsuarioRequest request) {
 
-        boolean result;
-
-        if (userRepository.existsByEmail(request.getEmail()) || userRepository.existsByUsername(request.getUsername())) {
-            result=false;
-        } else {
-            if (request.getEmail().isEmpty() || request.getUsername().isEmpty() ||
-                request.getName().isEmpty() || request.getLastName().isEmpty() ||
-                request.getRole().isEmpty()) {
-
-                result=false;
-            } else {
-                Role rol = roleRepository.findByNameRole(request.getRole());
-
-                if (rol == null) {
-
-                    result=false;
-                }
-
-                User newUser = UserMapper.toEntity(request, rol);
-
-                String passPlana = PasswordUtils.generateRandomPassword();
-                newUser.setPassword(PasswordUtils.encryptPassword(passPlana));
-
-                userRepository.save(newUser);
-                result=true;
-
-                //🚀 Enviar mail con la contraseña
-                try {
-                    emailService.sendEmail(
-                        newUser.getEmail(),
-                        "Registro exitoso",
-                        "Hola " + newUser.getName() + ",\n\nTu usuario fue creado exitosamente.\n" +
-                        "Tu contraseña es: " + passPlana + "\n\n."
-                    );
-                    result=true;
-                } catch (Exception e) {
-                    result=false;
-                }
-                
-
-            }
-        }
-
-        return  result;
+    if (userRepository.existsByEmail(request.getEmail()) || userRepository.existsByUsername(request.getUsername())) {
+        return "Email o username ya registrado";
     }
+
+    if (request.getEmail().isEmpty() || request.getUsername().isEmpty() ||
+        request.getName().isEmpty() || request.getLastName().isEmpty() ||
+        request.getRole().isEmpty()) {
+
+        return "Datos incompletos";
+    }
+
+    Role rol = roleRepository.findByNameRole(request.getRole());
+    if (rol == null) {
+        return "Rol inválido";
+    }
+
+    User newUser = UserMapper.toEntity(request, rol);
+
+    String passPlana = PasswordUtils.generateRandomPassword();
+    newUser.setPassword(PasswordUtils.encryptPassword(passPlana));
+
+    userRepository.save(newUser);
+
+    // 🚀 Enviar mail con la contraseña
+    try {
+        emailService.sendEmail(
+            newUser.getEmail(),
+            "Registro exitoso",
+            "Hola " + newUser.getName() + ",\n\nTu usuario fue creado exitosamente.\n" +
+            "Tu contraseña es: " + passPlana + "\n\n."
+        );
+        return "Usuario creado con éxito";
+    } catch (Exception e) {
+        return "Usuario creado pero error al enviar email";
+    }
+}
+
     
 
-    public boolean updateUser(UpdateUsuarioRequest request) {
+    public String updateUser(UpdateUsuarioRequest request) {
 
-        boolean result;
-        User user = userRepository.findByUsername(request.getUsername()).orElse(null);
+    User user = userRepository.findByUsername(request.getUsername()).orElse(null);
 
-        if (user == null) {
-            result =false;
-        } else {
-
-            user.setName(request.getName());
-            user.setLastName(request.getLastName());
-            user.setPhone(request.getPhone());
-            user.setEmail(request.getEmail());
-
-            Role rol = roleRepository.findByNameRole(request.getRole());
-
-            if (rol == null) {
-                result =false;
-            }
-
-            user.setRole(rol);
-
-            userRepository.save(user);
-            result =true;
-        }
-
-        return  result;
+    if (user == null) {
+        return "Usuario no encontrado";
     }
+
+    if (request.getName().isEmpty() || request.getLastName().isEmpty() ||
+        request.getEmail().isEmpty() || request.getRole().isEmpty()) {
+        return "Datos incompletos";
+    }
+
+    user.setName(request.getName());
+    user.setLastName(request.getLastName());
+    user.setPhone(request.getPhone());
+    user.setEmail(request.getEmail());
+
+    Role rol = roleRepository.findByNameRole(request.getRole());
+    if (rol == null) {
+        return "Rol inválido";
+    }
+
+    user.setRole(rol);
+
+    userRepository.save(user);
+    return "Usuario modificado con éxito";
+}
 
 
     @Transactional

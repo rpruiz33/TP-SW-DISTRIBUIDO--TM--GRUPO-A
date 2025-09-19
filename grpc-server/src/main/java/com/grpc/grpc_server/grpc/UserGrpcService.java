@@ -1,21 +1,19 @@
 package com.grpc.grpc_server.grpc;
 
-import com.grpc.grpc_server.DonationServiceGrpc;
-import com.grpc.grpc_server.MyServiceClass;
-import com.grpc.grpc_server.MyServiceGrpc;
-import com.grpc.grpc_server.entities.Event;
-import com.grpc.grpc_server.entities.User;
-import com.grpc.grpc_server.mapper.EventMapper;
-import com.grpc.grpc_server.mapper.UserMapper;
-import com.grpc.grpc_server.services.impl.UserServiceImpl;
-import io.grpc.stub.StreamObserver;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.grpc.server.service.GrpcService;
-import com.grpc.grpc_server.MyServiceClass.*;
+
+import com.grpc.grpc_server.MyServiceClass;
+import com.grpc.grpc_server.MyServiceClass.LoginResponse;
+import com.grpc.grpc_server.MyServiceGrpc;
+import com.grpc.grpc_server.entities.User;
+import com.grpc.grpc_server.mapper.UserMapper;
+import com.grpc.grpc_server.services.impl.UserServiceImpl;
+
+import io.grpc.stub.StreamObserver;
 
 
 
@@ -93,38 +91,38 @@ public class UserGrpcService extends MyServiceGrpc.MyServiceImplBase {
 
 
     @Override
-    public void altaUser(MyServiceClass.AltaUsuarioRequest request, StreamObserver<MyServiceClass.AltaUsuarioResponse> responseObserver){
-        boolean result= userService.altaUser(request);
+    public void altaUser(MyServiceClass.AltaUsuarioRequest request, StreamObserver<MyServiceClass.AltaUsuarioResponse> responseObserver) {
+    String result = userService.altaUser(request);
 
-        var responseBuilder = MyServiceClass.AltaUsuarioResponse.newBuilder();
+    var responseBuilder = MyServiceClass.AltaUsuarioResponse.newBuilder();
 
-        if (result){
-            responseBuilder.setSuccess(true).setMessage("Usuario creada");
-        }else{
-            responseBuilder.setSuccess(false).setMessage("No se pudo crear el usuario");
-        }
-
-        responseObserver.onNext(responseBuilder.build());
-        responseObserver.onCompleted();
-
+    if (result.equals("Usuario creado con éxito") || result.equals("Usuario creado pero error al enviar email")) {
+        responseBuilder.setSuccess(true).setMessage(result);
+    } else {
+        responseBuilder.setSuccess(false).setMessage(result);
     }
+
+    responseObserver.onNext(responseBuilder.build());
+    responseObserver.onCompleted();
+}
+
 
     @Override
     public void updateUser(MyServiceClass.UpdateUsuarioRequest request, StreamObserver<MyServiceClass.AltaUsuarioResponse> responseObserver){
 
-        boolean result= userService.updateUser(request);
+        String result = userService.updateUser(request);
 
-        var responseBuilder = MyServiceClass.AltaUsuarioResponse.newBuilder();
+    var responseBuilder = MyServiceClass.AltaUsuarioResponse.newBuilder();
 
-        if (result){
-            responseBuilder.setSuccess(true).setMessage("Usuario modificado");
-        }else{
-            responseBuilder.setSuccess(false).setMessage("No se pudo modificar el usuario");
-        }
-
-        responseObserver.onNext(responseBuilder.build());
-        responseObserver.onCompleted();
+    if (result.equals("Usuario modificado con éxito")) {
+        responseBuilder.setSuccess(true).setMessage(result);
+    } else {
+        responseBuilder.setSuccess(false).setMessage(result);
     }
+
+    responseObserver.onNext(responseBuilder.build());
+    responseObserver.onCompleted();
+}
 
     @Override
     public void deleteUser(MyServiceClass.DeleteUsuarioRequest request,
