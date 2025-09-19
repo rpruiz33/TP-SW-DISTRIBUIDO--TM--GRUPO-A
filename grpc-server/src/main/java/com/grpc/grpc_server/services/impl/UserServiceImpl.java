@@ -3,24 +3,26 @@ package com.grpc.grpc_server.services.impl;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
-import com.grpc.grpc_server.entities.Event;
-import com.grpc.grpc_server.entities.MemberAtEvent;
-import com.grpc.grpc_server.repositories.MemberAtEventRepository;
-import com.grpc.grpc_server.services.UserService;
-import io.grpc.stub.StreamObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.grpc.grpc_server.MyServiceClass.*;
+
+import com.grpc.grpc_server.MyServiceClass.AltaUsuarioRequest;
+import com.grpc.grpc_server.MyServiceClass.DeleteUsuarioRequest;
+import com.grpc.grpc_server.MyServiceClass.LoginRequest;
+import com.grpc.grpc_server.MyServiceClass.UpdateUsuarioRequest;
+import com.grpc.grpc_server.entities.Event;
+import com.grpc.grpc_server.entities.MemberAtEvent;
 import com.grpc.grpc_server.entities.Role;
 import com.grpc.grpc_server.entities.User;
 import com.grpc.grpc_server.mapper.UserMapper;
+import com.grpc.grpc_server.repositories.MemberAtEventRepository;
 import com.grpc.grpc_server.repositories.RoleRepository;
 import com.grpc.grpc_server.repositories.UserRepository;
+import com.grpc.grpc_server.services.UserService;
 import com.grpc.grpc_server.util.PasswordUtils;
 
 @Service
@@ -96,7 +98,7 @@ public class UserServiceImpl implements UserService {
                 userRepository.save(newUser);
                 result=true;
 
-                /* 🚀 Enviar mail con la contraseña
+                //🚀 Enviar mail con la contraseña
                 try {
                     emailService.sendEmail(
                         newUser.getEmail(),
@@ -108,7 +110,7 @@ public class UserServiceImpl implements UserService {
                 } catch (Exception e) {
                     result=false;
                 }
-                */
+                
 
             }
         }
