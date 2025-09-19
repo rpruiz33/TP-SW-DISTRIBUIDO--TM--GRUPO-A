@@ -18,6 +18,8 @@ import com.grpc.grpc_server.entities.Event;
 import com.grpc.grpc_server.entities.MemberAtEvent;
 import com.grpc.grpc_server.entities.Role;
 import com.grpc.grpc_server.entities.User;
+import com.grpc.grpc_server.exceptions.InvalidDataException;
+import com.grpc.grpc_server.exceptions.UserNotFoundException;
 import com.grpc.grpc_server.mapper.UserMapper;
 import com.grpc.grpc_server.repositories.MemberAtEventRepository;
 import com.grpc.grpc_server.repositories.RoleRepository;
@@ -149,61 +151,55 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    @Transactional
+   @Transactional
     public String deleteUser(DeleteUsuarioRequest request) {
-        String result;
 
-        if (request == null || request.getUsername() == null || request.getUsername().isEmpty()) {
-            return "Error datos inválidos";
-        }
-
-        User u = userRepository.findByUsername(request.getUsername()).orElse(null);
-
-
-        if (u != null && u.getActivate()) {
-            // 🔹 Desactivar usuario
-            u.setActivate(false);
-
-            // 🔹 Remover de todos los eventos futuros
-            LocalDate hoy = LocalDate.now();
-            List<MemberAtEvent> futurasAsociaciones = new ArrayList<>();
-
-            for (MemberAtEvent mae : u.getEvents()) {
-                Event e = mae.getEvent();
-                if (e != null && e.getDateRegistration() != null &&
-                        e.getDateRegistration().isAfter(hoy.atStartOfDay())) {
-
-                    futurasAsociaciones.add(mae);
-                }
-            }
-
-            for (MemberAtEvent mae : futurasAsociaciones) {
-                Event e = mae.getEvent();
-
-                // Eliminar de la tabla intermedia
-                memberAtEventRepository.delete(mae);
-
-                // Actualizar listas en memoria
-                u.getEvents().remove(mae);
-                if (e != null) {
-                    e.getMembers().remove(mae);
-                }
-            }
-
-            userRepository.save(u);
-            return "Usuario dado de baja";
-
-        } else if (u != null && !u.getActivate()) {
-
-            u.setActivate(true);
-            userRepository.save(u);
-            result = "Usuario dado de alta";
-        } else {
-            result = "Error usuario no encontrado";
-        }
-
-        return result;
+    if (request == null || request.getUsername() == null || request.getUsername().isEmpty()) {
+        throw new InvalidDataException("Datos inválidos: el nombre de usuario es obligatorio");
     }
+
+    User u = userRepository.findByUsername(request.getUsername()).orElse(null);
+
+    if (u == null) {
+        throw new UserNotFoundException("Usuario no encontrado: " + request.getUsername());
+    }
+
+    if (u.getActivate()) {
+        // 🔹 Desactivar usuario
+        u.setActivate(false);
+
+        // 🔹 Remover de todos los eventos futuros
+        LocalDate hoy = LocalDate.now();
+        List<MemberAtEvent> futurasAsociaciones = new ArrayList<>();
+
+        for (MemberAtEvent mae : u.getEvents()) {
+            Event e = mae.getEvent();
+            if (e != null && e.getDateRegistration() != null &&
+                e.getDateRegistration().isAfter(hoy.atStartOfDay())) {
+                futurasAsociaciones.add(mae);
+            }
+        }
+
+        for (MemberAtEvent mae : futurasAsociaciones) {
+            Event e = mae.getEvent();
+            memberAtEventRepository.delete(mae);
+            u.getEvents().remove(mae);
+            if (e != null) {
+                e.getMembers().remove(mae);
+            }
+        }
+
+        userRepository.save(u);
+        return "Usuario dado de baja";
+
+    } else {
+        // 🔹 Reactivar usuario
+        u.setActivate(true);
+        userRepository.save(u);
+        return "Usuario dado de alta";
+    }
+}
+
 
 
 
