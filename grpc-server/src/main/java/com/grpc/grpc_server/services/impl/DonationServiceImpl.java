@@ -89,7 +89,7 @@ public class DonationServiceImpl implements DonationService {
 
         if (d != null && u !=  null) {
 
-            d.setRemoved(true);
+            d.setRemoved(!d.getRemoved());
             d.setUserModification(u);
             d.setDateModification(LocalDateTime.now());
             donationRepository.save(d);

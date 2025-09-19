@@ -1,37 +1,36 @@
 import React from "react";
-import './footer.css';
 const Footer = () => {
-  return (
-    
-    <footer className="text-center text-white py-3 mt-auto bg-nav">
-           
-         
-        
-      <div className="container p-4 pb-1 navbar-dark" style={{  backgroundColor:'#232D4F'}}>
-        <section className="mb-4">
-          <a className="btn btn-outline-light btn-floating m-1" href="#!" role="button">
-            <i className="fab fa-facebook-f"></i>
-          </a>
-          <a className="btn btn-outline-light btn-floating m-1" href="#!" role="button">
-            <i className="fab fa-twitter"></i>
-          </a>
-          <a className="btn btn-outline-light btn-floating m-1" href="#!" role="button">
-            <i className="fab fa-instagram"></i>
-          </a>
-        </section>
+return (
+    <footer className="bg-[#232D4F] text-gray-100">
+      {/* Redes sociales */}
+      <div className="flex justify-center space-x-4 py-2">
+        <a
+          href="#!"
+          className="text-gray-100 hover:text-blue-400"
+          aria-label="Facebook"
+        >
+          <i className="fab fa-facebook-f"></i>
+        </a>
+        <a
+          href="#!"
+          className="text-gray-100 hover:text-blue-400"
+          aria-label="Twitter"
+        >
+          <i className="fab fa-twitter"></i>
+        </a>
+        <a
+          href="#!"
+          className="text-gray-100 hover:text-blue-400"
+          aria-label="Instagram"
+        >
+          <i className="fab fa-instagram"></i>
+        </a>
       </div>
 
-      <div className="text-center p-3" style={{  backgroundColor:'#232D4F'}}>
-      <a className="text-white" href="#!">
-          SISTEMA--EMPUJE--COMUNITARIO
-          <br></br>
-          <br></br>
-        </a>
-        © 2025 Copyright: 
-       
-    
-
-       
+      {/* Texto de copyright */}
+      <div className="text-center text-sm py-2">
+        <p>SISTEMA--EMPUJE--COMUNITARIO</p>
+        <p>© 2025 Copyright</p>
       </div>
     </footer>
   );

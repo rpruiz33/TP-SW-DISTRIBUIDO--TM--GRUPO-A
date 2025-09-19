@@ -69,17 +69,17 @@ const DonationForm = () => {
 
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div className="flex justify-center items-center min-h-screen bg-[#01000F]">
       <form
         onSubmit={handleSubmit}
         className="bg-white p-6 rounded shadow-md w-full max-w-md"
       >
-        <h2 className="text-xl font-bold mb-4">
+        <h2 className="text-4xl text-center font-bold mb-4 ">
           {donationToEdit ? "Modificar Donación" : "Alta de Donación"}
         </h2>
 
         {/* Category */}
-        <label>Categoria</label>
+        <label className="font-bold">Categoria</label>
         {donationToEdit ? (
           <input
             type="text"
@@ -87,6 +87,7 @@ const DonationForm = () => {
             value={formData.category}
             readOnly
             className="w-full p-2 border mb-2 bg-gray-200"
+            required
           />
         ) : (
           <select
@@ -105,23 +106,25 @@ const DonationForm = () => {
         )}
 
         {/* Description */}
-        <label>Descripcion</label>
+        <label className="font-bold" >Descripcion</label>
         <input
           type="text"
           name="description"
           value={formData.description}
           onChange={handleChange}
           className="w-full p-2 border mb-2"
+          required
         />
 
         {/* Amount */}
-        <label>Cantidad</label>
+        <label className="font-bold" >Cantidad</label>
         <input
           type="number"
           name="amount"
           value={formData.amount}
           onChange={handleChange}
           className="w-full p-2 border mb-4"
+          required
         />
 
         {/* Botón Guardar */}

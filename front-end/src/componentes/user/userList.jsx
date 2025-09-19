@@ -21,8 +21,10 @@ const UserList = () => {
         setUsers(response.data.users);
       } else {
         setUsers([]);
+        setError(response.data.message)
         console.warn("La respuesta no contiene un array de usuarios:", response.data);
       }
+
     } catch (err) {
       console.error("Error en la solicitud:", err);
       setError("Error de conexión con el servidor");
@@ -31,17 +33,24 @@ const UserList = () => {
 
   const deleteUser = async (user) => {
 
-    if (user.activated){
+    if (user.activated) {
       if (!window.confirm("¿Seguro que deseas eliminar este usuario?")) return;
-    }else{
+    } else {
       if (!window.confirm("¿Seguro que deseas activar este usuario?")) return;
     }
 
     try {
       const response = await axios.put(`http://localhost:5000/api/deleteuser/${user.username}`);
       console.log("Respuesta del servidor:", response.data.message);
+
       alert(response.data.message);
-      getUsers(); // Recarga la lista
+
+      if (response.data.success) {
+        //Si se hicieron cambios, recargar
+        await getUsers();
+      }
+
+
     } catch (err) {
       console.error("Error al eliminar usuario:", err.response ? err.response.data : err.message);
       alert(err.response?.data?.message || "❌ Error al eliminar usuario");
@@ -53,42 +62,50 @@ const UserList = () => {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl text-black font-bold mb-4">Lista de Usuarios</h1>
+    <div className="p-6 bg-[#01000F] min-h-screen flex flex-col">
+
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-5xl font-bold text-white mb-4">Lista de Usuarios</h1>
+
+        <button
+          onClick={() => navigate("/userform")}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Crear Nuevo Usuario
+        </button>
+
+      </div>
+
+
       {error && <div className="text-red-500 mb-4">{error}</div>}
-      <button
-        onClick={() => navigate("/userform")}
-        className="mb-4 px-4 py-2 bg-blue-500 text-black rounded hover:bg-blue-600"
-      >
-        Crear Nuevo Usuario
-      </button>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-200">
+
+      <div className="overflow-x-auto flex-grow">
+        <table className="min-w-full border border-gray-700">
           <thead>
-            <tr className="bg-gray-100">
-              <th className="px-4 py-2 border">Username</th>
-              <th className="px-4 py-2 border">Nombre</th>
-              <th className="px-4 py-2 border">Apellido</th>
-              <th className="px-4 py-2 border">Teléfono</th>
-              <th className="px-4 py-2 border">Email</th>
-              <th className="px-4 py-2 border">Rol</th>
-              <th className="px-4 py-2 border">Activo</th>
-              <th className="px-4 py-2 border">Acciones</th>
+            <tr className="bg-gray-800 text-white">
+              <th className="px-4 py-2 border border-gray-700 text-center">Username</th>
+              <th className="px-4 py-2 border border-gray-700 text-center">Nombre</th>
+              <th className="px-4 py-2 border border-gray-700 text-center">Apellido</th>
+              <th className="px-4 py-2 border border-gray-700 text-center">Teléfono</th>
+              <th className="px-4 py-2 border border-gray-700 text-center">Email</th>
+              <th className="px-4 py-2 border border-gray-700 text-center">Rol</th>
+              <th className="px-4 py-2 border border-gray-700 text-center">Activo</th>
+              <th className="px-4 py-2 border border-gray-700 text-center">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {users.map((user, index) => (
-              <tr key={user.username || index} className="text-center">
-                <td className="px-4 py-2 border">{user.username || "N/A"}</td>
-                <td className="px-4 py-2 border">{user.name || "N/A"}</td>
-                <td className="px-4 py-2 border">{user.lastName || "N/A"}</td>
-                <td className="px-4 py-2 border">{user.phone || "N/A"}</td>
-                <td className="px-4 py-2 border">{user.email || "N/A"}</td>
-                <td className="px-4 py-2 border">{user.role || "N/A"}</td>
-                <td className="px-4 py-2 border text-red">
+              <tr key={user.username || index} className="text-center text-gray-200">
+                <td className="px-4 py-2 border border-gray-700">{user.username || "N/A"}</td>
+                <td className="px-4 py-2 border border-gray-700">{user.name || "N/A"}</td>
+                <td className="px-4 py-2 border border-gray-700">{user.lastName || "N/A"}</td>
+                <td className="px-4 py-2 border border-gray-700">{user.phone || "N/A"}</td>
+                <td className="px-4 py-2 border border-gray-700">{user.email || "N/A"}</td>
+                <td className="px-4 py-2 border border-gray-700">{user.role || "N/A"}</td>
+                <td className={`px-4 py-2 border border-gray-700 ${user.activated ? "text-green-400" : "text-red-500"}`}>
                   {user.activated != null ? (user.activated ? "Sí" : "No") : "N/A"}
                 </td>
-                <td className="px-4 py-2 border space-x-2">
+                <td className="px-4 py-2 border border-gray-700 space-x-2">
                   <button
                     onClick={() => editUser(user)}
                     className="px-2 py-1 bg-yellow-500 text-black rounded hover:bg-yellow-600"
@@ -97,7 +114,12 @@ const UserList = () => {
                   </button>
                   <button
                     onClick={() => deleteUser(user)}
-                    className="px-2 py-1 bg-red-500 text-black rounded hover:bg-red-600"
+                    className={`px-2 py-1 rounded text-black hover:opacity-90 ${user.activated != null
+                      ? user.activated
+                        ? "bg-red-500 hover:bg-red-600" // Si dice "Activar"
+                        : "bg-green-500 hover:bg-green-600"     // Si dice "Eliminar"
+                      : "bg-gray-400 cursor-not-allowed"   // Caso "N/A"
+                      }`}
                   >
                     {user.activated != null ? (user.activated ? "Eliminar" : "Activar") : "N/A"}
                   </button>
