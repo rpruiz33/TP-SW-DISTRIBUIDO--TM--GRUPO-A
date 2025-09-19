@@ -106,10 +106,11 @@ public class DonationsAtEventsServiceImpl implements DonationsAtEventsService {
             if(dae != null){ //chequear que exista la relacion
 
                 int newQuantityDelivered = request.getQuantityDelivered();
+                int currentQuantityDelivered = dae.getQuantityDelivered();
 
-                if (donation.getAmount() > newQuantityDelivered) { ///chequear que haya esa cantidad en el inventario
+                if ( (donation.getAmount() + currentQuantityDelivered )>= newQuantityDelivered) { ///chequear que haya esa cantidad en el inventario
 
-                    int currentQuantityDelivered = dae.getQuantityDelivered();
+
 
                     if(currentQuantityDelivered < newQuantityDelivered ){
 

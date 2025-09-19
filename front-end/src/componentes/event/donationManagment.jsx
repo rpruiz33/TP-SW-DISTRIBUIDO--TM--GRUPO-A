@@ -23,8 +23,9 @@ const DonationManagment = () => {
 
 
     const getAlreadyAssignedDonations = async () => {
+
         try {
-            const response = await axios.get("http://localhost:5000/api/assigneddonationlist");
+            const response = await axios.get(`http://localhost:5000/api/assigneddonationlist/${mainEvent.id}`);
             console.log("Respuesta completa:", response.data);
             if (Array.isArray(response.data)) {
                 setDonations(response.data);
@@ -58,10 +59,12 @@ const DonationManagment = () => {
         }
 
         try {
-            const response = await axios.post("http://localhost:5000/api/assigndonation", protoPayload);
+            const response = await axios.post("http://localhost:5000/api/updatedonationatevent", protoPayload);
 
             if (response.data.success) {
-                alert("Se asignaron " + quantity + " " + donation.description + " al evento")
+                alert("Se actualizo la cantidad asignada al evento")
+                window.location.reload();
+
             } else {
                 alert(response.data.message);
             }
@@ -106,15 +109,15 @@ const DonationManagment = () => {
                         {donations.map((donation, index) => {
                             return (
                                 <tr key={donation.id || index} className="text-center">
-                                    <td className="px-4 py-2 border">{donation.category || "N/A"}</td>
-                                    <td className="px-4 py-2 border">{donation.description || "N/A"}</td>
-                                    <td className="px-4 py-2 border">{donation.amount || 0}</td>
-                                    <td className="px-4 py-2 border">{donation.amount || 0}</td>
+                                    <td className="px-4 py-2 border">{donation.donation.category || "N/A"}</td>
+                                    <td className="px-4 py-2 border">{donation.donation.description || "N/A"}</td>
+                                    <td className="px-4 py-2 border">{donation.donation.amount || 0}</td>
+                                    <td className="px-4 py-2 border">{donation.quantityDelivered || 0}</td>
 
                                     <td className="px-4 py-2 border">
                                         <input
                                             type="number"
-                                            value={quantities[donation.id] || ""}
+                                            value={quantities[donation.donation.id] || ""}
                                             onChange={(e) => {
                                                 let value = parseInt(e.target.value, 10);
 
@@ -122,7 +125,7 @@ const DonationManagment = () => {
                                                 if (isNaN(value)) {
                                                     setQuantities({
                                                         ...quantities,
-                                                        [donation.id]: ""
+                                                        [donation.donation.id]: ""
                                                     });
                                                     return;
                                                 }
@@ -131,27 +134,30 @@ const DonationManagment = () => {
                                                 if (value < 1) {
                                                     value = 1;
                                                 }
+                                                const maxValue = donation.donation.amount != null 
+                                                    ? donation.donation.amount + donation.quantityDelivered
+                                                    : donation.quantityDelivered; // máximo permitido
 
-                                                // Forzar máximo (amount - 1)
-                                                if (value > donation.amount) {
-                                                    value = donation.amount;
+                                                // Forzar máximo (amount +  cantidad ya asignada )
+                                                if (value > maxValue) {
+                                                    value = maxValue
                                                 }
 
                                                 setQuantities({
                                                     ...quantities,
-                                                    [donation.id]: value
+                                                    [donation.donation.id]: value
                                                 });
                                             }}
                                             placeholder="Cantidad"
                                             className="w-24 p-1 border rounded"
                                         />
 
-                                    </td>
 
-                                    <td className="px-4 py-2 border space-x-2">
+
+
                                         <button
-                                            onClick={() => assignDonation(donation)}
-                                            className="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                                            onClick={() => assignDonation(donation.donation)}
+                                            className="px-2 py-1 bg-green-500 text-black rounded hover:bg-green-600"
                                         >
                                             Actualizar cantidad
                                         </button>

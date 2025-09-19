@@ -52,11 +52,29 @@ const AssignNewDonation = () => {
         };
 
         try {
-            const response = await axios.post("http://localhost:5000/api/assigndonation", protoPayload);
+            const response = await axios.post("http://localhost:5000/api/createdonationatevent", protoPayload);
 
             if (response.data.success) {
                 alert("Se asignaron " + quantity + " " + donation.description + " al evento");
-                navigate("/donationmanagment", { state: { mainEvent } });
+                
+                // 🔹 Actualizar donaciones asignadas en memoria
+                const newAssignedDonation = {
+                    ...donation,
+                    quantityDelivered: quantity,
+                };
+
+                // Agregar al evento la nueva donación asignada
+                mainEvent.donations = [
+                    ...(mainEvent.donations || []),
+                    newAssignedDonation,
+                ];
+
+                // 🔹 Remover de la lista de disponibles
+                setDonations((prev) =>
+                    prev.filter((d) => d.id !== donation.id)
+                );
+
+
             } else {
                 alert(response.data.message);
             }
@@ -137,7 +155,7 @@ const AssignNewDonation = () => {
                                     <td className="px-4 py-2 border space-x-2">
                                         <button
                                             onClick={() => assignDonation(donation)}
-                                            className="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                                            className="px-2 py-1 bg-green-500 text-black rounded hover:bg-green-600"
                                         >
                                             Asignar
                                         </button>

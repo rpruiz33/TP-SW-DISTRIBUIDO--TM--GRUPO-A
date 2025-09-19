@@ -378,7 +378,12 @@ class DonationsAtEventsServiceStub(object):
         """
         self.CreateDonationAtEvent = channel.unary_unary(
                 '/DonationsAtEventsService/CreateDonationAtEvent',
-                request_serializer=service__pb2.CreateDonationAtEventRequest.SerializeToString,
+                request_serializer=service__pb2.DonationAtEventRequest.SerializeToString,
+                response_deserializer=service__pb2.GenericResponse.FromString,
+                _registered_method=True)
+        self.UpdateDonationAtEvent = channel.unary_unary(
+                '/DonationsAtEventsService/UpdateDonationAtEvent',
+                request_serializer=service__pb2.DonationAtEventRequest.SerializeToString,
                 response_deserializer=service__pb2.GenericResponse.FromString,
                 _registered_method=True)
         self.GetAllDonationsAtEvent = channel.unary_unary(
@@ -400,6 +405,12 @@ class DonationsAtEventsServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def UpdateDonationAtEvent(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def GetAllDonationsAtEvent(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -411,7 +422,12 @@ def add_DonationsAtEventsServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'CreateDonationAtEvent': grpc.unary_unary_rpc_method_handler(
                     servicer.CreateDonationAtEvent,
-                    request_deserializer=service__pb2.CreateDonationAtEventRequest.FromString,
+                    request_deserializer=service__pb2.DonationAtEventRequest.FromString,
+                    response_serializer=service__pb2.GenericResponse.SerializeToString,
+            ),
+            'UpdateDonationAtEvent': grpc.unary_unary_rpc_method_handler(
+                    servicer.UpdateDonationAtEvent,
+                    request_deserializer=service__pb2.DonationAtEventRequest.FromString,
                     response_serializer=service__pb2.GenericResponse.SerializeToString,
             ),
             'GetAllDonationsAtEvent': grpc.unary_unary_rpc_method_handler(
@@ -448,7 +464,34 @@ class DonationsAtEventsService(object):
             request,
             target,
             '/DonationsAtEventsService/CreateDonationAtEvent',
-            service__pb2.CreateDonationAtEventRequest.SerializeToString,
+            service__pb2.DonationAtEventRequest.SerializeToString,
+            service__pb2.GenericResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def UpdateDonationAtEvent(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/DonationsAtEventsService/UpdateDonationAtEvent',
+            service__pb2.DonationAtEventRequest.SerializeToString,
             service__pb2.GenericResponse.FromString,
             options,
             channel_credentials,

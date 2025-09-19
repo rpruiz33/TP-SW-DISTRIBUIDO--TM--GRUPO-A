@@ -95,12 +95,8 @@ message SendEmailResponse {
 // Service de DonationsAtEvents
 // ========================
 service DonationsAtEventsService {
-<<<<<<< Updated upstream
-  rpc CreateDonationAtEvent(CreateDonationAtEventRequest) returns (GenericResponse);
-=======
   rpc CreateDonationAtEvent(DonationAtEventRequest) returns (GenericResponse);
   rpc UpdateDonationAtEvent(DonationAtEventRequest) returns (GenericResponse);
->>>>>>> Stashed changes
   rpc GetAllDonationsAtEvent(GetAllDonationsAtEventRequest) returns (GetAllDonationsAtEventResponse);
 }
 
@@ -120,15 +116,6 @@ message DonationAtEventRequest {
   string description = 2;
   int32 quantityDelivered = 3;
   string username = 4;
-}
-
-
-message GetAllDonationsAtEventRequest{
-  int32 idEvent = 1;
-}
-
-message GetAllDonationsAtEventResponse{
-  repeated EventDonationProto donations = 1;
 }
 
 // ========================
