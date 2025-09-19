@@ -10,6 +10,11 @@ import com.grpc.grpc_server.MyServiceClass;
 import com.grpc.grpc_server.MyServiceClass.LoginResponse;
 import com.grpc.grpc_server.MyServiceGrpc;
 import com.grpc.grpc_server.entities.User;
+<<<<<<< HEAD
+=======
+import com.grpc.grpc_server.exceptions.InvalidDataException;
+import com.grpc.grpc_server.exceptions.UserNotFoundException;
+>>>>>>> 5d600cba2bab5b3dc6e8687fc4f3550adb1d12b3
 import com.grpc.grpc_server.mapper.UserMapper;
 import com.grpc.grpc_server.services.impl.UserServiceImpl;
 
@@ -126,27 +131,40 @@ public class UserGrpcService extends MyServiceGrpc.MyServiceImplBase {
 
     @Override
     public void deleteUser(MyServiceClass.DeleteUsuarioRequest request,
-                           StreamObserver<MyServiceClass.DeleteUsuarioResponse> responseObserver) {
+                        StreamObserver<MyServiceClass.DeleteUsuarioResponse> responseObserver) {
 
-        String result = userService.deleteUser(request);
+        try {
+            String result = userService.deleteUser(request);
 
-        var responseBuilder = MyServiceClass.DeleteUsuarioResponse.newBuilder();
+            var response = MyServiceClass.DeleteUsuarioResponse.newBuilder()
+                    .setSuccess(true)
+                    .setMessage(result)
+                    .build();
 
-        switch (result) {
-            case "Usuario dado de baja":
-            case "Usuario dado de alta":
-                responseBuilder.setSuccess(true).setMessage(result);
-                break;
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
 
-            case "Error datos inválidos":
-            case "Error usuario no encontrado":
-            default:
-                responseBuilder.setSuccess(false).setMessage(result);
-                break;
+        } catch (InvalidDataException e) {
+            responseObserver.onError(
+                    io.grpc.Status.INVALID_ARGUMENT
+                            .withDescription(e.getMessage())
+                            .asRuntimeException()
+            );
+        } catch (UserNotFoundException e) {
+            responseObserver.onError(
+                    io.grpc.Status.NOT_FOUND
+                            .withDescription(e.getMessage())
+                            .asRuntimeException()
+            );
+        } catch (Exception e) {
+            responseObserver.onError(
+                    io.grpc.Status.INTERNAL
+                            .withDescription("Error interno en el servidor")
+                            .augmentDescription(e.getMessage())
+                            .asRuntimeException()
+            );
         }
-
-        responseObserver.onNext(responseBuilder.build());
-        responseObserver.onCompleted();
     }
+
 
 }

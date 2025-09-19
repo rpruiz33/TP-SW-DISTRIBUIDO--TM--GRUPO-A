@@ -18,6 +18,8 @@ import com.grpc.grpc_server.entities.Event;
 import com.grpc.grpc_server.entities.MemberAtEvent;
 import com.grpc.grpc_server.entities.Role;
 import com.grpc.grpc_server.entities.User;
+import com.grpc.grpc_server.exceptions.InvalidDataException;
+import com.grpc.grpc_server.exceptions.UserNotFoundException;
 import com.grpc.grpc_server.mapper.UserMapper;
 import com.grpc.grpc_server.repositories.MemberAtEventRepository;
 import com.grpc.grpc_server.repositories.RoleRepository;
@@ -141,7 +143,7 @@ public class UserServiceImpl implements UserService {
 }
 
 
-    @Transactional
+       @Transactional
     public String deleteUser(DeleteUsuarioRequest request) {
         String result;
 
@@ -196,8 +198,3 @@ public class UserServiceImpl implements UserService {
 
         return result;
     }
-
-
-
-
-}
