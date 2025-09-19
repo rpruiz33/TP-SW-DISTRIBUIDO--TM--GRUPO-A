@@ -66,6 +66,11 @@ public class DonationsAtEventsMapper {
                 .build();
     }
 
+     public static MyServiceClass.EventDonationProto toProto(DonationsAtEvents dae) {
+        return toProto(withDonationToDTO(dae));
+    }
+
+
     
 
 }

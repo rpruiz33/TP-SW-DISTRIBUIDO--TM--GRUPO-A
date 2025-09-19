@@ -5,11 +5,15 @@ import org.springframework.grpc.server.service.GrpcService;
 
 import com.grpc.grpc_server.DonationsAtEventsServiceGrpc;
 import com.grpc.grpc_server.MyServiceClass;
-import com.grpc.grpc_server.MyServiceClass.CreateDonationAtEventRequest;
+import com.grpc.grpc_server.MyServiceClass.DonationAtEventRequest;
 import com.grpc.grpc_server.MyServiceClass.DeleteEventRequest;
 import com.grpc.grpc_server.MyServiceClass.DeleteEventResponse;
 import com.grpc.grpc_server.MyServiceClass.GenericResponse;
+import com.grpc.grpc_server.MyServiceClass.GetAllDonationsAtEventRequest;
 import com.grpc.grpc_server.entities.DonationsAtEvents;
+import com.grpc.grpc_server.entities.Event;
+import com.grpc.grpc_server.mapper.DonationsAtEventsMapper;
+import com.grpc.grpc_server.mapper.EventMapper;
 import com.grpc.grpc_server.services.DonationsAtEventsService;
 import com.grpc.grpc_server.services.EventService;
 
@@ -25,7 +29,7 @@ public class DonationsAtEventsGrpcService extends  DonationsAtEventsServiceGrpc.
     private DonationsAtEventsService donationsAtEventsService;
 
     @Override
-    public void createDonationAtEvent(CreateDonationAtEventRequest request, StreamObserver<GenericResponse> responseObserver){
+    public void createDonationAtEvent(DonationAtEventRequest request, StreamObserver<GenericResponse> responseObserver){
 
         boolean result = donationsAtEventsService.registerDonationAtEvent(request);
 
@@ -38,6 +42,45 @@ public class DonationsAtEventsGrpcService extends  DonationsAtEventsServiceGrpc.
         }
 
         responseObserver.onNext(responseBuilder.build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void updateDonationAtEvent(DonationAtEventRequest request, StreamObserver<GenericResponse> responseObserver){
+
+        boolean result = donationsAtEventsService.updateDonationAtEvent(request);
+
+        var responseBuilder = GenericResponse.newBuilder();
+
+        if (result){
+            responseBuilder.setSuccess(true).setMessage("Donacion Modificada al Evento Correctamente");
+        }else{
+            responseBuilder.setSuccess(false).setMessage("No se pudo Modificar Donacion al Evento");
+        }
+
+        responseObserver.onNext(responseBuilder.build());
+        responseObserver.onCompleted();
+    }
+
+
+    @Override
+    public void getAllDonationsAtEvent(GetAllDonationsAtEventRequest request, StreamObserver<MyServiceClass.GetAllDonationsAtEventResponse> responseObserver) {
+
+         // 1️⃣ Obtener entidades desde la capa service
+        List<DonationsAtEvents> donationsAtEvents = donationsAtEventsService.getAllDonationsAtEvent(request);
+
+        // 2️⃣ Mapear a Proto usando Mapper
+        List<MyServiceClass.EventDonationProto> grpcDonationsAtEvents = donationsAtEvents.stream()
+                .map(DonationsAtEventsMapper::toProto)
+                .collect(Collectors.toList());
+
+        // 3️⃣ Construir y enviar la respuesta
+        MyServiceClass.GetAllDonationsAtEventResponse response = MyServiceClass.GetAllDonationsAtEventResponse.newBuilder()
+                .addAllDonations(grpcDonationsAtEvents)
+                .build();
+
+
+        responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
 }

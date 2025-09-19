@@ -1,5 +1,6 @@
 package com.grpc.grpc_server.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,4 +18,7 @@ public interface DonationsAtEventsRepository extends JpaRepository<DonationsAtEv
     void deleteByEvent(Event deleteEvent);
 
     DonationsAtEvents findByEventAndDonation(Event event, Donation donation);
+
+    @Query("SELECT dae FROM DonationsAtEvents dae WHERE dae.event.idEvent = :idEvent")
+    List<DonationsAtEvents> findAllDonationsAtEventsByIdEvent(int idEvent);
 }
