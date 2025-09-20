@@ -79,7 +79,6 @@ public class DonationServiceImpl implements DonationService {
         return result;
     }
 
-
     public boolean deleteDonation(DeleteDonationRequest request){
 
         boolean result=false;

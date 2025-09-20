@@ -63,57 +63,57 @@ public class UserServiceImpl implements UserService {
                     if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
                         return user.getRole().getNameRole(); // ✅ éxito → devuelve rol
                     } else {
-                        return ""; // ✅ usuario encontrado pero contraseña incorrecta
+                        return "Credenciales invalidas"; // ✅ usuario encontrado pero contraseña incorrecta
                     }
                 })
-                .orElse("User not found"); // ✅ no encontró usuario
+                .orElse("Usuario no encontrado"); // ✅ no encontró usuario
     }
 
 
     public String altaUser(AltaUsuarioRequest request) {
 
-    if (userRepository.existsByEmail(request.getEmail()) || userRepository.existsByUsername(request.getUsername())) {
-        return "Email o username ya registrado";
+        if (userRepository.existsByEmail(request.getEmail()) || userRepository.existsByUsername(request.getUsername())) {
+            return "Email o username ya registrado";
+        }
+
+        if (request.getEmail().isEmpty() || request.getUsername().isEmpty() ||
+            request.getName().isEmpty() || request.getLastName().isEmpty() ||
+            request.getRole().isEmpty()) {
+
+            return "Datos incompletos";
+        }
+
+        Role rol = roleRepository.findByNameRole(request.getRole());
+        if (rol == null) {
+            return "Rol inválido";
+        }
+
+        User newUser = UserMapper.toEntity(request, rol);
+
+        String passPlana = PasswordUtils.generateRandomPassword();
+        newUser.setPassword(PasswordUtils.encryptPassword(passPlana));
+
+        userRepository.save(newUser);
+
+        // 🚀 Enviar mail con la contraseña
+        try {
+            emailService.sendEmail(
+                newUser.getEmail(),
+                "Registro exitoso",
+                "Hola " + newUser.getName() + ",\n\nTu usuario fue creado exitosamente.\n" +
+                "Tu contraseña es: " + passPlana + "\n\n."
+            );
+            return "Usuario creado con éxito";
+        } catch (Exception e) {
+            return "Usuario creado pero error al enviar email";
+        }
     }
-
-    if (request.getEmail().isEmpty() || request.getUsername().isEmpty() ||
-        request.getName().isEmpty() || request.getLastName().isEmpty() ||
-        request.getRole().isEmpty()) {
-
-        return "Datos incompletos";
-    }
-
-    Role rol = roleRepository.findByNameRole(request.getRole());
-    if (rol == null) {
-        return "Rol inválido";
-    }
-
-    User newUser = UserMapper.toEntity(request, rol);
-
-    String passPlana = PasswordUtils.generateRandomPassword();
-    newUser.setPassword(PasswordUtils.encryptPassword(passPlana));
-
-    userRepository.save(newUser);
-
-    // 🚀 Enviar mail con la contraseña
-    try {
-        emailService.sendEmail(
-            newUser.getEmail(),
-            "Registro exitoso",
-            "Hola " + newUser.getName() + ",\n\nTu usuario fue creado exitosamente.\n" +
-            "Tu contraseña es: " + passPlana + "\n\n."
-        );
-        return "Usuario creado con éxito";
-    } catch (Exception e) {
-        return "Usuario creado pero error al enviar email";
-    }
-}
 
     
 
     public String updateUser(UpdateUsuarioRequest request) {
 
-    User user = userRepository.findByUsername(request.getUsername()).orElse(null);
+    User user = userRepository.findByEmailOrUsername(request.getEmail(),request.getUsername()).orElse(null);
 
     if (user == null) {
         return "Usuario no encontrado";
@@ -124,6 +124,12 @@ public class UserServiceImpl implements UserService {
         return "Datos incompletos";
     }
 
+    if (  (userRepository.existsByEmail(request.getEmail() ) && !user.getEmail().equals(request.getEmail()) ) ||
+            (userRepository.existsByUsername(request.getUsername()) && !user.getUsername().equals(request.getUsername()) ) ){
+        return "Username/Email ya esta siendo utilizado";
+    }
+
+    user.setUsername(request.getUsername());
     user.setName(request.getName());
     user.setLastName(request.getLastName());
     user.setPhone(request.getPhone());

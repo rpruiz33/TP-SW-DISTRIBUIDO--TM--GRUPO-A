@@ -18,6 +18,8 @@ const Login = () => {
                 password: password
             });
 
+            console.log(response);
+            
             if (response.data.success) {
                 const roleName = response.data.role_name;
                 const normalizedRole = roleName.toUpperCase(); // 🔹 Siempre en mayúsculas

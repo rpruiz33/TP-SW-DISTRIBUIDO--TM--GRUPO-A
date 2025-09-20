@@ -64,21 +64,23 @@ export default function UserForm() {
           {userToEdit ? "Modificar Usuario" : "Alta de Usuario"}
         </h2>
 
-        <label className="font-bold">Nombre</label>
-        <input
-          type="text"
-          name="nombre"
-          value={formData.nombre}
-          onChange={handleChange}
-          className="w-full p-2 border mb-2"
-          required
-        />
+
 
         <label className="font-bold">Username</label>
         <input
           type="text"
           name="username"
           value={formData.username}
+          onChange={handleChange}
+          className="w-full p-2 border mb-2"
+          required
+        />
+        
+        <label className="font-bold">Nombre</label>
+        <input
+          type="text"
+          name="nombre"
+          value={formData.nombre}
           onChange={handleChange}
           className="w-full p-2 border mb-2"
           required

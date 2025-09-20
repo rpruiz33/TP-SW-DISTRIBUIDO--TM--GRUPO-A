@@ -17,7 +17,7 @@ public interface EventService {
     boolean createEvent(CreateEventRequest request);
     boolean toggleMemberToEvent(MyServiceClass.ToggleMemberRequest request);
 
-    boolean updateEvent(UpdateEventRequest request);
+    String updateEvent(UpdateEventRequest request);
 
     /* 
     void assignMember(Integer eventId, String username);

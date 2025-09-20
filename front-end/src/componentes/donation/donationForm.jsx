@@ -26,7 +26,18 @@ const DonationForm = () => {
   }, [donationToEdit]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    
+    let value = e.target.value;
+    if (e.target.name === "amount") {
+       value = parseInt(e.target.value, 10);
+      if (value<1){
+        value=1;
+      }
+    }
+
+
+    
+    setFormData({ ...formData, [e.target.name]: value });
   };
 
   // 👉 CREAR / EDITAR
@@ -125,6 +136,7 @@ const DonationForm = () => {
           onChange={handleChange}
           className="w-full p-2 border mb-4"
           required
+          min={1}
         />
 
         {/* Botón Guardar */}

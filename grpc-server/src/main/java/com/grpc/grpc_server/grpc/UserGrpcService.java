@@ -3,6 +3,7 @@ package com.grpc.grpc_server.grpc;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.grpc.server.service.GrpcService;
 
@@ -16,7 +17,7 @@ import com.grpc.grpc_server.services.impl.UserServiceImpl;
 import io.grpc.stub.StreamObserver;
 
 
-
+@Slf4j
 @GrpcService
 public class UserGrpcService extends MyServiceGrpc.MyServiceImplBase {
 
@@ -71,21 +72,25 @@ public class UserGrpcService extends MyServiceGrpc.MyServiceImplBase {
     @Override
     public void login(MyServiceClass.LoginRequest request, StreamObserver<LoginResponse> responseObserver) {
         String result = userService.login(request);
+        log.debug(result);
+        var responseBuilder = MyServiceClass.LoginResponse.newBuilder();
 
-        var response = MyServiceClass.LoginResponse.newBuilder();
+        switch (result) {
+            case "Credenciales invalidas":
+            case "Usuario no encontrado":
+                responseBuilder.setSuccess(false).setMessage(result);
+                break;
 
-        if (!result.isEmpty() && !"User not found".equals(result)) {
-            //  caso exitoso → tiene un rol válido
-            response.setSuccess(true).setMessage("Login Completado").setRoleName(result);
-        } else if ("User not found".equals(result)) {
-            //  usuario no existe
-            response.setSuccess(false).setMessage("Usuario no encontrado");
-        } else {
-            //  contraseña incorrecta
-            response.setSuccess(false).setMessage("Credenciales incorrectas");
+            case "Presidente":
+            case "Vocal":
+            case "Coordinador":
+            case "Voluntario":
+            default:
+                responseBuilder.setSuccess(true).setMessage("Login Successful").setRoleName(result);
+                break;
         }
 
-        responseObserver.onNext(response.build());
+        responseObserver.onNext(responseBuilder.build());
         responseObserver.onCompleted();
     }
 
@@ -96,11 +101,19 @@ public class UserGrpcService extends MyServiceGrpc.MyServiceImplBase {
 
     var responseBuilder = MyServiceClass.AltaUsuarioResponse.newBuilder();
 
-    if (result.equals("Usuario creado con éxito") || result.equals("Usuario creado pero error al enviar email")) {
-        responseBuilder.setSuccess(true).setMessage(result);
-    } else {
-        responseBuilder.setSuccess(false).setMessage(result);
-    }
+        switch (result) {
+            case "Usuario creado con éxito":
+                responseBuilder.setSuccess(true).setMessage(result);
+                break;
+
+            case "Email o username ya registrado":
+            case "Rol inválido":
+            case "Datos incompletos":
+            case "Usuario creado pero error al enviar email ":
+            default:
+                responseBuilder.setSuccess(false).setMessage(result);
+                break;
+        }
 
     responseObserver.onNext(responseBuilder.build());
     responseObserver.onCompleted();
@@ -112,17 +125,25 @@ public class UserGrpcService extends MyServiceGrpc.MyServiceImplBase {
 
         String result = userService.updateUser(request);
 
-    var responseBuilder = MyServiceClass.AltaUsuarioResponse.newBuilder();
+        var responseBuilder = MyServiceClass.AltaUsuarioResponse.newBuilder();
 
-    if (result.equals("Usuario modificado con éxito")) {
-        responseBuilder.setSuccess(true).setMessage(result);
-    } else {
-        responseBuilder.setSuccess(false).setMessage(result);
+        switch (result) {
+            case "Usuario modificado con éxito":
+                responseBuilder.setSuccess(true).setMessage(result);
+                break;
+
+            case "Datos incompletos":
+            case "Usuario no encontrado":
+            case "Rol inválido":
+            case "Username/Email ya esta siendo utilizado":
+            default:
+                responseBuilder.setSuccess(false).setMessage(result);
+                break;
+        }
+
+        responseObserver.onNext(responseBuilder.build());
+        responseObserver.onCompleted();
     }
-
-    responseObserver.onNext(responseBuilder.build());
-    responseObserver.onCompleted();
-}
 
      @Override
     public void deleteUser(MyServiceClass.DeleteUsuarioRequest request,
