@@ -1,6 +1,5 @@
 import React from 'react';
-import './navBar.css';
-import { Link , useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const NavBar = () => {
   const isLoggedIn = localStorage.getItem("usernameOrEmail") !== null;
@@ -8,51 +7,37 @@ const NavBar = () => {
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/"); 
+    navigate("/");
   };
 
+
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-nav">
-      <div className="container-fluid">
-        <Link className="navbar-brand" to={isLoggedIn ? "/dashboard" : "/"}>
-          Sistema empuje Comunitario
-        </Link>
+    <nav className="bg-[#232D4F] text-gray-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <div className="flex-shrink-0">
+            <Link to={isLoggedIn ? "/dashboard" : "/login"} className="text-white text-xl font-semibold">
+              Sistema Empuje Comunitario
+            </Link>
+          </div>
 
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon" />
-        </button>
-
-        <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav ms-auto">
-
+          {/* Menu */}
+          <div className="flex items-center space-x-4">
             {!isLoggedIn && (
-              <li className="nav-item">
-                <Link className="nav-link" to="/login">
-                  Login
-                </Link>
-              </li>
+              <Link to="/login" className="text-gray-100 hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium">
+                Login
+              </Link>
             )}
-
             {isLoggedIn && (
-              <li className="nav-item">
-                <button
-                  onClick={handleLogout}
-                  className="btn btn-danger nav-link border-0"
-                >
-                  Logout
-                </button>
-              </li>
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Logout
+              </button>
             )}
-
-          </ul>
+          </div>
         </div>
       </div>
     </nav>

@@ -131,13 +131,21 @@ public class EventGrpcService extends EventServiceGrpc.EventServiceImplBase {
     @Override
     public void updateEvent(UpdateEventRequest request, StreamObserver<GenericResponse> responseObserver){
         
-        boolean result = eventService.updateEvent(request);
+        String result = eventService.updateEvent(request);
         var responseBuilder = GenericResponse.newBuilder();
 
-        if (result){
-            responseBuilder.setSuccess(true).setMessage("Evento modificado");
-        }else{
-            responseBuilder.setSuccess(false).setMessage("No se pudo modificar el Evento");
+        switch (result) {
+            case "Evento actualizado con exito":
+                responseBuilder.setSuccess(true).setMessage(result);
+                break;
+
+            case "Otro evento ya tiene registrado este nombre":
+            case "Evento no encontrado":
+            case "La nueva fecha del evento debe mantenerse en el pasado":
+            case "La nueva fecha del evento debe mantenerse en el futuro":
+            default:
+                responseBuilder.setSuccess(false).setMessage(result);
+                break;
         }
 
         responseObserver.onNext(responseBuilder.build());

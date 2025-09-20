@@ -56,7 +56,7 @@ const AssignNewDonation = () => {
 
             if (response.data.success) {
                 alert("Se asignaron " + quantity + " " + donation.description + " al evento");
-                
+
                 // 🔹 Actualizar donaciones asignadas en memoria
                 const newAssignedDonation = {
                     ...donation,
@@ -94,75 +94,72 @@ const AssignNewDonation = () => {
     );
 
     return (
-        <div className="p-6">
-            <h1 className="text-2xl text-white font-bold mb-4">
-                Asignación de nuevas donaciones al evento : {mainEvent.nameEvent}
-            </h1>
+        <div className="p-6 bg-[#01000F] min-h-screen flex flex-col">
+            {/* Título */}
+            <div className="flex justify-between items-center mb-4">
+                <h1 className="text-5xl font-bold text-white">
+                    Asignación de nuevas donaciones al evento : {mainEvent.nameEvent}
+                </h1>
+            </div>
+
+            {/* Mensaje de error */}
             {error && <div className="text-red-500 mb-4">{error}</div>}
 
-            <div className="overflow-x-auto">
-                <table className="min-w-full bg-white border border-gray-200">
+            {/* Tabla */}
+            <div className="overflow-x-auto flex-grow">
+                <table className="min-w-full border border-gray-700 text-center">
                     <thead>
-                        <tr className="bg-gray-100">
-                            <th className="px-4 py-2 border">Categoría</th>
-                            <th className="px-4 py-2 border">Descripción</th>
-                            <th className="px-4 py-2 border">Cantidad disponible</th>
-                            <th className="px-4 py-2 border">Cantidad a asignar</th>
-                            <th className="px-4 py-2 border">Acciones</th>
+                        <tr className="bg-gray-900 text-white">
+                            <th className="px-4 py-2 border border-gray-700">Categoría</th>
+                            <th className="px-4 py-2 border border-gray-700">Descripción</th>
+                            <th className="px-4 py-2 border border-gray-700">Cantidad disponible</th>
+                            <th className="px-4 py-2 border border-gray-700">Cantidad a asignar</th>
+                            <th className="px-4 py-2 border border-gray-700">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {availableDonations.map((donation, index) => {
-                            return (
-                                <tr key={donation.id || index} className="text-center">
-                                    <td className="px-4 py-2 border">{donation.category || "N/A"}</td>
-                                    <td className="px-4 py-2 border">{donation.description || "N/A"}</td>
-                                    <td className="px-4 py-2 border">{donation.amount || 0}</td>
+                        {availableDonations.map((donation, index) => (
+                            <tr key={donation.id || index} className="text-gray-200">
+                                <td className="px-4 py-2 border border-gray-700">{donation.category || "N/A"}</td>
+                                <td className="px-4 py-2 border border-gray-700">{donation.description || "N/A"}</td>
+                                <td className="px-4 py-2 border border-gray-700">{donation.amount || 0}</td>
+                                <td className="px-4 py-2 border border-gray-700">
+                                    <input
+                                        type="number"
+                                        value={quantities[donation.id] || ""}
+                                        onChange={(e) => {
+                                            let value = parseInt(e.target.value, 10);
 
-                                    <td className="px-4 py-2 border">
-                                        <input
-                                            type="number"
-                                            value={quantities[donation.id] || ""}
-                                            onChange={(e) => {
-                                                let value = parseInt(e.target.value, 10);
-
-                                                if (isNaN(value)) {
-                                                    setQuantities({
-                                                        ...quantities,
-                                                        [donation.id]: ""
-                                                    });
-                                                    return;
-                                                }
-
-                                                if (value < 1) {
-                                                    value = 1;
-                                                }
-
-                                                if (value > donation.amount) {
-                                                    value = donation.amount;
-                                                }
-
+                                            if (isNaN(value)) {
                                                 setQuantities({
                                                     ...quantities,
-                                                    [donation.id]: value
+                                                    [donation.id]: ""
                                                 });
-                                            }}
-                                            placeholder="Cantidad"
-                                            className="w-24 p-1 border rounded"
-                                        />
-                                    </td>
+                                                return;
+                                            }
 
-                                    <td className="px-4 py-2 border space-x-2">
-                                        <button
-                                            onClick={() => assignDonation(donation)}
-                                            className="px-2 py-1 bg-green-500 text-black rounded hover:bg-green-600"
-                                        >
-                                            Asignar
-                                        </button>
-                                    </td>
-                                </tr>
-                            );
-                        })}
+                                            if (value < 1) value = 1;
+                                            if (value > donation.amount) value = donation.amount;
+
+                                            setQuantities({
+                                                ...quantities,
+                                                [donation.id]: value
+                                            });
+                                        }}
+                                        placeholder="Cantidad"
+                                        className="w-24 p-1 border border-gray-700 rounded text-black"
+                                    />
+                                </td>
+                                <td className="px-4 py-2 border border-gray-700 space-x-2">
+                                    <button
+                                        onClick={() => assignDonation(donation)}
+                                        className="px-2 py-1 bg-green-500 text-black rounded hover:bg-green-600"
+                                    >
+                                        Asignar
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>

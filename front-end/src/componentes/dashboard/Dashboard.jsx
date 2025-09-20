@@ -3,38 +3,52 @@ import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const role = localStorage.getItem("userRole"); // 🔹 Ya está en mayúsculas
+  const role = localStorage.getItem("userRole"); // PRESUPUESTO: siempre en mayúsculas
 
-  if (role !== "PRESIDENTE") {
-    return <p className="text-center text-red-600 mt-5">Acceso denegado</p>;
-  }
+  // 🔹 Lógica de visibilidad de botones
+  const showUserButton = role === "PRESIDENTE";
+  const showEventButton = role === "PRESIDENTE" || role === "COORDINADOR" || role === "VOLUNTARIO";
+  const showInventoryButton = role === "PRESIDENTE" || role === "VOCAL";
 
   return (
-    <div className="p-6 flex flex-col items-center gap-6">
-      <h1 className="text-2xl font-bold text-[#232D4F]">Panel del Presidente</h1>
-      <div className="flex gap-4">
-        <button
-          onClick={() => navigate("/userlist")}
-          className="px-4 py-2 bg-[#232D4F] text-black rounded-lg hover:opacity-90"
-        >
-          Gestion de Usuarios
-        </button>
-        <button
-          onClick={() => navigate("/eventlist")}
-          className="px-4 py-2 bg-[#232D4F] text-black rounded-lg hover:opacity-90"
-        >
-          Gestion de Eventos
-        </button>
+    <div className="min-h-screen flex flex-col bg-[#01000F]">
+      <div className="flex-grow flex flex-col items-center justify-center gap-8 p-6">
+        <h1 className="text-5xl font-bold text-[#4034ED]">Panel del {role}</h1>
 
-        <button           
-        className="px-4 py-2 bg-[#232D4F] text-black rounded-lg hover:opacity-90"
-        onClick={()=>{navigate("/donationlist")}}   
->
-          Gestión de Inventario
-        </button>
+        <div className="flex flex-wrap gap-6 justify-center">
+          {showUserButton && (
+            <button
+              onClick={() => navigate("/userlist")}
+              className="px-8 py-4 text-lg bg-[#232D4F] text-white rounded-lg shadow hover:opacity-90 transition"
+            >
+              Gestión de Usuarios
+            </button>
+          )}
+
+          {showEventButton && (
+            <button
+              onClick={() => navigate("/eventlist")}
+              className="px-8 py-4 text-lg bg-[#232D4F] text-white rounded-lg shadow hover:opacity-90 transition"
+            >
+              Gestión de Eventos
+            </button>
+          )}
+
+          {showInventoryButton && (
+            <button
+              onClick={() => navigate("/donationlist")}
+              className="px-8 py-4 text-lg bg-[#232D4F] text-white rounded-lg shadow hover:opacity-90 transition"
+            >
+              Gestión de Inventario
+            </button>
+          )}
+        </div>
       </div>
+      {/* Footer anclado abajo */}
     </div>
   );
 };
+
+
 
 export default Dashboard;

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -188,37 +189,62 @@ public class EventServiceImpl implements EventService {
     }
 
 
-   public boolean updateEvent(UpdateEventRequest request) {
-    boolean result = false;
+   public String updateEvent(UpdateEventRequest request) {
 
+    String result;
     Event e = getEventIdEvent(request.getId());
 
     if (e != null) {
         // Validar nombre duplicado SOLO si el nuevo nombre es distinto al actual
         Event existing = getEventByName(request.getNameEvent());
-        if (existing != null && existing.getIdEvent() != e.getIdEvent()) {
-            return false; // otro evento ya tiene ese nombre
-        }
 
-        // Si mandaron nombre, actualizar
-        if (request.getNameEvent() != null && !request.getNameEvent().isEmpty()) {
-            e.setNameEvent(request.getNameEvent());
-        }
 
-        // Si mandaron descripción, actualizar
-        if (request.getDescriptionEvent() != null && !request.getDescriptionEvent().isEmpty()) {
-            e.setDescriptionEvent(request.getDescriptionEvent());
-        }
+        if (existing != null && existing.getIdEvent() != e.getIdEvent() ) {
+            result = "Otro evento ya tiene registrado este nombre"; // otro evento ya tiene ese nombre
+            return result;
+        }else{
 
-        // Si mandaron fecha, actualizar
-        if (request.getDateRegistration() != null && !request.getDateRegistration().isEmpty()) {
-            LocalDateTime fecha = LocalDateTime.parse(request.getDateRegistration());
-            e.setDateRegistration(fecha);
+            // Si mandaron nombre, actualizar
+            if (request.getNameEvent() != null && !request.getNameEvent().isEmpty()) {
+                e.setNameEvent(request.getNameEvent());
+            }
+
+            // Si mandaron descripción, actualizar
+            if (request.getDescriptionEvent() != null && !request.getDescriptionEvent().isEmpty()) {
+                e.setDescriptionEvent(request.getDescriptionEvent());
+            }
+
+            // Si mandaron fecha, actualizar
+            if (request.getDateRegistration() != null && !request.getDateRegistration().isEmpty()) {
+
+                LocalDateTime currentDateEvent = e.getDateRegistration();
+                LocalDateTime today = LocalDateTime.now();
+                LocalDateTime nuevaDateEvent = LocalDateTime.parse(request.getDateRegistration());
+
+                //SI TENEMOS UN EVENTO PASADO, PUEDE MODIFICARSE LA FECHA SIEMPRE Y CUANDO SIGA EN EL PASADO
+                if (currentDateEvent.isBefore(today) && !nuevaDateEvent.isBefore(today)){
+                    result = "La nueva fecha del evento debe mantenerse en el pasado";
+                    return result;
+                } /*SI TENEMOS UN EVENTO FUTURO, PUEDE MODIFICARSE LA FECHA SIEMPRE Y CUANDO SIGA EN EL FUTURO*/
+                else if ( currentDateEvent.isAfter(today) && !nuevaDateEvent.isAfter(today)   ){
+
+                    result = "La nueva fecha del evento debe mantenerse en el futuro";
+                    return result;
+
+                }else{
+                    //Guardamos la fecha
+                    e.setDateRegistration(nuevaDateEvent);
+                }
+
+            }
+
         }
 
         eventRepository.save(e);
-        result = true;
-    }
+        result = "Evento actualizado con exito";
+    }else {
+        result="Evento no encontrado";
+       }
 
     return result;
 }

@@ -94,7 +94,7 @@ public class EventMapper {
                 .setId(dto.getId())
                 .setNameEvent(dto.getName())
                 .setDescriptionEvent(dto.getDescription())
-                .setDateRegistration(dto.getDateRegistration().toString())
+                .setDateRegistration(dto.getDateRegistration().format(FORMATTER))
                 .build();
     }
 
@@ -106,7 +106,7 @@ public class EventMapper {
                                             .setId(dto.getId())
                                             .setNameEvent(dto.getName())
                                             .setDescriptionEvent(dto.getDescription())
-                                            .setDateRegistration(dto.getDateRegistration().toString());
+                                            .setDateRegistration(dto.getDateRegistration().format(FORMATTER));
 
         if (dto.getUsers() != null) {
             builder.addAllUsers(
