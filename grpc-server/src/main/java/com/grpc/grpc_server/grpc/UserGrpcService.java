@@ -71,6 +71,7 @@ public class UserGrpcService extends MyServiceGrpc.MyServiceImplBase {
 
     @Override
     public void login(MyServiceClass.LoginRequest request, StreamObserver<LoginResponse> responseObserver) {
+        log.debug("Conectamos exitosamente");
         String result = userService.login(request);
         log.debug(result);
         var responseBuilder = MyServiceClass.LoginResponse.newBuilder();
@@ -123,8 +124,9 @@ public class UserGrpcService extends MyServiceGrpc.MyServiceImplBase {
     @Override
     public void updateUser(MyServiceClass.UpdateUsuarioRequest request, StreamObserver<MyServiceClass.AltaUsuarioResponse> responseObserver){
 
+        log.debug("LLEGAMOS AL UPDATE con: " + request.getAllFields());
         String result = userService.updateUser(request);
-
+        log.debug("Salimos con el resultado: "+ result);
         var responseBuilder = MyServiceClass.AltaUsuarioResponse.newBuilder();
 
         switch (result) {
@@ -135,7 +137,9 @@ public class UserGrpcService extends MyServiceGrpc.MyServiceImplBase {
             case "Datos incompletos":
             case "Usuario no encontrado":
             case "Rol inválido":
-            case "Username/Email ya esta siendo utilizado":
+            case "Email ya está siendo utilizado":
+            case "Username ya está siendo utilizado":
+
             default:
                 responseBuilder.setSuccess(false).setMessage(result);
                 break;

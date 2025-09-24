@@ -66,6 +66,8 @@ message UpdateUsuarioRequest {
   string phone = 4;
   string email = 5;
   string role = 6;
+  string oldUsername=7;
+  string oldEmail=8;
 }
 
 message DeleteUsuarioRequest {

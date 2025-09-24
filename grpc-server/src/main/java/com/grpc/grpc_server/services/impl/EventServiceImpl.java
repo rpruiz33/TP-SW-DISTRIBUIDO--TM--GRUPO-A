@@ -1,6 +1,7 @@
 package com.grpc.grpc_server.services.impl;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -189,65 +190,49 @@ public class EventServiceImpl implements EventService {
     }
 
 
-   public String updateEvent(UpdateEventRequest request) {
+    public String updateEvent(UpdateEventRequest request) {
 
-    String result;
-    Event e = getEventIdEvent(request.getId());
-
-    if (e != null) {
-        // Validar nombre duplicado SOLO si el nuevo nombre es distinto al actual
-        Event existing = getEventByName(request.getNameEvent());
-
-
-        if (existing != null && existing.getIdEvent() != e.getIdEvent() ) {
-            result = "Otro evento ya tiene registrado este nombre"; // otro evento ya tiene ese nombre
-            return result;
-        }else{
-
-            // Si mandaron nombre, actualizar
-            if (request.getNameEvent() != null && !request.getNameEvent().isEmpty()) {
-                e.setNameEvent(request.getNameEvent());
-            }
-
-            // Si mandaron descripción, actualizar
-            if (request.getDescriptionEvent() != null && !request.getDescriptionEvent().isEmpty()) {
-                e.setDescriptionEvent(request.getDescriptionEvent());
-            }
-
-            // Si mandaron fecha, actualizar
-            if (request.getDateRegistration() != null && !request.getDateRegistration().isEmpty()) {
-
-                LocalDateTime currentDateEvent = e.getDateRegistration();
-                LocalDateTime today = LocalDateTime.now();
-                LocalDateTime nuevaDateEvent = LocalDateTime.parse(request.getDateRegistration());
-
-                //SI TENEMOS UN EVENTO PASADO, PUEDE MODIFICARSE LA FECHA SIEMPRE Y CUANDO SIGA EN EL PASADO
-                if (currentDateEvent.isBefore(today) && !nuevaDateEvent.isBefore(today)){
-                    result = "La nueva fecha del evento debe mantenerse en el pasado";
-                    return result;
-                } /*SI TENEMOS UN EVENTO FUTURO, PUEDE MODIFICARSE LA FECHA SIEMPRE Y CUANDO SIGA EN EL FUTURO*/
-                else if ( currentDateEvent.isAfter(today) && !nuevaDateEvent.isAfter(today)   ){
-
-                    result = "La nueva fecha del evento debe mantenerse en el futuro";
-                    return result;
-
-                }else{
-                    //Guardamos la fecha
-                    e.setDateRegistration(nuevaDateEvent);
-                }
-
-            }
-
+        Event event = getEventIdEvent(request.getId());
+        if (event == null) {
+            return "Evento no encontrado";
         }
 
-        eventRepository.save(e);
-        result = "Evento actualizado con exito";
-    }else {
-        result="Evento no encontrado";
-       }
+        // Validar nombre duplicado solo si el nuevo nombre es distinto
+        if (request.getNameEvent() != null && !request.getNameEvent().isEmpty() &&
+                !request.getNameEvent().equals(event.getNameEvent())) {
 
-    return result;
-}
+            Event existing = getEventByName(request.getNameEvent());
+            if (existing != null && !existing.getIdEvent().equals(event.getIdEvent())) {
+                return "Otro evento ya tiene registrado este nombre";
+            }
+            event.setNameEvent(request.getNameEvent());
+        }
+
+        // Actualizar descripción si se envió
+        if (request.getDescriptionEvent() != null && !request.getDescriptionEvent().isEmpty()) {
+            event.setDescriptionEvent(request.getDescriptionEvent());
+        }
+
+        // Actualizar fecha si se envió
+        if (request.getDateRegistration() != null && !request.getDateRegistration().isEmpty()) {
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime nuevaDateEvent = LocalDateTime.parse(request.getDateRegistration(), formatter);
+            LocalDateTime currentDateEvent = event.getDateRegistration();
+            LocalDateTime today = LocalDateTime.now();
+
+            if (currentDateEvent.isBefore(today) && !nuevaDateEvent.isBefore(today)) {
+                return "La nueva fecha del evento debe mantenerse en el pasado";
+            } else if (currentDateEvent.isAfter(today) && !nuevaDateEvent.isAfter(today)) {
+                return "La nueva fecha del evento debe mantenerse en el futuro";
+            }
+
+            event.setDateRegistration(nuevaDateEvent);
+        }
+
+        eventRepository.save(event);
+        return "Evento actualizado con éxito";
+    }
 
 
 }

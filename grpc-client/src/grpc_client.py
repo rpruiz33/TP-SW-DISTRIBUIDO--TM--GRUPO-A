@@ -40,8 +40,8 @@ class MyServiceClient:
         request = service_pb2.Empty()
         return self.user_stub.GetActiveUsers(request)
 
-    def updateUser(self, username: str, name: str, lastName: str, phone: str, email: str, role: str):
-        request = service_pb2.UpdateUsuarioRequest(username=username, name=name, lastName=lastName, phone=phone, email=email, role=role)
+    def updateUser(self, username: str, name: str, lastName: str, phone: str, email: str, role: str, oldUsername: str, oldEmail: str):
+        request = service_pb2.UpdateUsuarioRequest(username=username, name=name, lastName=lastName, phone=phone, email=email, role=role, oldUsername=oldUsername,oldEmail=oldEmail)
         return self.user_stub.UpdateUser(request)
     
     def deleteUser(self, username: str):

@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,6 +26,8 @@ import com.grpc.grpc_server.repositories.UserRepository;
 import com.grpc.grpc_server.services.UserService;
 import com.grpc.grpc_server.util.PasswordUtils;
 
+
+@Slf4j
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -109,42 +112,63 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    
+
 
     public String updateUser(UpdateUsuarioRequest request) {
 
-    User user = userRepository.findByEmailOrUsername(request.getEmail(),request.getUsername()).orElse(null);
+        log.debug("ENTRAMOS AL IMP");
 
-    if (user == null) {
-        return "Usuario no encontrado";
+        // Buscar al usuario original por oldEmail y oldUsername
+        User user = userRepository.findByEmailAndUsername(request.getOldEmail(), request.getOldUsername()).orElse(null);
+
+        if (user == null) {
+            log.debug("Usuario no encontrado ");
+            return "Usuario no encontrado";
+        }
+
+
+
+        // Validar campos obligatorios
+        if (request.getName().isEmpty() || request.getLastName().isEmpty() ||
+                request.getEmail().isEmpty() || request.getRole().isEmpty()) {
+            return "Datos incompletos";
+        }
+
+        // Validar si el nuevo email está siendo utilizado por otro usuario
+        if (!request.getEmail().equals(user.getEmail())) { // solo si se cambia
+            User existingByEmail = userRepository.findByEmail(request.getEmail()).orElse(null);
+            if (existingByEmail != null) {
+                return "Email ya está siendo utilizado";
+            }
+        }
+
+        // Validar si el nuevo username está siendo utilizado por otro usuario
+        if (!request.getUsername().equals(user.getUsername())) { // solo si se cambia
+            User existingByUsername = userRepository.findByUsername(request.getUsername()).orElse(null);
+            if (existingByUsername != null) {
+                return "Username ya está siendo utilizado";
+            }
+        }
+
+        // Validar rol
+        Role rol = roleRepository.findByNameRole(request.getRole());
+        if (rol == null) {
+            return "Rol inválido";
+        }
+
+        // Actualizar campos
+        user.setUsername(request.getUsername());
+        user.setName(request.getName());
+        user.setLastName(request.getLastName());
+        user.setPhone(request.getPhone());
+        user.setEmail(request.getEmail());
+        user.setRole(rol);
+
+        userRepository.save(user);
+        log.debug("Usuario actualizado correctamente");
+
+        return "Usuario modificado con éxito";
     }
-
-    if (request.getName().isEmpty() || request.getLastName().isEmpty() ||
-        request.getEmail().isEmpty() || request.getRole().isEmpty()) {
-        return "Datos incompletos";
-    }
-
-    if (  (userRepository.existsByEmail(request.getEmail() ) && !user.getEmail().equals(request.getEmail()) ) ||
-            (userRepository.existsByUsername(request.getUsername()) && !user.getUsername().equals(request.getUsername()) ) ){
-        return "Username/Email ya esta siendo utilizado";
-    }
-
-    user.setUsername(request.getUsername());
-    user.setName(request.getName());
-    user.setLastName(request.getLastName());
-    user.setPhone(request.getPhone());
-    user.setEmail(request.getEmail());
-
-    Role rol = roleRepository.findByNameRole(request.getRole());
-    if (rol == null) {
-        return "Rol inválido";
-    }
-
-    user.setRole(rol);
-
-    userRepository.save(user);
-    return "Usuario modificado con éxito";
-}
 
 
        @Transactional

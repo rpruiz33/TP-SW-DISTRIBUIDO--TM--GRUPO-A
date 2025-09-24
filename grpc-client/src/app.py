@@ -77,8 +77,9 @@ def deleteUser(username):
 @app.route("/api/updateuser", methods=["PUT"])
 def updateUser():
     data = request.json
+    print(data)
     try:
-        response = grpc_client.updateUser(data.get("username"), data.get("nombre"), data.get("apellido"), data.get("telefono"), data.get("email"), data.get("rol"))
+        response = grpc_client.updateUser(data.get("username"), data.get("nombre"), data.get("apellido"), data.get("telefono"), data.get("email"), data.get("rol"), data.get("oldUsername"), data.get("oldEmail"))
         return jsonify({
             "success": response.success,
             "message": response.message
@@ -178,6 +179,7 @@ def createEvent():
 @app.route("/api/updateevent", methods=["PUT"])
 def updateEvent():
     data = request.json
+    print(data)
     try:
         response = grpc_client.updateEvent(data.get("id"), data.get("nameEvent"), data.get("descriptionEvent"), data.get("dateRegistration"))
         return jsonify({
