@@ -2,7 +2,6 @@ package com.grpc.grpc_server.mapper;
 
 import com.grpc.grpc_server.MyServiceClass;
 import com.grpc.grpc_server.entities.MemberAtEvent;
-import com.grpc.grpc_server.entities.User;
 
 public class MemberAtEventMapper {
 

@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.grpc.grpc_server.utils.EmailUtils;
+import com.grpc.grpc_server.utils.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -24,7 +26,7 @@ import com.grpc.grpc_server.repositories.MemberAtEventRepository;
 import com.grpc.grpc_server.repositories.RoleRepository;
 import com.grpc.grpc_server.repositories.UserRepository;
 import com.grpc.grpc_server.services.UserService;
-import com.grpc.grpc_server.util.PasswordUtils;
+import com.grpc.grpc_server.utils.PasswordUtils;
 
 
 @Slf4j
@@ -40,7 +42,7 @@ public class UserServiceImpl implements UserService {
     private MemberAtEventRepository memberAtEventRepository;
 
     @Autowired
-    private EmailService emailService;
+    private EmailUtils emailUtils;
 
     //Libreria que permite la encriptacion de contraseñas
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -61,15 +63,25 @@ public class UserServiceImpl implements UserService {
 
 
     public String login(LoginRequest request) {
-        return userRepository.findByEmailOrUsername(request.getUsername(), request.getUsername())
-                .map(user -> {
-                    if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-                        return user.getRole().getNameRole(); // ✅ éxito → devuelve rol
-                    } else {
-                        return "Credenciales invalidas"; // ✅ usuario encontrado pero contraseña incorrecta
-                    }
-                })
-                .orElse("Usuario no encontrado"); // ✅ no encontró usuario
+
+        User user =userRepository.findByEmailOrUsername(request.getUsername(), request.getUsername()).orElse(null);
+        String result;
+
+
+        if (user!=null){
+
+            if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+                result= JwtUtil.generateToken(user.getUsername(),user.getRole().getNameRole().toUpperCase(), "Usuario Valido"); // ✅ éxito → devuelve token
+            } else {
+                result= JwtUtil.generateToken(user.getUsername(),user.getRole().getNameRole(),"Credenciales invalidas"); // ✅ usuario encontrado pero contraseña incorrecta
+            }
+
+        }else {
+            result= JwtUtil.generateToken("NOTFOUND","NOTFOUND","Usuario no encontrado");
+        }
+
+        return result;
+
     }
 
 
@@ -100,7 +112,7 @@ public class UserServiceImpl implements UserService {
 
         // 🚀 Enviar mail con la contraseña
         try {
-            emailService.sendEmail(
+            emailUtils.sendEmail(
                 newUser.getEmail(),
                 "Registro exitoso",
                 "Hola " + newUser.getName() + ",\n\nTu usuario fue creado exitosamente.\n" +

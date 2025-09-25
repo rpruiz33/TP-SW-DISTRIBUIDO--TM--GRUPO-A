@@ -3,9 +3,9 @@ package com.grpc.grpc_server.grpc;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.grpc.grpc_server.utils.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.grpc.server.service.GrpcService;
 
 import com.grpc.grpc_server.MyServiceClass;
 import com.grpc.grpc_server.MyServiceClass.LoginResponse;
@@ -13,16 +13,18 @@ import com.grpc.grpc_server.MyServiceGrpc;
 import com.grpc.grpc_server.entities.User;
 import com.grpc.grpc_server.mapper.UserMapper;
 import com.grpc.grpc_server.services.impl.UserServiceImpl;
-
+import org.springframework.grpc.server.service.GrpcService;
 import io.grpc.stub.StreamObserver;
 
 
 @Slf4j
 @GrpcService
+
 public class UserGrpcService extends MyServiceGrpc.MyServiceImplBase {
 
     @Autowired
     UserServiceImpl userService;
+
 
    
     @Override
@@ -71,24 +73,27 @@ public class UserGrpcService extends MyServiceGrpc.MyServiceImplBase {
 
     @Override
     public void login(MyServiceClass.LoginRequest request, StreamObserver<LoginResponse> responseObserver) {
-        log.debug("Conectamos exitosamente");
-        String result = userService.login(request);
-        log.debug(result);
+
+        String token = userService.login(request);
+
         var responseBuilder = MyServiceClass.LoginResponse.newBuilder();
 
-        switch (result) {
+        String message = JwtUtil.getMessage(token);
+        String role = JwtUtil.getRole(token);
+
+        switch (message) {
             case "Credenciales invalidas":
             case "Usuario no encontrado":
-                responseBuilder.setSuccess(false).setMessage(result);
+                responseBuilder.setSuccess(false).setMessage(message);
                 break;
 
-            case "Presidente":
-            case "Vocal":
-            case "Coordinador":
-            case "Voluntario":
-            default:
-                responseBuilder.setSuccess(true).setMessage("Login Successful").setRoleName(result);
+            case "Usuario Valido":
+                //Construimos el mensaje y enviamos el token
+                responseBuilder.setSuccess(true).setMessage(message).setRoleName(role).setToken(token);
                 break;
+
+            default:
+                responseBuilder.setSuccess(false).setMessage("Error en el back");
         }
 
         responseObserver.onNext(responseBuilder.build());

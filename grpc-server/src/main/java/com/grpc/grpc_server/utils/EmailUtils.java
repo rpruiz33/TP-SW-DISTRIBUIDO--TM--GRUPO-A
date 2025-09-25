@@ -1,4 +1,4 @@
-package com.grpc.grpc_server.services.impl;
+package com.grpc.grpc_server.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,8 +8,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
-public class EmailService {
-    private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
+public class EmailUtils {
+    private static final Logger logger = LoggerFactory.getLogger(EmailUtils.class);
 
     @Autowired
     private JavaMailSender mailSender;

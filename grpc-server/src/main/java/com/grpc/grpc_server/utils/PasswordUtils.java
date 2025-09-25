@@ -1,4 +1,4 @@
-package com.grpc.grpc_server.util;
+package com.grpc.grpc_server.utils;
 
 import java.security.SecureRandom;  // Para random seguro
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

@@ -29,6 +29,7 @@ message LoginResponse {
   bool success = 1;
   string message = 2;
   string role_name = 3;
+  string token = 4;
 }
 
 message AltaUsuarioRequest {
@@ -182,9 +183,6 @@ message ToggleMemberRequest {
 }
 
 
-// Mensaje vacío (si no hay parámetros de entrada)
-message Empty {}
-
 // ========================
 // Messages de donacion x evento
 // ========================
@@ -263,4 +261,11 @@ message AltaDonationRequest {
 message AltaDonationResponse{
   bool success = 1;
   string message = 2;
+}
+
+
+// ========================
+// Mensajes auxiliares
+// ========================
+message Empty {
 }

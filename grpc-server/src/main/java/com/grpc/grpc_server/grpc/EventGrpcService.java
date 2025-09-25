@@ -5,20 +5,15 @@ import com.grpc.grpc_server.MyServiceClass.CreateEventRequest;
 import com.grpc.grpc_server.MyServiceClass.CreateEventResponse;
 import com.grpc.grpc_server.MyServiceClass.DeleteEventRequest;
 import com.grpc.grpc_server.MyServiceClass.DeleteEventResponse;
-import com.grpc.grpc_server.MyServiceClass.EventProto;
 import com.grpc.grpc_server.MyServiceClass.GenericResponse;
-import com.grpc.grpc_server.MyServiceClass.UpdateDonationResponse;
 import com.grpc.grpc_server.MyServiceClass.UpdateEventRequest;
 import com.grpc.grpc_server.EventServiceGrpc;
 import com.grpc.grpc_server.entities.Event;
 import com.grpc.grpc_server.mapper.EventMapper;
 import com.grpc.grpc_server.services.EventService;
 
-import com.grpc.grpc_server.services.impl.EventServiceImpl;
 import io.grpc.stub.StreamObserver;
 
-import org.hibernate.event.spi.DeleteEvent;
-import org.hibernate.sql.Update;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.grpc.server.service.GrpcService;
 

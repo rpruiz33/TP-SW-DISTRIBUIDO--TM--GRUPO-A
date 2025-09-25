@@ -3,7 +3,6 @@ package com.grpc.grpc_server.entities;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import jakarta.persistence.*;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

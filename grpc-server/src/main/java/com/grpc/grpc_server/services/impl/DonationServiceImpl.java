@@ -10,10 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.grpc.grpc_server.MyServiceClass;
-import com.grpc.grpc_server.MyServiceClass.AltaDonationRequest;
 import com.grpc.grpc_server.MyServiceClass.DeleteDonationRequest;
 import com.grpc.grpc_server.MyServiceClass.UpdateDonationRequest;
-import com.grpc.grpc_server.entities.Category;
 import com.grpc.grpc_server.entities.Donation;
 import com.grpc.grpc_server.repositories.DonationRepository;
 import com.grpc.grpc_server.services.DonationService;

@@ -5,7 +5,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,7 +60,6 @@ public class EventServiceImpl implements EventService {
 
     public List<Event> getAllEventsWithRelations(){
 
-        System.out.println("HOLAAAAA");
 
         // 1️⃣ Traemos eventos con donaciones
         List<Event> eventsWithDonations = eventRepository.findAllWithDonations();
@@ -81,7 +79,6 @@ public class EventServiceImpl implements EventService {
             }
         }
 
-        System.out.println("HOLAAAAA22");
 
         // 4️⃣ Retornamos la lista combinada
         return eventsWithDonations;

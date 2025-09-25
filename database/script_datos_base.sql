@@ -55,7 +55,7 @@ VALUES
   (3, 2, 10),
   (5, 1, 8),
   (7, 3, 7),
-  (9, 2, 6),
+  (9, 2, 6);
   
 INSERT INTO member_at_event (user_id, event_id)
 VALUES

@@ -1,7 +1,6 @@
 import os
 import sys
 import grpc
-
 from google.protobuf.timestamp_pb2 import Timestamp
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -19,104 +18,103 @@ class MyServiceClient:
         self.event_stub = service_pb2_grpc.EventServiceStub(self.channel)
         self.donation_event_stub = service_pb2_grpc.DonationsAtEventsServiceStub(self.channel)
 
-
+    # ----------------- MÉTODOS -----------------
     def login(self, username: str, password: str):
-        """Llama al RPC Login"""
+        """Llama al RPC Login. No requiere token porque es público"""
         request = service_pb2.LoginRequest(username=username, password=password)
         return self.user_stub.Login(request)
-    
-    def altaUser(self, username: str, name: str, lastName: str, phone: str, email: str, role: str):
-        """Llama al RPC Alta Usuario"""
-        request = service_pb2.AltaUsuarioRequest(username=username, name=name, lastName=lastName, phone=phone, email=email, role=role)
-        return self.user_stub.AltaUser(request)
-    
-    def getAllUsers(self):
-        """Llama al RPC Traer todos los Usuarios"""
-        request = service_pb2.Empty()
-        return self.user_stub.GetAllUsers(request)
-    
-    def getActiveUsers(self):
-        """Llama al RPC Traer todos los Usuarios ACTIVOS"""
-        request = service_pb2.Empty()
-        return self.user_stub.GetActiveUsers(request)
 
-    def updateUser(self, username: str, name: str, lastName: str, phone: str, email: str, role: str, oldUsername: str, oldEmail: str):
-        request = service_pb2.UpdateUsuarioRequest(username=username, name=name, lastName=lastName, phone=phone, email=email, role=role, oldUsername=oldUsername,oldEmail=oldEmail)
-        return self.user_stub.UpdateUser(request)
-    
-    def deleteUser(self, username: str):
-         request = service_pb2.DeleteUsuarioRequest(username=username)
-         return self.user_stub.DeleteUser(request)
-    
-    def getAllDonations(self):
-         request = service_pb2.Empty()
-         return self.donation_stub.GetAllDonations(request)
-    
-    def getActiveDonations(self):
-         request = service_pb2.Empty()
-         return self.donation_stub.GetActiveDonations(request)
-    
-    def altaDonation(self, category: str, description: str, amount: int, username:str):
-        
-        request = service_pb2.AltaDonationRequest(
-            category=category,
-            description=description,
-            amount=amount,
-            username=username
+    def altaUser(self, username: str, name: str, lastName: str, phone: str, email: str, role: str , metadata=None):
+        """Llama al RPC Alta Usuario """
+        request = service_pb2.AltaUsuarioRequest(
+            username=username, name=name, lastName=lastName,
+            phone=phone, email=email, role=role
         )
-        return self.donation_stub.AltaDonation(request)
-    
-    def updateDonation(self, id: int, category: str, description: str, amount: int, username: str):
-        print(amount)
-        request = service_pb2.UpdateDonationRequest(id=id, category=category, description=description, amount=amount, username=username)
-        return self.donation_stub.UpdateDonation(request)
-    
-    def deleteDonation(self, id: int, username: str):
-        request = service_pb2.DeleteDonationRequest(id=id, username=username)
-        return self.donation_stub.DeleteDonation(request)
-    
-    def getAllEvents(self):
-        """Llama al RPC GetAllEvents"""
+        return self.user_stub.AltaUser (request, metadata=metadata)
+
+    def getAllUsers(self, metadata=None):
+        print("grpc")
         request = service_pb2.Empty()
-        return self.event_stub.GetAllEventsWithRelations(request)
-    
-    def createEvent(self, nameEvent: str, descriptionEvent: str, dateRegistration: str):
-        """Llama al RPC CreateEvent"""
-        request = service_pb2.CreateEventRequest(nameEvent=nameEvent, descriptionEvent=descriptionEvent, dateRegistration=dateRegistration)
-        return self.event_stub.CreateEvent(request)
-    
-    def updateEvent(self, id: int, nameEvent: str, descriptionEvent: str, dateRegistration: str):
-        """Llama al RPC UpdateEvent"""
-        request = service_pb2.UpdateEventRequest(id=id, nameEvent=nameEvent, descriptionEvent=descriptionEvent, dateRegistration=dateRegistration)
-        return self.event_stub.UpdateEvent(request)
-    
-    def deleteEvent(self, id: int):
-        """Llama al RPC DeleteEvent"""
+        print("genero request")
+        return self.user_stub.GetAllUsers(request, metadata=metadata)
+
+    def getActiveUsers(self, metadata=None):
+        request = service_pb2.Empty()
+        return self.user_stub.GetActiveUsers (request, metadata=metadata)
+
+    def updateUser(self, username: str, name: str, lastName: str, phone: str, email: str, role: str, oldUsername: str, oldEmail: str, metadata=None):
+        request = service_pb2.UpdateUsuarioRequest(
+            username=username, name=name, lastName=lastName, phone=phone,
+            email=email, role=role, oldUsername=oldUsername, oldEmail=oldEmail
+        )
+        return self.user_stub.UpdateUser(request, metadata=metadata)
+
+    def deleteUser(self, username: str, metadata=None):
+        request = service_pb2.DeleteUsuarioRequest(username=username)
+        return self.user_stub.DeleteUser(request, metadata=metadata)
+
+    def getAllDonations(self, metadata=None):
+        request = service_pb2.Empty()
+        return self.donation_stub.GetAllDonations(request, metadata=metadata)
+
+    def getActiveDonations(self, metadata=None):
+        request = service_pb2.Empty()
+        return self.donation_stub.GetActiveDonations(request, metadata=metadata)
+
+    def altaDonation(self, category: str, description: str, amount: int, username: str, metadata=None):
+        request = service_pb2.AltaDonationRequest(
+            category=category, description=description, amount=amount, username=username
+        )
+        return self.donation_stub.AltaDonation(request, metadata=metadata)
+
+    def updateDonation(self, id: int, category: str, description: str, amount: int, username: str, metadata=None):
+        request = service_pb2.UpdateDonationRequest(
+            id=id, category=category, description=description, amount=amount, username=username
+        )
+        return self.donation_stub.UpdateDonation(request, metadata=metadata)
+
+    def deleteDonation(self, id: int, username: str, metadata=None):
+        request = service_pb2.DeleteDonationRequest(id=id, username=username)
+        return self.donation_stub.DeleteDonation( request, metadata=metadata)
+
+    def getAllEvents(self, metadata=None):
+        request = service_pb2.Empty()
+        return self.event_stub.GetAllEventsWithRelations(request, metadata=metadata)
+
+    def createEvent(self, nameEvent: str, descriptionEvent: str, dateRegistration: str, metadata=None):
+        request = service_pb2.CreateEventRequest(
+            nameEvent=nameEvent, descriptionEvent=descriptionEvent, dateRegistration=dateRegistration
+        )
+        return self.event_stub.CreateEvent( request, metadata=metadata)
+
+    def updateEvent(self, id: int, nameEvent: str, descriptionEvent: str, dateRegistration: str, metadata=None):
+        request = service_pb2.UpdateEventRequest(
+            id=id, nameEvent=nameEvent, descriptionEvent=descriptionEvent, dateRegistration=dateRegistration
+        )
+        return self.event_stub.UpdateEvent( request, metadata=metadata)
+
+    def deleteEvent(self, id: int, metadata=None):
         request = service_pb2.DeleteEventRequest(id=id)
-        return self.event_stub.DeleteEvent(request)
-    
-    def toggleMemberToEvent(self, eventId: int, username: str, alreadyAssigned:bool):
-        """Llama al RPC ToggleMemberToEvent"""
-        request = service_pb2.ToggleMemberRequest(eventId=eventId, username=username,alreadyAssigned=alreadyAssigned)
-        return self.event_stub.ToggleMemberToEvent(request)
+        return self.event_stub.DeleteEvent (request, metadata=metadata)
 
-    
-    def createDonationAtEvent(self, idEvent: int, description:str , quantityDelivered:int, username:str):
-        """Llama al RPC CreateDonationAtEvent"""
-        request = service_pb2.DonationAtEventRequest(idEvent=idEvent, description=description, quantityDelivered=quantityDelivered,username=username)
-        return self.donation_event_stub.CreateDonationAtEvent(request)
-    
-    def updateDonationAtEvent(self, idEvent: int, description:str , quantityDelivered:int, username:str):
-        """Llama al RPC CreateDonationAtEvent"""
-        request = service_pb2.DonationAtEventRequest(idEvent=idEvent, description=description, quantityDelivered=quantityDelivered,username=username)
-        return self.donation_event_stub.UpdateDonationAtEvent(request)
-    
+    def toggleMemberToEvent(self, eventId: int, username: str, alreadyAssigned: bool, metadata=None):
+        request = service_pb2.ToggleMemberRequest(
+            eventId=eventId, username=username, alreadyAssigned=alreadyAssigned
+        )
+        return self.event_stub.ToggleMemberToEvent (request, metadata=metadata)
 
-    def getAllDonationsAtEvent(self, idEvent: int):
-        """Llama al RPC GetAllDonationsAtEvent"""
+    def createDonationAtEvent(self, idEvent: int, description: str, quantityDelivered: int, username: str, metadata=None):
+        request = service_pb2.DonationAtEventRequest(
+            idEvent=idEvent, description=description, quantityDelivered=quantityDelivered, username=username
+        )
+        return self.donation_event_stub.CreateDonationAtEvent (request, metadata=metadata)
+
+    def updateDonationAtEvent(self, idEvent: int, description: str, quantityDelivered: int, username: str, metadata=None):
+        request = service_pb2.DonationAtEventRequest(
+            idEvent=idEvent, description=description, quantityDelivered=quantityDelivered, username=username
+        )
+        return self.donation_event_stub.UpdateDonationAtEvent (request, metadata=metadata)
+
+    def getAllDonationsAtEvent(self, idEvent: int, metadata=None):
         request = service_pb2.GetAllDonationsAtEventRequest(idEvent=idEvent)
-        return self.donation_event_stub.GetAllDonationsAtEvent(request)
-    
-
-
-
+        return self.donation_event_stub.GetAllDonationsAtEvent (request, metadata=metadata )

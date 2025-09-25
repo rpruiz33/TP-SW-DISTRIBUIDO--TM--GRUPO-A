@@ -1,8 +1,6 @@
 package com.grpc.grpc_server.entities;
 
 
-import com.grpc.grpc_server.mapper.DonationMapper;
-import com.grpc.grpc_server.mapper.UserMapper;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;

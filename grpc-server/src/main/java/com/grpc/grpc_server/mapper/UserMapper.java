@@ -1,11 +1,9 @@
 package com.grpc.grpc_server.mapper;
 
 import com.grpc.grpc_server.MyServiceClass;
-import com.grpc.grpc_server.entities.Donation;
 import com.grpc.grpc_server.entities.User;
 import com.grpc.grpc_server.entities.Role;
 import com.grpc.grpc_server.MyServiceClass.AltaUsuarioRequest;
-import com.grpc.grpc_server.MyServiceClass.UserProto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

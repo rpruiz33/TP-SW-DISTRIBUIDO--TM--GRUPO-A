@@ -32,7 +32,48 @@
 		<protobuf-java.version>4.30.2</protobuf-java.version>
 		<spring-grpc.version>0.10.0</spring-grpc.version>
 	</properties>
+	<repositories>
+		<repository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>https://repo.spring.io/milestone</url>
+		</repository>
+	</repositories>
+
+
 	<dependencies>
+
+		<dependency>
+			<groupId>net.devh</groupId>
+			<artifactId>grpc-spring-boot-starter</artifactId>
+			<version>2.14.0.RELEASE</version>
+		</dependency>
+
+		<!-- Dependencia principal de JJWT -->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>0.11.5</version>
+		</dependency>
+
+		<!-- Implementación de JJWT -->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>0.11.5</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<!-- Dependencia para la serialización/deserialización JSON -->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId>
+			<version>0.11.5</version>
+			<scope>runtime</scope>
+		</dependency>
+
+
+
 		<dependency>
 			<groupId>javax.annotation</groupId>
     		<artifactId>javax.annotation-api</artifactId>
@@ -75,6 +116,8 @@
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
+
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>

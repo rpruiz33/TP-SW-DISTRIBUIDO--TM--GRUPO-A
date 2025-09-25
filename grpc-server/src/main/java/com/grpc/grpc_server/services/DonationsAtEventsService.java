@@ -2,7 +2,6 @@ package com.grpc.grpc_server.services;
 
 import java.util.List;
 
-import com.grpc.grpc_server.MyServiceClass;
 import com.grpc.grpc_server.MyServiceClass.DonationAtEventRequest;
 import com.grpc.grpc_server.MyServiceClass.GetAllDonationsAtEventRequest;
 import com.grpc.grpc_server.entities.Donation;

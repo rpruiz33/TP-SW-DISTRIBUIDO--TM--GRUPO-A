@@ -3,19 +3,15 @@ package com.grpc.grpc_server.grpc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.grpc.server.service.GrpcService;
 
+
 import com.grpc.grpc_server.DonationsAtEventsServiceGrpc;
 import com.grpc.grpc_server.MyServiceClass;
 import com.grpc.grpc_server.MyServiceClass.DonationAtEventRequest;
-import com.grpc.grpc_server.MyServiceClass.DeleteEventRequest;
-import com.grpc.grpc_server.MyServiceClass.DeleteEventResponse;
 import com.grpc.grpc_server.MyServiceClass.GenericResponse;
 import com.grpc.grpc_server.MyServiceClass.GetAllDonationsAtEventRequest;
 import com.grpc.grpc_server.entities.DonationsAtEvents;
-import com.grpc.grpc_server.entities.Event;
 import com.grpc.grpc_server.mapper.DonationsAtEventsMapper;
-import com.grpc.grpc_server.mapper.EventMapper;
 import com.grpc.grpc_server.services.DonationsAtEventsService;
-import com.grpc.grpc_server.services.EventService;
 
 
 import io.grpc.stub.StreamObserver;

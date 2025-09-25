@@ -2,7 +2,6 @@ package com.grpc.grpc_server.mapper;
 
 import com.grpc.grpc_server.MyServiceClass;
 import com.grpc.grpc_server.entities.Event;
-import com.grpc.grpc_server.entities.MemberAtEvent;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
