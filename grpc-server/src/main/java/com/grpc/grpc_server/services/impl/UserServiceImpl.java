@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 
-    ///---------------------------------------------------------------------------------------------------------------------
+    ///---------------------------------------------------------------------------------------------------------------------///
     public List<User> getAllUsers (){
 
         return  userRepository.findAll();
@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
 
     }
 
-
+    ///LOGIN DE USUARIO
     public String login(LoginRequest request) {
 
         User user =userRepository.findByEmailOrUsername(request.getUsername(), request.getUsername()).orElse(null);
@@ -84,48 +84,62 @@ public class UserServiceImpl implements UserService {
 
     }
 
-
+    ///ALTA USUARIO
     public String altaUser(AltaUsuarioRequest request) {
 
+        String result = "Usuario creado con éxito";
+
+        //Verificar si existe un user registrado con el mail o username solicitado
         if (userRepository.existsByEmail(request.getEmail()) || userRepository.existsByUsername(request.getUsername())) {
-            return "Email o username ya registrado";
+
+            result = "Email o username ya registrado";
+        
+        //Verificar que todos los campos estén completos
+        } else if (request.getEmail().isEmpty() || request.getUsername().isEmpty() ||
+                request.getName().isEmpty() || request.getLastName().isEmpty() ||
+                request.getRole().isEmpty()) {
+
+            result = "Datos incompletos";
+
+        } else {
+
+            Role role = roleRepository.findByNameRole(request.getRole());
+
+            //Verificar que el rol exista, es decir, que se válido
+            if (role == null) {
+
+                result = "Rol inválido";
+
+            } else {
+
+                
+                User newUser = UserMapper.toEntity(request, role); //Crear un user con el request
+                String passPlana = PasswordUtils.generateRandomPassword(); //Generamos la contraseña 
+                newUser.setPassword(PasswordUtils.encryptPassword(passPlana)); //Seteamos en el nuevo user
+                userRepository.save(newUser);//Guardado en la base de datos
+
+                //Envío de mail con contraseña
+                try {
+                    emailUtils.sendEmail(
+
+                        newUser.getEmail(),
+                        "Registro exitoso",
+                        "Hola " + newUser.getName() + ",\n\nTu usuario fue creado exitosamente.\n" +
+                        "Tu contraseña es: " + passPlana + "\n\n."
+                    );
+
+                } catch (Exception e) {
+
+                    result = "Usuario creado pero error al enviar email";
+                }
+            }
         }
 
-        if (request.getEmail().isEmpty() || request.getUsername().isEmpty() ||
-            request.getName().isEmpty() || request.getLastName().isEmpty() ||
-            request.getRole().isEmpty()) {
-
-            return "Datos incompletos";
-        }
-
-        Role rol = roleRepository.findByNameRole(request.getRole());
-        if (rol == null) {
-            return "Rol inválido";
-        }
-
-        User newUser = UserMapper.toEntity(request, rol);
-
-        String passPlana = PasswordUtils.generateRandomPassword();
-        newUser.setPassword(PasswordUtils.encryptPassword(passPlana));
-
-        userRepository.save(newUser);
-
-        // 🚀 Enviar mail con la contraseña
-        try {
-            emailUtils.sendEmail(
-                newUser.getEmail(),
-                "Registro exitoso",
-                "Hola " + newUser.getName() + ",\n\nTu usuario fue creado exitosamente.\n" +
-                "Tu contraseña es: " + passPlana + "\n\n."
-            );
-            return "Usuario creado con éxito";
-        } catch (Exception e) {
-            return "Usuario creado pero error al enviar email";
-        }
+        return result;
     }
 
 
-
+    ///MODIFICAR USER
     public String updateUser(UpdateUsuarioRequest request) {
 
         log.debug("ENTRAMOS AL IMP");
@@ -182,8 +196,8 @@ public class UserServiceImpl implements UserService {
         return "Usuario modificado con éxito";
     }
 
-
-       @Transactional
+    ///ELIMINAR USER
+    @Transactional
     public String deleteUser(DeleteUsuarioRequest request) {
         String result;
 
