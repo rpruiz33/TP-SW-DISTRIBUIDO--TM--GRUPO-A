@@ -11,16 +11,13 @@ import org.springframework.grpc.server.GlobalServerInterceptor;
 @Component
 @GlobalServerInterceptor  // Aplica el interceptor a todos los servicios gRPC
 public class JwtServerInterceptor implements ServerInterceptor {
-
+    
     @Override
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
-            ServerCall<ReqT, RespT> call,
-            Metadata headers,
-            ServerCallHandler<ReqT, RespT> next) {
+        ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
 
         // Nombre completo del método gRPC invocado
         String methodName = call.getMethodDescriptor().getFullMethodName();
-        log.debug(methodName);
 
         // -------------------------
         // Métodos públicos (no requieren autenticación)
@@ -31,16 +28,18 @@ public class JwtServerInterceptor implements ServerInterceptor {
 
         // Listener que intercepta el mensaje
         ServerCall.Listener<ReqT> listener = new ForwardingServerCallListener.SimpleForwardingServerCallListener<>(
-                next.startCall(call, headers)) {
+                                    next.startCall(call, headers)) {
 
             @Override
             public void onMessage(ReqT message) {
                 try {
-                    String token = null;
+                    
 
                     // -------------------------
                     // 🔑 Obtener token desde METADATA en lugar del request
                     // -------------------------
+
+                    String token = null;
                     Metadata.Key<String> AUTHORIZATION_KEY = Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER);
                     String authHeader = headers.get(AUTHORIZATION_KEY);
 
@@ -53,9 +52,10 @@ public class JwtServerInterceptor implements ServerInterceptor {
                     // Validación de token
                     // -------------------------
                     if (token == null || !JwtUtil.validateToken(token)) {
+                        
+                        //cierra llamada
                         call.close(
-                                Status.UNAUTHENTICATED.withDescription("Token inválido o ausente"),
-                                headers
+                                Status.UNAUTHENTICATED.withDescription("Token inválido o ausente"), headers
                         );
 
                         // Retornar listener vacío para bloquear la ejecución
@@ -65,21 +65,23 @@ public class JwtServerInterceptor implements ServerInterceptor {
                     // -------------------------
                     // Extraer datos del token
                     // -------------------------
+
                     String username = JwtUtil.getUsername(token);
                     String role = JwtUtil.getRole(token);
-
-                    log.debug(role);
 
                     // -------------------------
                     // Validación de permisos según método exacto
                     // -------------------------
+
                     switch (methodName) {
+
                         // Métodos de UserService (solo PRESIDENTE)
                         case "MyService/GetAllUsers":
                         case "MyService/AltaUser":
                         case "MyService/UpdateUser":
                         case "MyService/DeleteUser":
                         case "MyService/SendEmail":
+
                             if (!role.equals("PRESIDENTE")) {
                                 call.close(
                                         Status.PERMISSION_DENIED.withDescription("Solo PRESIDENTE puede usar UserService"),
@@ -94,7 +96,9 @@ public class JwtServerInterceptor implements ServerInterceptor {
                         case "DonationService/AltaDonation":
                         case "DonationService/UpdateDonation":
                         case "DonationService/DeleteDonation":
+
                             if (role.equals("VOLUNTARIO") || role.equals("COORDINADOR")) {
+                                
                                 call.close(
                                         Status.PERMISSION_DENIED.withDescription("Solo PRESIDENTE y VOCAL pueden usar DonationService"),
                                         headers
@@ -132,6 +136,7 @@ public class JwtServerInterceptor implements ServerInterceptor {
                                 return;
                             }
                             break;
+
                         // Métodos de MemberatEvent (PRESIDENTE-COORDINADOR-VOLUNTARIO)
                         case "EventService/ToggleMemberToEvent":
                         case "MyService/GetActiveUsers":
@@ -156,11 +161,13 @@ public class JwtServerInterceptor implements ServerInterceptor {
                     super.onMessage(message);
 
                 } catch (Exception e) {
+
                     // Error inesperado en la validación
                     call.close(
                             Status.PERMISSION_DENIED.withDescription("Error validando token"),
                             headers
                     );
+                    
                 }
             }
         };
