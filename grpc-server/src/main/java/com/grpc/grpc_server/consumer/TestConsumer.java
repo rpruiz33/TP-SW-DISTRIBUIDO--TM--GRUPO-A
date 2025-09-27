@@ -1,7 +1,7 @@
 package com.grpc.grpc_server.consumer;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -11,68 +11,89 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grpc.grpc_server.entities.kafka.Operation;
 import com.grpc.grpc_server.entities.kafka.OperationDonation;
 import com.grpc.grpc_server.entities.kafka.OperationType;
-import com.grpc.grpc_server.repositories.DonationRequestRepository;
+import com.grpc.grpc_server.repositories.OperationDonationRepository;
 import com.grpc.grpc_server.repositories.OperationRepository;
 
 @Service
 public class TestConsumer {
 
     private final ObjectMapper objectMapper;
-    private final DonationRequestRepository solicitudRepository;
+    private final OperationDonationRepository donationRepository;
     private final OperationRepository operationRepository;
 
     // Inyección por constructor
     @Autowired
     public TestConsumer(ObjectMapper objectMapper,
-                        DonationRequestRepository solicitudRepository,
+                        OperationDonationRepository donationRepository,
                         OperationRepository operationRepository) {
         this.objectMapper = objectMapper;
-        this.solicitudRepository = solicitudRepository;
+        this.donationRepository = donationRepository;
         this.operationRepository = operationRepository;
     }
 
+    // Escucha de solicitudes externas
     @KafkaListener(topics = "test-solicitud-donacion", groupId = "grupo-unla")
     public void listen(String message) {
         try {
             System.out.println("Mensaje recibido: " + message);
 
-            // Convertir JSON a objeto
             OperationDonation donation = objectMapper.readValue(message, OperationDonation.class);
 
-            // ID de operación que queremos asociar
             int operationId = 1;
+            Operation operation = operationRepository.findById(operationId)
+                .orElseGet(() -> {
+                    Operation op = new Operation();
+                    op.setIdOperationMessage(1001);
+                    op.setIdOrganization(1);
+                    op.setOperationType(OperationType.SOLICITUD);
+                    op.setActivate(true);
+                    op.setDateRegistration(LocalDateTime.now());
+                    op.setDateModification(LocalDateTime.now());
+                    return operationRepository.save(op);
+                });
 
-            // Buscar operación existente
-            Optional<Operation> existingOperation = operationRepository.findById(operationId);
-            Operation operation;
-
-            if (existingOperation.isPresent()) {
-                operation = existingOperation.get();
-            } else {
-                // Crear operación si no existe
-                operation = new Operation();
-                // ⚠️ No se setea manualmente el ID porque está con @GeneratedValue
-                // operation.setIdOperation(operationId);
-                operation.setIdOperationMessage(1001); // ejemplo, id del mensaje externo
-                operation.setIdOrganization(1);        // ejemplo, organización asociada
-                operation.setOperationType(OperationType.SOLICITUD);
-                operation.setActivate(true);
-                operation.setDateRegistration(LocalDateTime.now());
-                operation.setDateModification(LocalDateTime.now());
-
-                operation = operationRepository.save(operation);
-                System.out.println("Nueva operación creada con id: " + operation.getIdOperation());
-            }
-
-            // Asignar operación a la donación
             donation.setOperation(operation);
-
-            // Guardar donación
-            solicitudRepository.save(donation);
+            donationRepository.save(donation);
 
             System.out.println("Donación guardada en la base de datos.");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+    // Escucha de transferencias
+   @KafkaListener(topics = "transferencia-donaciones-1", groupId = "grupo-unla")
+public void listenTransferencia(String message) {
+    try {
+        System.out.println("📩 Mensaje recibido (TRANSFERENCIA): " + message);
+
+        int operationId = 2;
+        Operation operation = operationRepository.findById(operationId)
+                .orElseGet(() -> {
+                    Operation op = new Operation();
+                    op.setIdOperationMessage(2001);
+                    op.setIdOrganization(1);
+                    op.setOperationType(OperationType.TRANSFERENCIA);
+                    op.setActivate(true);
+                    op.setDateRegistration(LocalDateTime.now());
+                    op.setDateModification(LocalDateTime.now());
+                    return operationRepository.save(op);
+                });
+
+        // Deserializar lista de donaciones
+        List<OperationDonation> donations = objectMapper.readValue(
+            message,
+            objectMapper.getTypeFactory().constructCollectionType(List.class, OperationDonation.class)
+        );
+
+        for (OperationDonation donation : donations) {
+            donation.setOperation(operation);
+            donationRepository.save(donation);
+        }
+
+        System.out.println("✅ Transferencias guardadas en la base de datos.");
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
 }
