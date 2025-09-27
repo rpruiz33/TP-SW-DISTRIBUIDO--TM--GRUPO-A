@@ -13,25 +13,48 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grpc.grpc_server.entities.kafka.Operation;
 import com.grpc.grpc_server.entities.kafka.OperationDonation;
 import com.grpc.grpc_server.entities.kafka.OperationType;
+import com.grpc.grpc_server.mapper.kafka.OperationMapper;
+import com.grpc.grpc_server.mapper.kafka.OperationMapper.OperationDTO;
 import com.grpc.grpc_server.repositories.OperationDonationRepository;
 import com.grpc.grpc_server.repositories.OperationRepository;
+import com.grpc.grpc_server.services.kafka.OperationService;
+import com.grpc.grpc_server.services.kafka.impl.OperationServiceImpl;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class TestConsumer {
 
-    private final ObjectMapper objectMapper;
-    private final OperationDonationRepository donationRepository;
-    private final OperationRepository operationRepository;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
-    public TestConsumer(ObjectMapper objectMapper,
-                        OperationDonationRepository donationRepository,
-                        OperationRepository operationRepository) {
-        this.objectMapper = objectMapper;
-        this.donationRepository = donationRepository;
-        this.operationRepository = operationRepository;
+    private OperationService operationService;
+
+    @Autowired
+    private OperationDonationRepository donationRepository;
+
+    @Autowired
+    private OperationRepository operationRepository;
+
+    @KafkaListener(topics = "test-solicitud-donacion", groupId = "grupo-unla")
+    public void consume(String message) {
+        
+        try {
+
+            System.out.println("HOLLAAAAAA");
+            OperationDTO dto = objectMapper.readValue(message, OperationDTO.class);
+            Operation operation = OperationMapper.toEntity(dto);
+
+            operationService.createOperation(operation);
+
+        } catch (Exception e) {
+            e.printStackTrace(); 
+        }
     }
 
+    /* 
     // Escucha de solicitudes externas
     @KafkaListener(topics = "test-solicitud-donacion", groupId = "grupo-unla")
     public void listen(String message) {
@@ -61,6 +84,8 @@ public class TestConsumer {
             e.printStackTrace();
         }
     }
+    */
+
 
     // Escucha de transferencias
     @KafkaListener(topics = "transferencia-donaciones-1", groupId = "grupo-unla")

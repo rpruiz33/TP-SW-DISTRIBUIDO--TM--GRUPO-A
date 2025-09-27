@@ -32,7 +32,6 @@ public class EventAdhesion {
     @Column(name = "email_volunteer")
     private String emailVolunteer;
 
-
     // Relación con externalEvent 
     @ManyToOne 
     @JoinColumn(name = "external_event_id", nullable = false) 

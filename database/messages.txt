@@ -1,0 +1,48 @@
+
+///MENSAJE PARA SOLICITUD DE DONACION
+{
+  "idSolicitud": "12345",
+  "idOrganizacion": "67890",
+  "donaciones": [
+    {
+      "categoria": "ROPA",
+      "descripcion": "Remeras",
+      "cantidad": 20
+    },
+    {
+      "categoria": "ROPA",
+      "descripcion": "Pantalones",
+      "cantidad": 15
+    },
+    {
+      "categoria": "ALIMENTO",
+      "descripcion": "Arroz",
+      "cantidad": 50
+    },
+    {
+      "categoria": "ALIMENTO",
+      "descripcion": "Fideos",
+      "cantidad": 30
+    },
+    {
+      "categoria": "JUGUETE",
+      "descripcion": "Pelotas",
+      "cantidad": 10
+    },
+    {
+      "categoria": "JUGUETE",
+      "descripcion": "Muñecas",
+      "cantidad": 8
+    },
+    {
+      "categoria": "UTIL_ESCOLAR",
+      "descripcion": "Cuadernos",
+      "cantidad": 25
+    },
+    {
+      "categoria": "UTIL_ESCOLAR",
+      "descripcion": "Lápices",
+      "cantidad": 40
+    }
+  ]
+}
