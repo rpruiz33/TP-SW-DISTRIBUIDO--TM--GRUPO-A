@@ -1,30 +1,34 @@
 package com.grpc.grpc_server.consumer;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.grpc.grpc_server.entities.Organizacion;
-import com.grpc.grpc_server.entities.SolicitudDonacion;
-import com.grpc.grpc_server.repositories.OrganizacionRepository;
-import com.grpc.grpc_server.repositories.SolicitudDonacionRepository;
+import com.grpc.grpc_server.entities.kafka.Operation;
+import com.grpc.grpc_server.entities.kafka.OperationDonation;
+import com.grpc.grpc_server.entities.kafka.OperationType;
+import com.grpc.grpc_server.repositories.DonationRequestRepository;
+import com.grpc.grpc_server.repositories.OperationRepository;
 
 @Service
 public class TestConsumer {
 
     private final ObjectMapper objectMapper;
-    private final SolicitudDonacionRepository solicitudRepository;
-    private final OrganizacionRepository organizacionRepository;
+    private final DonationRequestRepository solicitudRepository;
+    private final OperationRepository operationRepository;
 
     // Inyección por constructor
     @Autowired
-    public TestConsumer(ObjectMapper objectMapper, 
-                        SolicitudDonacionRepository solicitudRepository,
-                        OrganizacionRepository organizacionRepository) {
+    public TestConsumer(ObjectMapper objectMapper,
+                        DonationRequestRepository solicitudRepository,
+                        OperationRepository operationRepository) {
         this.objectMapper = objectMapper;
         this.solicitudRepository = solicitudRepository;
-        this.organizacionRepository = organizacionRepository;
+        this.operationRepository = operationRepository;
     }
 
     @KafkaListener(topics = "test-solicitud-donacion", groupId = "grupo-unla")
@@ -33,23 +37,40 @@ public class TestConsumer {
             System.out.println("Mensaje recibido: " + message);
 
             // Convertir JSON a objeto
-            SolicitudDonacion solicitud = objectMapper.readValue(message, SolicitudDonacion.class);
+            OperationDonation donation = objectMapper.readValue(message, OperationDonation.class);
 
-            // Asignar relación de donaciones
-            if (solicitud.getDonaciones() != null) {
-                solicitud.getDonaciones().forEach(d -> d.setSolicitudDonacion(solicitud));
+            // ID de operación que queremos asociar
+            int operationId = 1;
+
+            // Buscar operación existente
+            Optional<Operation> existingOperation = operationRepository.findById(operationId);
+            Operation operation;
+
+            if (existingOperation.isPresent()) {
+                operation = existingOperation.get();
+            } else {
+                // Crear operación si no existe
+                operation = new Operation();
+                // ⚠️ No se setea manualmente el ID porque está con @GeneratedValue
+                // operation.setIdOperation(operationId);
+                operation.setIdOperationMessage(1001); // ejemplo, id del mensaje externo
+                operation.setIdOrganization(1);        // ejemplo, organización asociada
+                operation.setOperationType(OperationType.SOLICITUD);
+                operation.setActivate(true);
+                operation.setDateRegistration(LocalDateTime.now());
+                operation.setDateModification(LocalDateTime.now());
+
+                operation = operationRepository.save(operation);
+                System.out.println("Nueva operación creada con id: " + operation.getIdOperation());
             }
 
-            // Asignar organización existente
-            Organizacion org = organizacionRepository.findById(1)
-                    .orElseThrow(() -> new RuntimeException("Organización no encontrada"));
-            solicitud.setOrganizacion(org);// donde getId() devuelve el Integer/Long
+            // Asignar operación a la donación
+            donation.setOperation(operation);
 
+            // Guardar donación
+            solicitudRepository.save(donation);
 
-            // Persistir
-            solicitudRepository.save(solicitud);
-
-            System.out.println("Solicitud guardada en la base de datos con donaciones.");
+            System.out.println("Donación guardada en la base de datos.");
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -1,7 +1,7 @@
 package com.grpc.grpc_server.entities;
 
+
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Column;
@@ -29,7 +29,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class Donation {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idDonation;
@@ -61,10 +60,10 @@ public class Donation {
     private User userModification;
 
     @OneToMany(mappedBy = "donation")
-    @Builder.Default
-    private List<DonationsAtEvents> events = new ArrayList<>();
+    private List<DonationsAtEvents> events;
 
-    @ManyToOne
-    @JoinColumn(name = "solicitud_id", nullable = false)
-    private SolicitudDonacion solicitudDonacion;
+    
+    // Getters y Setters
 }
+
+
