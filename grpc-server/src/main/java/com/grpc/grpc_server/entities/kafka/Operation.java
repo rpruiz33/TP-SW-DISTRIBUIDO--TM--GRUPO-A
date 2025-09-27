@@ -41,6 +41,7 @@ public class Operation {
     @Column(name = "date_modification")
     private LocalDateTime dateModification;
 
+    
     @OneToMany(mappedBy = "operation")
     private List<OperationDonation> operationDonations;
     
