@@ -32,7 +32,7 @@ public class SolicitudDonacion {
 
     private String idSolicitud;
     private String nombreDonante;
-    private String tipoSangre;
+   
 
     @ManyToOne
     @JoinColumn(name = "id_organizacion")
