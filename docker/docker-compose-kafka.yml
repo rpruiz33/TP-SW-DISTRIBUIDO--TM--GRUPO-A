@@ -1,10 +1,12 @@
+version: '3.8'
+
 services:
   kafka:
     image: apache/kafka:latest
     container_name: kafka-broker
     ports:
-      - "9092:9092"
-      - "29092:29092"
+      - "9092:9092"     # para otros contenedores
+      - "29092:29092"   # para clientes en el host
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
@@ -14,6 +16,7 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
     volumes:
       - kafka-data:/var/lib/kafka/data
 
@@ -21,10 +24,12 @@ services:
     container_name: kafbat-ui
     image: ghcr.io/kafbat/kafka-ui:latest
     ports:
-      - 9095:8080
+      - "9095:8080"
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    depends_on:
+      - kafka
 
 volumes:
   kafka-data:
