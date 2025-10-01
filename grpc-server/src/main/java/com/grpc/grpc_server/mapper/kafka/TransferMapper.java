@@ -1,5 +1,7 @@
 package com.grpc.grpc_server.mapper.kafka;
 
+import org.springframework.stereotype.Component;
+
 import com.grpc.grpc_server.entities.Category;
 import com.grpc.grpc_server.entities.kafka.Operation;
 import com.grpc.grpc_server.entities.kafka.OperationDonation;
@@ -8,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Component
 public class TransferMapper {
 
     @Data
@@ -19,7 +22,7 @@ public class TransferMapper {
         private int cantidad;
     }
 
-    public static OperationDonation toEntity(TransferDTO dto, Operation operation) {
+    public OperationDonation toEntity(TransferDTO dto, Operation operation) {
         OperationDonation donation = new OperationDonation();
         donation.setCategory(Category.valueOf(dto.getCategoria().toUpperCase()));
         donation.setDescription(dto.getDescripcion());

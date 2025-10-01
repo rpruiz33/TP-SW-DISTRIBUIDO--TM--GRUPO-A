@@ -53,7 +53,12 @@ public class TestConsumer {
             e.printStackTrace(); 
         }
     }
-
+   // Listener para transferencias
+    @KafkaListener(topics = "transferencia-donaciones-1", groupId = "grupo-unla")
+    public void listenTransfer(String message) {
+        log.info("📩 Mensaje recibido en 'transferencia-donaciones-1': {}", message);
+        operationService.processTransfer(message); // llama a tu método
+    }
     /* 
     // Escucha de solicitudes externas
     @KafkaListener(topics = "test-solicitud-donacion", groupId = "grupo-unla")
@@ -88,7 +93,7 @@ public class TestConsumer {
 
 
     // Escucha de transferencias
-    @KafkaListener(topics = "transferencia-donaciones-1", groupId = "grupo-unla")
+    /*@KafkaListener(topics = "transferencia-donaciones-1", groupId = "grupo-unla")
     public void listenTransferencia(String message) {
         try {
             System.out.println("📩 Mensaje recibido (TRANSFERENCIA): " + message);
@@ -121,7 +126,7 @@ public class TestConsumer {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     // Escucha de ofertas (sin clase externa)
     @KafkaListener(topics = "oferta-donaciones", groupId = "grupo-unla")

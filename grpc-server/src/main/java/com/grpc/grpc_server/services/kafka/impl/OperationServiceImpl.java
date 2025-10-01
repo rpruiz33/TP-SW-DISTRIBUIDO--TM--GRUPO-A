@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grpc.grpc_server.entities.kafka.Operation;
 import com.grpc.grpc_server.entities.kafka.OperationDonation;
 import com.grpc.grpc_server.entities.kafka.OperationType;
+import com.grpc.grpc_server.mapper.kafka.TransferMapper;
 import com.grpc.grpc_server.repositories.OperationDonationRepository;
 import com.grpc.grpc_server.repositories.OperationRepository;
 import com.grpc.grpc_server.services.kafka.OperationService;
@@ -27,7 +28,9 @@ public class OperationServiceImpl implements OperationService{
      @Autowired
     private OperationDonationRepository operationDonationRepository; 
     @Autowired
-    private ObjectMapper tranMapper;
+    private TransferMapper tranMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     
 
@@ -67,12 +70,11 @@ public class OperationServiceImpl implements OperationService{
                         op.setDateModification(LocalDateTime.now());
                         return operationRepository.save(op);
                     });
-
-            // Deserializar lista de donaciones
-            List<OperationDonation> donations = tranMapper.readValue(
+            List<OperationDonation> donations = objectMapper.readValue(
                     message,
-                    tranMapper.getTypeFactory().constructCollectionType(List.class, OperationDonation.class)
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, OperationDonation.class)
             );
+                    
 
             for (OperationDonation donation : donations) {
                 donation.setOperation(operation);
