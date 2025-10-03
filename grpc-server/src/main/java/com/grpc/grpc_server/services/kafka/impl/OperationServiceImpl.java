@@ -33,32 +33,51 @@ public class OperationServiceImpl implements OperationService{
     private ObjectMapper objectMapper;
 
     
-
-    @Override
-    public void createOperation(Operation operation) {
-
-        
-        Operation operationSaved= operationRepository.save(operation);
-
-        //Guardar las donaciones
-        if (operation.getOperationDonations() != null) {
-            
-            for (OperationDonation od : operation.getOperationDonations()) {
-                od.setOperation(operationSaved); 
-                operationDonationRepository.save(od);
-            }
-        }
-        
+@Override
+public void createOperation(Operation operation) {
+    if (operation == null) {
+        throw new IllegalArgumentException("La operación no puede ser nula");
+    }
+    if (operation.getOperationType() == null) {
+        throw new IllegalArgumentException("El tipo de operación es obligatorio");
+    }
+    if (operation.getIdOrganization() <= 0) {
+        throw new IllegalArgumentException("La organización es obligatoria y debe ser válida");
     }
 
-     @Override
+    // fechas
+    if (operation.getDateRegistration() == null) {
+        operation.setDateRegistration(LocalDateTime.now());
+    }
+    operation.setDateModification(LocalDateTime.now());
+
+    // guardar operación
+    Operation operationSaved = operationRepository.save(operation);
+
+    // guardar donaciones asociadas
+    if (operation.getOperationDonations() != null) {
+        for (OperationDonation od : operation.getOperationDonations()) {
+            if (od.getQuantity() <= 0) {
+                throw new IllegalArgumentException("La cantidad de la donación debe ser mayor a 0");
+            }
+            od.setOperation(operationSaved);
+            operationDonationRepository.save(od);
+        }
+    }
+}
+
+
+    @Override
     public void processTransfer(String message) {
         try {
+            if (message == null || message.isBlank()) {
+                throw new IllegalArgumentException("El mensaje de transferencia está vacío");
+            }
+
             log.info("📩 Mensaje recibido (TRANSFERENCIA): {}", message);
 
             int operationId = 2;
 
-            // Buscar o crear operación
             Operation operation = operationRepository.findById(operationId)
                     .orElseGet(() -> {
                         Operation op = new Operation();
@@ -70,22 +89,28 @@ public class OperationServiceImpl implements OperationService{
                         op.setDateModification(LocalDateTime.now());
                         return operationRepository.save(op);
                     });
+
             List<OperationDonation> donations = objectMapper.readValue(
                     message,
                     objectMapper.getTypeFactory().constructCollectionType(List.class, OperationDonation.class)
             );
-                    
 
             for (OperationDonation donation : donations) {
+                // Validaciones
+                if (donation.getQuantity() <= 0) {
+                    log.warn("⚠️ Donación inválida (monto <= 0), descartada: {}", donation);
+                    continue; // no guardar
+                }
+            
+
+                // asociar y guardar
                 donation.setOperation(operation);
-                operationDonationRepository.save(donation);}
+                operationDonationRepository.save(donation);
+            }
 
             log.info("✅ Transferencias guardadas en la base de datos.");
-
         } catch (Exception e) {
             log.error("❌ Error procesando transferencia", e);
         }
     }
-
-    
 }
