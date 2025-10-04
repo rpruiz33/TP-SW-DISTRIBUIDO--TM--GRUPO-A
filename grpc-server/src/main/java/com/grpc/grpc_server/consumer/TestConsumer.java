@@ -1,24 +1,16 @@
 package com.grpc.grpc_server.consumer;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grpc.grpc_server.entities.kafka.Operation;
-import com.grpc.grpc_server.entities.kafka.OperationDonation;
-import com.grpc.grpc_server.entities.kafka.OperationType;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.OperationDTO;
 import com.grpc.grpc_server.repositories.OperationDonationRepository;
 import com.grpc.grpc_server.repositories.OperationRepository;
 import com.grpc.grpc_server.services.kafka.OperationService;
-import com.grpc.grpc_server.services.kafka.impl.OperationServiceImpl;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -129,7 +121,7 @@ public class TestConsumer {
     }*/
 
     // Escucha de ofertas (sin clase externa)
-    @KafkaListener(topics = "oferta-donaciones", groupId = "grupo-unla")
+    /*@KafkaListener(topics = "oferta-donaciones", groupId = "grupo-unla")
     public void listenOffer(String message) {
         try {
             System.out.println("📩 Mensaje recibido (OFERTA): " + message);
@@ -170,5 +162,21 @@ public class TestConsumer {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }*/
+
+    @KafkaListener(topics = "oferta-donaciones", groupId = "grupo-unla")
+public void listenOffer(String message) {
+    try {
+        log.info("📩 Mensaje recibido en topic 'oferta-donaciones': {}", message);
+
+        // Llamamos al servicio que procesa el mensaje y guarda en la DB
+        operationService.processOfferMessage(message);
+
+        log.info("✅ Mensaje de oferta procesado correctamente");
+
+    } catch (Exception e) {
+        log.error("❌ Error procesando mensaje de oferta", e);
     }
+}
+
 }

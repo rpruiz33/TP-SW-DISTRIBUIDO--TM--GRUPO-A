@@ -1,6 +1,7 @@
 package com.grpc.grpc_server.entities.kafka;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
@@ -46,6 +47,6 @@ public class Operation {
     @NotNull(message = "La fecha de modificación es obligatoria")
     private LocalDateTime dateModification;
 
-    @OneToMany(mappedBy = "operation", cascade = CascadeType.ALL)
-    private List<OperationDonation> operationDonations;
+   @OneToMany(mappedBy = "operation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+private List<OperationDonation> operationDonations = new ArrayList<>();
 }

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grpc.grpc_server.entities.kafka.Operation;
 import com.grpc.grpc_server.entities.kafka.OperationDonation;
 import com.grpc.grpc_server.entities.kafka.OperationType;
+import com.grpc.grpc_server.mapper.kafka.OfferDanationMapper;
 import com.grpc.grpc_server.mapper.kafka.TransferMapper;
 import com.grpc.grpc_server.repositories.OperationDonationRepository;
 import com.grpc.grpc_server.repositories.OperationRepository;
@@ -113,4 +114,112 @@ public void createOperation(Operation operation) {
             log.error("❌ Error procesando transferencia", e);
         }
     }
+    @Override
+    public void processOfferMessage(String message) {
+    try {
+        // Validación básica del mensaje
+        if (message == null || message.isBlank()) {
+            throw new IllegalArgumentException("El mensaje de oferta está vacío");
+        }
+
+        log.info("📩 Mensaje recibido (OFERTA): {}", message);
+
+        // Deserializar JSON a Map
+        var offerMap = objectMapper.readValue(message, java.util.Map.class);
+
+        // Validar campos principales
+        if (!offerMap.containsKey("idOffer") || !offerMap.containsKey("idOrganizationDonante") ||
+            !offerMap.containsKey("donations")) {
+            throw new IllegalArgumentException("El mensaje de oferta no tiene los campos obligatorios");
+        }
+
+        int idOffer = (Integer) offerMap.get("idOffer");
+        int idOrg = (Integer) offerMap.get("idOrganizationDonante");
+
+        if (idOffer <= 0) {
+            throw new IllegalArgumentException("El ID de la oferta debe ser mayor a 0");
+        }
+
+        if (idOrg <= 0) {
+            throw new IllegalArgumentException("El ID de la organización debe ser mayor a 0");
+        }
+
+        // Crear o recuperar operación
+        Operation operation = operationRepository.findById(idOffer)
+                .orElseGet(() -> {
+                    Operation op = new Operation();
+                    op.setIdOperationMessage(idOffer);
+                    op.setIdOrganization(idOrg);
+                    op.setOperationType(OperationType.OFERTA);
+                    op.setActivate(true);
+                    op.setDateRegistration(LocalDateTime.now());
+                    op.setDateModification(LocalDateTime.now());
+                    return operationRepository.save(op);
+                });
+
+        // Obtener lista de donaciones
+        List<java.util.Map<String, Object>> donationsList =
+                (List<java.util.Map<String, Object>>) offerMap.get("donations");
+
+        if (donationsList == null || donationsList.isEmpty()) {
+            log.warn("⚠️ La oferta no contiene donaciones");
+        } else {
+            for (java.util.Map<String, Object> donationMap : donationsList) {
+
+                // Validaciones de cada donación
+                if (!donationMap.containsKey("category") || !donationMap.containsKey("description") ||
+                    !donationMap.containsKey("quantity")) {
+                    log.warn("⚠️ Donación incompleta, descartada: {}", donationMap);
+                    continue;
+                }
+
+                int quantity = (Integer) donationMap.get("quantity");
+                if (quantity <= 0) {
+                    log.warn("⚠️ Donación con cantidad inválida, descartada: {}", donationMap);
+                    continue;
+                }
+
+                String categoryStr = (String) donationMap.get("category");
+                String description = (String) donationMap.get("description");
+
+                if (categoryStr == null || categoryStr.isBlank()) {
+                    log.warn("⚠️ Donación sin categoría, descartada: {}", donationMap);
+                    continue;
+                }
+
+                if (description == null || description.isBlank()) {
+                    log.warn("⚠️ Donación sin descripción, descartada: {}", donationMap);
+                    continue;
+                }
+
+                // Crear entidad OperationDonation
+                var donation = new OperationDonation();
+                try {
+                    donation.setCategory(Enum.valueOf(com.grpc.grpc_server.entities.Category.class, categoryStr));
+                } catch (IllegalArgumentException ex) {
+                    log.warn("⚠️ Categoría inválida, descartada: {}", categoryStr);
+                    continue;
+                }
+                donation.setDescription(description);
+                donation.setQuantity(quantity);
+                donation.setOperation(operation);
+
+                // Guardar en DB
+                operationDonationRepository.save(donation);
+            }
+        }
+
+        // Actualizar fechas de la operación
+        operation.setDateModification(LocalDateTime.now());
+        operationRepository.save(operation);
+
+        // Mapear a DTO usando el mapper
+        var dto = OfferDanationMapper.toDTO(operation);
+        log.info("✅ Oferta procesada y DTO generado: {}", dto);
+
+    } catch (Exception e) {
+        log.error("❌ Error procesando oferta", e);
+    }
+}
+
 }
