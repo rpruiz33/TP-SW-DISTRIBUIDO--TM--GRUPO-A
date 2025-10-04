@@ -8,4 +8,5 @@ public interface OperationService {
     void createOperation(Operation operation);
     void processTransfer(String message);
     void processOfferMessage(String message);
+    void processCancelRequest(String message);
 }

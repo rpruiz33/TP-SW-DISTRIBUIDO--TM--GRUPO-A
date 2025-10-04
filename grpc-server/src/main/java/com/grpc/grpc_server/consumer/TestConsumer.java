@@ -179,4 +179,20 @@ public void listenOffer(String message) {
     }
 }
 
+    @KafkaListener(topics = "baja-solicitud-donaciones", groupId = "grupo-unla")
+    public void listenCancelRequest(String message) {
+        try {
+            // Validación mínima antes de enviar al service
+            if (message == null || message.isBlank()) {
+                log.warn("Mensaje vacío recibido en baja-solicitud-donaciones");
+                return;
+            }
+
+            // Llamada al service que contiene toda la lógica de procesamiento
+            operationService.processCancelRequest(message);
+
+        } catch (Exception e) {
+            log.error("❌ Error en TestConsumer procesando mensaje de baja", e);
+        }
+    }
 }

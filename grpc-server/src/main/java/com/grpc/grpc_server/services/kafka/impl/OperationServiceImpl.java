@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grpc.grpc_server.entities.kafka.Operation;
 import com.grpc.grpc_server.entities.kafka.OperationDonation;
 import com.grpc.grpc_server.entities.kafka.OperationType;
+import com.grpc.grpc_server.mapper.kafka.CancelRequestMapper;
 import com.grpc.grpc_server.mapper.kafka.OfferDanationMapper;
 import com.grpc.grpc_server.mapper.kafka.TransferMapper;
 import com.grpc.grpc_server.repositories.OperationDonationRepository;
@@ -222,4 +223,55 @@ public void createOperation(Operation operation) {
     }
 }
 
+
+  public void processCancelRequest(String message) {
+    try {
+        // 1️⃣ Validación de mensaje vacío
+        if (message == null || message.isBlank()) {
+            log.warn("Mensaje vacío recibido en baja-solicitud-donaciones");
+            return;
+        }
+
+        log.info("📩 Mensaje recibido (BAJA SOLICITUD): {}", message);
+
+        // 2️⃣ Deserializar JSON a DTO
+        CancelRequestMapper.CancelRequestDTO cancelDTO =
+                objectMapper.readValue(message, CancelRequestMapper.CancelRequestDTO.class);
+
+        // 3️⃣ Validar DTO
+        try {
+            cancelDTO.validate();
+        } catch (IllegalArgumentException ex) {
+            log.error("❌ Error de validación en DTO: {}", ex.getMessage());
+            return;
+        }
+
+        // 4️⃣ Buscar operación por idOperationMessage
+        Operation existingOperation = operationRepository
+                .findByIdOperationMessage(cancelDTO.getIdOffer())
+                .orElse(null);
+
+        if (existingOperation == null) {
+            log.warn("⚠️ Solicitud {} no encontrada para baja", cancelDTO.getIdOffer());
+            return;
+        }
+
+        // 5️⃣ Mapear con CancelRequestMapper (aplica validaciones de org y estado activo)
+        try {
+            CancelRequestMapper.toEntity(cancelDTO, existingOperation);
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            log.error("❌ No se pudo dar de baja la solicitud: {}", ex.getMessage());
+            return;
+        }
+
+        // 6️⃣ Persistir cambios
+        operationRepository.save(existingOperation);
+
+        log.info("✅ Solicitud de donación {} de la organización {} dada de baja correctamente",
+                cancelDTO.getIdOffer(), cancelDTO.getIdOrganization());
+
+    } catch (Exception e) {
+        log.error("❌ Error inesperado procesando baja de solicitud", e);
+    }
+}
 }
