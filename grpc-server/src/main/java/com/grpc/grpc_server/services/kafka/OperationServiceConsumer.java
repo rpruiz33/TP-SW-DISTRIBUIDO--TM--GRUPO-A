@@ -3,10 +3,12 @@ package com.grpc.grpc_server.services.kafka;
 import com.grpc.grpc_server.entities.kafka.Operation;
 
 
-public interface OperationService {
+public interface OperationServiceConsumer {
 
     void createOperation(Operation operation);
     void processTransfer(String message);
     void processOfferMessage(String message);
     void processCancelRequest(String message);
+
+
 }

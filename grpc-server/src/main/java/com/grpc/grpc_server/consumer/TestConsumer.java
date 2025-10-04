@@ -10,7 +10,7 @@ import com.grpc.grpc_server.mapper.kafka.OperationMapper;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.OperationDTO;
 import com.grpc.grpc_server.repositories.OperationDonationRepository;
 import com.grpc.grpc_server.repositories.OperationRepository;
-import com.grpc.grpc_server.services.kafka.OperationService;
+import com.grpc.grpc_server.services.kafka.OperationServiceConsumer;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,7 +22,7 @@ public class TestConsumer {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private OperationService operationService;
+    private OperationServiceConsumer operationService;
 
     @Autowired
     private OperationDonationRepository donationRepository;

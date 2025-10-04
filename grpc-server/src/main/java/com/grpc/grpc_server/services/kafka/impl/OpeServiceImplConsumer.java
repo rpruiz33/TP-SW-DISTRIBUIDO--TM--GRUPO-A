@@ -1,5 +1,5 @@
 package com.grpc.grpc_server.services.kafka.impl;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,16 +13,18 @@ import com.grpc.grpc_server.entities.kafka.OperationType;
 import com.grpc.grpc_server.mapper.kafka.CancelRequestMapper;
 import com.grpc.grpc_server.mapper.kafka.OfferDanationMapper;
 import com.grpc.grpc_server.mapper.kafka.TransferMapper;
+import com.grpc.grpc_server.producer.OperationProducer;
 import com.grpc.grpc_server.repositories.OperationDonationRepository;
 import com.grpc.grpc_server.repositories.OperationRepository;
-import com.grpc.grpc_server.services.kafka.OperationService;
+import com.grpc.grpc_server.services.kafka.OperationServiceConsumer;
 
 import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
 @Service
-public class OperationServiceImpl implements OperationService{
+    
+public class OpeServiceImplConsumer implements OperationServiceConsumer{
     
     @Autowired
     private OperationRepository operationRepository;
@@ -33,6 +35,9 @@ public class OperationServiceImpl implements OperationService{
     private TransferMapper tranMapper;
     @Autowired
     private ObjectMapper objectMapper;
+    
+    @Autowired
+    private OperationProducer operationProducer;
 
     
 @Override
@@ -66,6 +71,8 @@ public void createOperation(Operation operation) {
             operationDonationRepository.save(od);
         }
     }
+        // 🚀 Publicar evento a Kafka
+    operationProducer.sendOperationCreated(operationSaved);
 }
 
 
@@ -204,7 +211,7 @@ public void createOperation(Operation operation) {
                 donation.setDescription(description);
                 donation.setQuantity(quantity);
                 donation.setOperation(operation);
-
+                operation.getOperationDonations().add(donation);  // Añadir a la lista
                 // Guardar en DB
                 operationDonationRepository.save(donation);
             }
@@ -223,7 +230,7 @@ public void createOperation(Operation operation) {
     }
 }
 
-
+  @Transactional
   public void processCancelRequest(String message) {
     try {
         // 1️⃣ Validación de mensaje vacío
@@ -274,4 +281,5 @@ public void createOperation(Operation operation) {
         log.error("❌ Error inesperado procesando baja de solicitud", e);
     }
 }
+
 }
