@@ -6,12 +6,20 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grpc.grpc_server.entities.kafka.Operation;
 import com.grpc.grpc_server.entities.kafka.OperationDonation;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+
 import com.grpc.grpc_server.services.kafka.OperationServiceProducer;
+
 import java.util.List;
+
+import org.springframework.transaction.annotation.Transactional;
+
+import com.grpc.grpc_server.repositories.OperationRepository;
 
 @Slf4j
 @Service
@@ -20,12 +28,30 @@ public class OpeServiceImplProducer implements OperationServiceProducer{
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
+    private final OperationRepository operationRepository;
 
     private static final String TOPIC_CREATE = "alta-solicitud-donaciones";
     private static final String TOPIC_TRANSFER = "transferencia";
     private static final String TOPIC_CANCEL = "baja-solicitud-donaciones";
     private static final String TOPIC_OFFER = "oferta";
+    @Transactional
+    public void createAndSendOperation(Operation operation) {
+        try {
+            // Persistir en DB
+            operationRepository.save(operation);
 
+            // Enviar a Kafka
+            String message = objectMapper.writeValueAsString(operation);
+            kafkaTemplate.send(TOPIC_CREATE, message);
+
+            log.info("📥 Operación guardada y enviada a Kafka: {}", message);
+
+        } catch (JsonProcessingException e) {
+            log.error("❌ Error serializando operación para Kafka", e);
+        } catch (Exception e) {
+            log.error("❌ Error guardando operación en DB", e);
+        }
+    }
     /**
      * Envía un mensaje cuando se crea una operación.
      */

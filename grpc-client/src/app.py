@@ -2,9 +2,17 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from grpc_client import MyServiceClient
 from google.protobuf.json_format import MessageToJson
+from kafka_client import enviar_mensaje
+from flask_sqlalchemy import SQLAlchemy
+
+import grpc
+import service_pb2
+import service_pb2_grpc
 
 app = Flask(__name__)
 CORS(app)  # Permite llamadas desde React u otros dominios
+# Configuración de la DB MySQL
+
 
 # Inicializa cliente gRPC
 grpc_client = MyServiceClient(host='localhost', port=9090)
@@ -165,23 +173,6 @@ def getActiveDonations():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route("/api/altadonation", methods=["POST"])
-def altadonation():
-    data = request.json
-    try:
-        grpc_response = grpc_call_with_token(
-            grpc_client.altaDonation,
-            category=data.get("category"),
-            description=data.get("description"),
-            amount=int(data.get("amount")),
-            username=data.get("username")
-        )
-        return jsonify({
-            "success": grpc_response.success,
-            "message": grpc_response.message
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 @app.route("/api/updatedonation", methods=["PUT"])
 def updateDonation():
@@ -336,28 +327,48 @@ def getAllDonationsAtEvent(id):
         return json_response
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
-# Enviar donación (ejemplo)
-@app.route("/api/oferta-donaciones", methods=["POST"])
-def oferta_donaciones():
-    data = request.json
-    enviar_mensaje("/oferta-donaciones", data)
-    return jsonify({"success": True, "message": "Oferta enviada"})
 
-# Obtener eventos externos
-@app.route("/api/eventos-externos", methods=["GET"])
-def get_eventos():
-    return jsonify(eventos_externos)
+# ---------------------------
+# RUTAS KAFKA
+# ---------------------------
 
-# Simulación: baja evento
-@app.route("/api/baja-evento", methods=["POST"])
-def baja_evento():
-    data = request.json
-    enviar_mensaje("/baja-evento-solidario", data)
-    return jsonify({"success": True, "message": "Baja evento enviada"})
+GRPC_SERVER = "localhost:9090"
 
-# ============================
-# RUN APP
-# ============================
+def enviar_operacion_grpc(data):
+    try:
+        with grpc.insecure_channel(GRPC_SERVER) as channel:
+            stub = service_pb2_grpc.OperationServiceStub(channel)
+            request_message = service_pb2.OperationRequest(
+                category=data.get("category", ""),
+                description=data.get("description", ""),
+                amount=data.get("amount", 0),
+                username=data.get("username", "")
+            )
+            response = stub.CreateOperation(request_message)
+            return response
+    except grpc.RpcError as e:
+        # Capturamos cualquier error de gRPC y lo retornamos como dict
+        return {"error_grpc": e.details(), "codigo_grpc": e.code().name}
+
+@app.route("/api/generarOperacion", methods=["POST"])
+def generar_operacion():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"success": False, "message": "No se recibieron datos"}), 400
+
+        response = enviar_operacion_grpc(data)
+
+        # Si la respuesta es error de gRPC
+        if isinstance(response, dict) and "error_grpc" in response:
+            return jsonify({"success": False, "message": response["error_grpc"], "codigo": response["codigo_grpc"]})
+
+        # Respuesta exitosa
+        return jsonify({"success": True, "message": "Operación enviada al gRPC server", "respuesta_grpc": response.message})
+
+    except Exception as e:
+        # Cualquier error inesperado se devuelve como JSON
+        return jsonify({"success": False, "message": f"Error interno: {str(e)}"})
+
 if __name__ == "__main__":
-    app.run(port=5000, debug=True)
+    app.run(debug=True, host="0.0.0.0", port=5000)

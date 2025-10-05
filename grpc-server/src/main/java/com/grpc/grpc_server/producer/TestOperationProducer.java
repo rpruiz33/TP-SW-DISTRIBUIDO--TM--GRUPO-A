@@ -1,20 +1,11 @@
 package com.grpc.grpc_server.producer;
 
-import com.grpc.grpc_server.entities.Category;
-import com.grpc.grpc_server.entities.kafka.Operation;
-import com.grpc.grpc_server.entities.kafka.OperationDonation;
-import com.grpc.grpc_server.entities.kafka.OperationType;
+import org.springframework.stereotype.Component;
+
 import com.grpc.grpc_server.repositories.OperationRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-import com.grpc.grpc_server.producer.OperationProducer;
-
-import javax.annotation.PostConstruct;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
@@ -26,7 +17,7 @@ public class TestOperationProducer {
 
     private  int contador = 1;
 
-    @PostConstruct
+   /*@PostConstruct
     public void startProducing() {
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
@@ -40,7 +31,7 @@ public class TestOperationProducer {
                         .dateModification(LocalDateTime.now())
                         .build();
 
-                // Crear algunos OperationDonations
+       
                 OperationDonation d1 = OperationDonation.builder()
                         .category(Category.ALIMENTO)
                         .description("Donación de alimentos #" + contador)
@@ -70,5 +61,5 @@ public class TestOperationProducer {
                 log.error("Error al producir el mensaje", e);
             }
         }, 0, 3, TimeUnit.SECONDS);
-    }
+    }*/
 }

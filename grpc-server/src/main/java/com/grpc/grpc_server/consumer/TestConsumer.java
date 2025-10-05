@@ -195,4 +195,10 @@ public void listenOffer(String message) {
             log.error("❌ Error en TestConsumer procesando mensaje de baja", e);
         }
     }
+    @KafkaListener(topics = "alta-solicitud-donaciones", groupId = "grupo-ong")
+public void consumirOperacion(String message) {
+    log.info("📥 Operación recibida: {}", message);
+    // Parsear JSON y guardar en la DB local
+}
+
 }

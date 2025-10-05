@@ -7,9 +7,8 @@ const NavBar = () => {
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/");
+    navigate("/login");
   };
-
 
   return (
     <nav className="bg-[#232D4F] text-gray-100">
@@ -29,13 +28,22 @@ const NavBar = () => {
                 Login
               </Link>
             )}
+
             {isLoggedIn && (
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Logout
-              </button>
+              <>
+                <Link
+                  to="/mensajeria"
+                  className="text-gray-100 hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Mensajería
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Logout
+                </button>
+              </>
             )}
           </div>
         </div>

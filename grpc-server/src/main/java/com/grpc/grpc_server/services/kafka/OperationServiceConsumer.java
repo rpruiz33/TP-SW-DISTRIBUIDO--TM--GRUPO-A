@@ -9,6 +9,6 @@ public interface OperationServiceConsumer {
     void processTransfer(String message);
     void processOfferMessage(String message);
     void processCancelRequest(String message);
-
+  
 
 }

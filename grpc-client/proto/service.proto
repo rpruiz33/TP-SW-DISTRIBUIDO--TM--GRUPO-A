@@ -269,3 +269,40 @@ message AltaDonationResponse{
 // ========================
 message Empty {
 }
+
+
+// ========================
+// Service de Operaciones (Kafka + DB)
+// ========================
+service OperationService {
+  rpc CreateOperation(OperationRequest) returns (OperationResponse);
+  rpc GetAllOperations(Empty) returns (OperationListResponse);
+}
+
+// ========================
+// Messages de Operation
+// ========================
+message OperationRequest {
+  string category = 1;
+  string description = 2;
+  int32 amount = 3;
+  string username = 4;
+}
+
+message OperationResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message OperationProto {
+  int32 id = 1;
+  string category = 2;
+  string description = 3;
+  int32 amount = 4;
+  string username = 5;
+  string dateRegistration = 6;
+}
+
+message OperationListResponse {
+  repeated OperationProto operations = 1;
+}
