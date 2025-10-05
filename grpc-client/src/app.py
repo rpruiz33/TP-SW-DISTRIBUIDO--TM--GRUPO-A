@@ -336,6 +336,25 @@ def getAllDonationsAtEvent(id):
         return json_response
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+# Enviar donación (ejemplo)
+@app.route("/api/oferta-donaciones", methods=["POST"])
+def oferta_donaciones():
+    data = request.json
+    enviar_mensaje("/oferta-donaciones", data)
+    return jsonify({"success": True, "message": "Oferta enviada"})
+
+# Obtener eventos externos
+@app.route("/api/eventos-externos", methods=["GET"])
+def get_eventos():
+    return jsonify(eventos_externos)
+
+# Simulación: baja evento
+@app.route("/api/baja-evento", methods=["POST"])
+def baja_evento():
+    data = request.json
+    enviar_mensaje("/baja-evento-solidario", data)
+    return jsonify({"success": True, "message": "Baja evento enviada"})
 
 # ============================
 # RUN APP
