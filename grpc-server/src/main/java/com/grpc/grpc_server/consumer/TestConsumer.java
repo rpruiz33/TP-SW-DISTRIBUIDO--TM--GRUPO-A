@@ -51,6 +51,44 @@ public class TestConsumer {
         log.info("📩 Mensaje recibido en 'transferencia-donaciones-1': {}", message);
         operationService.processTransfer(message); // llama a tu método
     }
+
+    @KafkaListener(topics = "oferta-donaciones", groupId = "grupo-unla")
+    public void listenOffer(String message) {
+        try {
+            log.info("📩 Mensaje recibido en topic 'oferta-donaciones': {}", message);
+
+            // Llamamos al servicio que procesa el mensaje y guarda en la DB
+            operationService.processOfferMessage(message);
+
+            log.info("✅ Mensaje de oferta procesado correctamente");
+
+        } catch (Exception e) {
+            log.error("❌ Error procesando mensaje de oferta", e);
+        }
+    }
+
+    @KafkaListener(topics = "baja-solicitud-donaciones", groupId = "grupo-unla")
+    public void listenCancelRequest(String message) {
+        try {
+            // Validación mínima antes de enviar al service
+            if (message == null || message.isBlank()) {
+                log.warn("Mensaje vacío recibido en baja-solicitud-donaciones");
+                return;
+            }
+
+            // Llamada al service que contiene toda la lógica de procesamiento
+            operationService.processCancelRequest(message);
+
+        } catch (Exception e) {
+            log.error("❌ Error en TestConsumer procesando mensaje de baja", e);
+        }
+    }
+    @KafkaListener(topics = "alta-solicitud-donaciones", groupId = "grupo-ong")
+    public void consumirOperacion(String message) {
+        log.info("📥 Operación recibida: {}", message);
+        // Parsear JSON y guardar en la DB local
+    }
+    
     /* 
     // Escucha de solicitudes externas
     @KafkaListener(topics = "test-solicitud-donacion", groupId = "grupo-unla")
@@ -164,41 +202,6 @@ public class TestConsumer {
         }
     }*/
 
-    @KafkaListener(topics = "oferta-donaciones", groupId = "grupo-unla")
-public void listenOffer(String message) {
-    try {
-        log.info("📩 Mensaje recibido en topic 'oferta-donaciones': {}", message);
-
-        // Llamamos al servicio que procesa el mensaje y guarda en la DB
-        operationService.processOfferMessage(message);
-
-        log.info("✅ Mensaje de oferta procesado correctamente");
-
-    } catch (Exception e) {
-        log.error("❌ Error procesando mensaje de oferta", e);
-    }
-}
-
-    @KafkaListener(topics = "baja-solicitud-donaciones", groupId = "grupo-unla")
-    public void listenCancelRequest(String message) {
-        try {
-            // Validación mínima antes de enviar al service
-            if (message == null || message.isBlank()) {
-                log.warn("Mensaje vacío recibido en baja-solicitud-donaciones");
-                return;
-            }
-
-            // Llamada al service que contiene toda la lógica de procesamiento
-            operationService.processCancelRequest(message);
-
-        } catch (Exception e) {
-            log.error("❌ Error en TestConsumer procesando mensaje de baja", e);
-        }
-    }
-    @KafkaListener(topics = "alta-solicitud-donaciones", groupId = "grupo-ong")
-public void consumirOperacion(String message) {
-    log.info("📥 Operación recibida: {}", message);
-    // Parsear JSON y guardar en la DB local
-}
+    
 
 }

@@ -280,6 +280,7 @@ public void createOperation(Operation operation) {
     } catch (Exception e) {
         log.error("❌ Error inesperado procesando baja de solicitud", e);
     }
+    
 }
 
 }
