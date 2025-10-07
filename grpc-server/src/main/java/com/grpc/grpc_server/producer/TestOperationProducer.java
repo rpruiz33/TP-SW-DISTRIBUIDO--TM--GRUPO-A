@@ -1,4 +1,4 @@
-package com.grpc.grpc_server.producer;
+/*package com.grpc.grpc_server.producer;
 
 import org.springframework.stereotype.Component;
 
@@ -61,5 +61,6 @@ public class TestOperationProducer {
                 log.error("Error al producir el mensaje", e);
             }
         }, 0, 3, TimeUnit.SECONDS);
-    }*/
+    }
 }
+*/

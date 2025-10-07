@@ -5,8 +5,8 @@ services:
     image: apache/kafka:latest
     container_name: kafka-broker
     ports:
-      - "9092:9092"     # para otros contenedores
-      - "29092:29092"   # para clientes en el host
+      - "9092:9092"      # para clientes de otros contenedores
+      - "29092:29092"    # para clientes en el host
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller

@@ -4,10 +4,9 @@ from grpc_client import MyServiceClient
 from google.protobuf.json_format import MessageToJson
 from kafka_client import enviar_mensaje
 from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, request, jsonify
+from kafka_client import publicar_evento, baja_evento, adhesionar_evento
 
-import grpc
-import service_pb2
-import service_pb2_grpc
 
 app = Flask(__name__)
 CORS(app)  # Permite llamadas desde React u otros dominios
@@ -369,6 +368,22 @@ def generar_operacion():
     except Exception as e:
         # Cualquier error inesperado se devuelve como JSON
         return jsonify({"success": False, "message": f"Error interno: {str(e)}"})
+
+@app.route("/api/evento", methods=["POST"])
+def api_publicar_evento():
+    data = request.get_json()
+    return jsonify(publicar_evento(data))
+
+
+@app.route("/api/baja-evento", methods=["POST"])
+def api_baja_evento():
+    data = request.get_json()
+    return jsonify(baja_evento(data))
+
+@app.route("/api/adhesion/<int:id_organizador>", methods=["POST"])
+def api_adhesion(id_organizador):
+    data = request.get_json()
+    return jsonify(adhesionar_evento(id_organizador, data))
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)

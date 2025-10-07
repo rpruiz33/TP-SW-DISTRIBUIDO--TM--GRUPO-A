@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { generarOperacion } from '../services/kafkaService'; // solo la función que existe
+import { generarOperacion } from '../services/kafkaService'; // función ya existente
 
 export default function Mensajeria() {
   const [pestana, setPestana] = useState("donaciones");
@@ -21,13 +21,13 @@ export default function Mensajeria() {
     nuevas[index][field] = value;
     setSolicitudes(nuevas);
   };
-  const handleEnviarSolicitud = () => {
+  const handleEnviarSolicitud = async () => {
     if (solicitudes.some(s => !CATEGORIAS.includes(s.categoria))) {
       alert("⚠️ Categoría inválida.");
       return;
     }
     const mensaje = { tipo: "SOLICITUD", idOrganizacion: 1, listaDonaciones: solicitudes };
-    generarOperacion(mensaje);
+    await generarOperacion(mensaje);
     alert("Solicitud enviada!");
   };
 
@@ -37,28 +37,75 @@ export default function Mensajeria() {
     nuevas[index][field] = value;
     setOfertas(nuevas);
   };
-  const handleEnviarOferta = () => {
+  const handleEnviarOferta = async () => {
     if (ofertas.some(o => !CATEGORIAS.includes(o.categoria))) {
       alert("⚠️ Categoría inválida.");
       return;
     }
     const mensaje = { tipo: "OFERTA", idOrganizacion: 1, listaDonaciones: ofertas };
-    generarOperacion(mensaje);
+    await generarOperacion(mensaje);
     alert("Oferta enviada!");
   };
+const handleCrearEvento = async () => {
+  try {
+    const response = await fetch("http://localhost:5000/api/evento", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...nuevoEvento, idOrganizacion: 1 })
+    });
+    const data = await response.json();
 
-  /*** FUNCIONES EVENTOS ***/
-  const handleCrearEvento = () => {
-    alert("Función de crear evento pendiente de implementar");
-  };
-  const handleBajaEvento = (id) => {
-    alert("Función de baja evento pendiente de implementar");
-    setEventos(eventos.filter(e => e.idEvento !== id));
+    if (data.success) {
+      alert("Evento creado!");
+      // Actualizamos la lista de eventos agregando el nuevo
+      setEventos(prev => [...prev, { ...nuevoEvento, idEvento: data.idEvento }]);
+      setNuevoEvento({ nombre: "", descripcion: "", fechaHora: "" });
+    } else {
+      alert("Error al crear evento: " + data.message);
+    }
+  } catch (e) {
+    alert("Error al conectar con la API: " + e.message);
+  }
+};
+
+
+  const handleBajaEvento = async (idEvento) => {
+    try {
+      const response = await fetch("http://localhost:5000/api/baja-evento", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idEvento, idOrganizacion: 1 })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setEventos(eventos.filter(e => e.idEvento !== idEvento));
+        alert("Evento dado de baja");
+      } else {
+        alert("Error al dar de baja: " + data.message);
+      }
+    } catch (e) {
+      alert("Error al conectar con la API: " + e.message);
+    }
   };
 
   /*** FUNCIONES ADHESIÓN ***/
-  const handleAdherir = () => {
-    alert("Función de adhesión pendiente de implementar");
+  const handleAdherir = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/adhesion/1`, { // idOrganizador=1
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(adhesion)
+      });
+      const data = await response.json();
+      if (data.success) {
+        alert("Adhesión enviada!");
+        setAdhesion({ idEvento: "", nombre: "", apellido: "", email: "" });
+      } else {
+        alert("Error al adherirse: " + data.message);
+      }
+    } catch (e) {
+      alert("Error al conectar con la API: " + e.message);
+    }
   };
 
   /*** RENDER PESTANAS ***/
@@ -124,14 +171,71 @@ export default function Mensajeria() {
       case "eventos":
         return (
           <div>
-            <h2 className="text-xl font-semibold mb-2">Eventos (pendiente)</h2>
+            <h2 className="text-xl font-semibold mb-2">Eventos Externos</h2>
+            <div className="mb-4">
+              <input
+                placeholder="Nombre"
+                value={nuevoEvento.nombre}
+                onChange={e => setNuevoEvento({ ...nuevoEvento, nombre: e.target.value })}
+                className="border px-2 py-1 mr-2"
+              />
+              <input
+                placeholder="Descripción"
+                value={nuevoEvento.descripcion}
+                onChange={e => setNuevoEvento({ ...nuevoEvento, descripcion: e.target.value })}
+                className="border px-2 py-1 mr-2"
+              />
+              <input
+                type="datetime-local"
+                value={nuevoEvento.fechaHora}
+                onChange={e => setNuevoEvento({ ...nuevoEvento, fechaHora: e.target.value })}
+                className="border px-2 py-1"
+              />
+              <button onClick={handleCrearEvento} className="bg-green-500 text-white px-3 py-1 ml-2 rounded">Crear Evento</button>
+            </div>
+
+            <ul>
+              {eventos.map(e => (
+                <li key={e.idEvento} className="flex justify-between border p-2 mb-2 rounded">
+                  <div>
+                    <strong>{e.nombre}</strong> - {e.descripcion} - {e.fechaHora}
+                  </div>
+                  <button onClick={() => handleBajaEvento(e.idEvento)} className="bg-red-500 text-white px-2 py-1 rounded">Baja</button>
+                </li>
+              ))}
+            </ul>
           </div>
         );
 
       case "adhesion":
         return (
           <div>
-            <h2 className="text-xl font-semibold mb-2">Adhesión a Evento (pendiente)</h2>
+            <h2 className="text-xl font-semibold mb-2">Adhesión a Evento</h2>
+            <input
+              placeholder="ID Evento"
+              value={adhesion.idEvento}
+              onChange={e => setAdhesion({ ...adhesion, idEvento: e.target.value })}
+              className="border px-2 py-1 mr-2"
+            />
+            <input
+              placeholder="Nombre"
+              value={adhesion.nombre}
+              onChange={e => setAdhesion({ ...adhesion, nombre: e.target.value })}
+              className="border px-2 py-1 mr-2"
+            />
+            <input
+              placeholder="Apellido"
+              value={adhesion.apellido}
+              onChange={e => setAdhesion({ ...adhesion, apellido: e.target.value })}
+              className="border px-2 py-1 mr-2"
+            />
+            <input
+              placeholder="Email"
+              value={adhesion.email}
+              onChange={e => setAdhesion({ ...adhesion, email: e.target.value })}
+              className="border px-2 py-1 mr-2"
+            />
+            <button onClick={handleAdherir} className="bg-green-500 text-white px-3 py-1 rounded">Adherir</button>
           </div>
         );
 
