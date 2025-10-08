@@ -1,8 +1,5 @@
 package com.grpc.grpc_server.mapper.kafka;
 
-import java.time.LocalDateTime;
-
-import com.grpc.grpc_server.entities.kafka.Operation;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

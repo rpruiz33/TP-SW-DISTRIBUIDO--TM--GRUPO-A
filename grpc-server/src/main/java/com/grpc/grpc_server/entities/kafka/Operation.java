@@ -50,5 +50,6 @@ public class Operation {
     //@OneToMany(mappedBy = "operation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     //@JsonManagedReference
     @OneToMany(mappedBy = "operation")
+    @Builder.Default
     private List<OperationDonation> operationDonations = new ArrayList<>();
 }
