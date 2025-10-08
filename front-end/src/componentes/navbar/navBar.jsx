@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 const NavBar = () => {
   const isLoggedIn = localStorage.getItem("usernameOrEmail") !== null;
+  const role = localStorage.getItem("userRole");// 👈 obtenemos el rol (ej: "presidente")
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -16,7 +17,10 @@ const NavBar = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <Link to={isLoggedIn ? "/dashboard" : "/login"} className="text-white text-xl font-semibold">
+            <Link
+              to={isLoggedIn ? "/dashboard" : "/login"}
+              className="text-white text-xl font-semibold"
+            >
               Sistema Empuje Comunitario
             </Link>
           </div>
@@ -24,19 +28,26 @@ const NavBar = () => {
           {/* Menu */}
           <div className="flex items-center space-x-4">
             {!isLoggedIn && (
-              <Link to="/login" className="text-gray-100 hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium">
+              <Link
+                to="/login"
+                className="text-gray-100 hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium"
+              >
                 Login
               </Link>
             )}
 
             {isLoggedIn && (
               <>
-                <Link
-                  to="/mensajeria"
-                  className="text-gray-100 hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Mensajería
-                </Link>
+                {/* 👇 Solo se muestra si el rol es "presidente" */}
+                {role === "PRESIDENTE" && (
+                  <Link
+                    to="/mensajeria"
+                    className="text-gray-100 hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium"
+                  >
+                    Mensajería
+                  </Link>
+                )}
+
                 <button
                   onClick={handleLogout}
                   className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium"
