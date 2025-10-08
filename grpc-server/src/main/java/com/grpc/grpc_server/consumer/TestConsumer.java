@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grpc.grpc_server.entities.kafka.Operation;
+import com.grpc.grpc_server.mapper.kafka.CancelRequestMapper;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.OperationDTO;
 import com.grpc.grpc_server.repositories.OperationDonationRepository;
@@ -30,12 +31,14 @@ public class TestConsumer {
     @Autowired
     private OperationRepository operationRepository;
 
-    @KafkaListener(topics = "test-solicitud-donacion", groupId = "grupo-unla")
-    public void consume(String message) {
+
+    ///-----------------------------------SOLICITUDES--------------------------------------------------////
+    /// PUNTO 1 (publicar solicitudes)
+    @KafkaListener(topics = "solicitud-donaciones", groupId = "grupo-unla")
+    public void listenRequestDonations(String message) {
         
         try {
 
-            System.out.println("HOLLAAAAAA");
             OperationDTO dto = objectMapper.readValue(message, OperationDTO.class);
             Operation operation = OperationMapper.toEntity(dto);
 
@@ -45,6 +48,32 @@ public class TestConsumer {
             e.printStackTrace(); 
         }
     }
+
+    /// PUNTO 4 (dar de baja solicitud)
+    @KafkaListener(topics = "baja-solicitud-donaciones", groupId = "grupo-unla")
+    public void listenDeleteRequestDonation(String message) {
+        try {
+
+            // Validación mínima antes de enviar al service
+            if (message == null || message.isBlank()) {
+                log.warn("Mensaje vacío recibido en baja-solicitud-donaciones");
+                return;
+            }
+
+            //Deserializar JSON a DTO
+            CancelRequestMapper.CancelRequestDTO cancelDTO =
+                objectMapper.readValue(message, CancelRequestMapper.CancelRequestDTO.class);
+
+            // Llamada al service que contiene toda la lógica de procesamiento
+            operationService.processCancelRequest(cancelDTO);
+
+        } catch (Exception e) {
+            log.error("Error en TestConsumer procesando mensaje de baja", e);
+        }
+    }
+
+    ///-----------------------------------OTROS--------------------------------------------------////
+
    // Listener para transferencias
     @KafkaListener(topics = "transferencia-donaciones-1", groupId = "grupo-unla")
     public void listenTransfer(String message) {
@@ -67,141 +96,9 @@ public class TestConsumer {
         }
     }
 
-    @KafkaListener(topics = "baja-solicitud-donaciones", groupId = "grupo-unla")
-    public void listenCancelRequest(String message) {
-        try {
-            // Validación mínima antes de enviar al service
-            if (message == null || message.isBlank()) {
-                log.warn("Mensaje vacío recibido en baja-solicitud-donaciones");
-                return;
-            }
-
-            // Llamada al service que contiene toda la lógica de procesamiento
-            operationService.processCancelRequest(message);
-
-        } catch (Exception e) {
-            log.error("❌ Error en TestConsumer procesando mensaje de baja", e);
-        }
-    }
     @KafkaListener(topics = "alta-solicitud-donaciones", groupId = "grupo-ong")
     public void consumirOperacion(String message) {
         log.info("📥 Operación recibida: {}", message);
         // Parsear JSON y guardar en la DB local
     }
-    
-    /* 
-    // Escucha de solicitudes externas
-    @KafkaListener(topics = "test-solicitud-donacion", groupId = "grupo-unla")
-    public void listen(String message) {
-        try {
-            System.out.println("Mensaje recibido: " + message);
-
-            OperationDonation donation = objectMapper.readValue(message, OperationDonation.class);
-
-            int operationId = 1;
-            Operation operation = operationRepository.findById(operationId)
-                .orElseGet(() -> {
-                    Operation op = new Operation();
-                    op.setIdOperationMessage(1001);
-                    op.setIdOrganization(1);
-                    op.setOperationType(OperationType.SOLICITUD);
-                    op.setActivate(true);
-                    op.setDateRegistration(LocalDateTime.now());
-                    op.setDateModification(LocalDateTime.now());
-                    return operationRepository.save(op);
-                });
-
-            donation.setOperation(operation);
-            donationRepository.save(donation);
-
-            System.out.println("Donación guardada en la base de datos.");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    */
-
-
-    // Escucha de transferencias
-    /*@KafkaListener(topics = "transferencia-donaciones-1", groupId = "grupo-unla")
-    public void listenTransferencia(String message) {
-        try {
-            System.out.println("📩 Mensaje recibido (TRANSFERENCIA): " + message);
-
-            int operationId = 2;
-            Operation operation = operationRepository.findById(operationId)
-                    .orElseGet(() -> {
-                        Operation op = new Operation();
-                        op.setIdOperationMessage(2001);
-                        op.setIdOrganization(1);
-                        op.setOperationType(OperationType.TRANSFERENCIA);
-                        op.setActivate(true);
-                        op.setDateRegistration(LocalDateTime.now());
-                        op.setDateModification(LocalDateTime.now());
-                        return operationRepository.save(op);
-                    });
-
-            // Deserializar lista de donaciones
-            List<OperationDonation> donations = objectMapper.readValue(
-                message,
-                objectMapper.getTypeFactory().constructCollectionType(List.class, OperationDonation.class)
-            );
-
-            for (OperationDonation donation : donations) {
-                donation.setOperation(operation);
-                donationRepository.save(donation);
-            }
-
-            System.out.println("✅ Transferencias guardadas en la base de datos.");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }*/
-
-    // Escucha de ofertas (sin clase externa)
-    /*@KafkaListener(topics = "oferta-donaciones", groupId = "grupo-unla")
-    public void listenOffer(String message) {
-        try {
-            System.out.println("📩 Mensaje recibido (OFERTA): " + message);
-
-            // Map para deserializar JSON directamente
-            Map<String, Object> offerMap = objectMapper.readValue(message, new TypeReference<Map<String, Object>>() {});
-
-            int idOffer = (Integer) offerMap.get("idOffer");
-            int idOrg = (Integer) offerMap.get("idOrganizationDonante");
-
-            // Crear o recuperar operación tipo OFERTA
-            Operation operation = operationRepository.findById(idOffer)
-                    .orElseGet(() -> {
-                        Operation op = new Operation();
-                        op.setIdOperationMessage(idOffer);
-                        op.setIdOrganization(idOrg);
-                        op.setOperationType(OperationType.OFERTA);
-                        op.setActivate(true);
-                        op.setDateRegistration(LocalDateTime.now());
-                        op.setDateModification(LocalDateTime.now());
-                        return operationRepository.save(op);
-                    });
-
-            // Obtener lista de donaciones y convertir cada Map en OperationDonation
-            List<Map<String, Object>> donationsList = (List<Map<String, Object>>) offerMap.get("donations");
-            for (Map<String, Object> donationMap : donationsList) {
-                OperationDonation donation = new OperationDonation();
-                donation.setCategory(Enum.valueOf(com.grpc.grpc_server.entities.Category.class,
-                        (String) donationMap.get("category")));
-                donation.setDescription((String) donationMap.get("description"));
-                donation.setQuantity((Integer) donationMap.get("quantity"));
-                donation.setOperation(operation);
-                donationRepository.save(donation);
-            }
-
-            System.out.println("✅ Donaciones de oferta guardadas en la base de datos.");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }*/
-
-    
-
 }

@@ -46,3 +46,10 @@
     }
   ]
 }
+
+///BAJA DE LA SOLICITUD
+
+{
+  "idOrganizacion": "67890",
+  "idSolicitud": "12345"
+}

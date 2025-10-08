@@ -29,6 +29,6 @@ public class OperationDonation {
 
     @ManyToOne
     @JoinColumn(name = "operation_id")  // Clave foránea a Operation
-    @JsonBackReference
+    //@JsonBackReference
     private Operation operation;
 }

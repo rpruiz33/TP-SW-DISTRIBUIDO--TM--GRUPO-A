@@ -11,6 +11,7 @@ import com.grpc.grpc_server.entities.kafka.Operation;
 import com.grpc.grpc_server.entities.kafka.OperationDonation;
 import com.grpc.grpc_server.entities.kafka.OperationType;
 import com.grpc.grpc_server.mapper.kafka.CancelRequestMapper;
+import com.grpc.grpc_server.mapper.kafka.CancelRequestMapper.CancelRequestDTO;
 import com.grpc.grpc_server.mapper.kafka.OfferDanationMapper;
 import com.grpc.grpc_server.mapper.kafka.TransferMapper;
 import com.grpc.grpc_server.producer.OperationProducer;
@@ -39,42 +40,66 @@ public class OpeServiceImplConsumer implements OperationServiceConsumer{
     @Autowired
     private OperationProducer operationProducer;
 
-    
-@Override
-public void createOperation(Operation operation) {
-    if (operation == null) {
-        throw new IllegalArgumentException("La operación no puede ser nula");
-    }
-    if (operation.getOperationType() == null) {
-        throw new IllegalArgumentException("El tipo de operación es obligatorio");
-    }
-    if (operation.getIdOrganization() <= 0) {
-        throw new IllegalArgumentException("La organización es obligatoria y debe ser válida");
-    }
+    ///-------------------------------------OPERACIONES--------------------------------------------------////
+    @Override
+    public void createOperation(Operation operation) {
+        
+        // guardar operación
+        Operation operationSaved = operationRepository.save(operation);
 
-    // fechas
-    if (operation.getDateRegistration() == null) {
-        operation.setDateRegistration(LocalDateTime.now());
-    }
-    operation.setDateModification(LocalDateTime.now());
-
-    // guardar operación
-    Operation operationSaved = operationRepository.save(operation);
-
-    // guardar donaciones asociadas
-    if (operation.getOperationDonations() != null) {
-        for (OperationDonation od : operation.getOperationDonations()) {
-            if (od.getQuantity() <= 0) {
-                throw new IllegalArgumentException("La cantidad de la donación debe ser mayor a 0");
+        // guardar donaciones asociadas
+        if (operation.getOperationDonations() != null) {
+            for (OperationDonation od : operation.getOperationDonations()) {
+                if (od.getQuantity() <= 0) {
+                    throw new IllegalArgumentException("La cantidad de la donación debe ser mayor a 0");
+                }
+                od.setOperation(operationSaved);
+                operationDonationRepository.save(od);
             }
-            od.setOperation(operationSaved);
-            operationDonationRepository.save(od);
+        }
+
+    }
+
+    ///-------------------------------------BAJA SOLICITUD--------------------------------------------------////
+    @Transactional
+    public void processCancelRequest(CancelRequestDTO cancelRequestDTO) {
+        try {
+
+            log.info("Mensaje recibido (BAJA SOLICITUD): {}", cancelRequestDTO);
+
+            // Buscar operación por idOperationMessage y que sea solicitud
+            Operation deleteOperation = operationRepository
+                    .findByIdOperationMessageAndOperationType(cancelRequestDTO.getIdSolicitud(), OperationType.SOLICITUD)
+                    .orElse(null);
+
+                if ( deleteOperation != null) {
+                    
+                    if(deleteOperation.isActivate()){
+
+                        // Marcar la operación como inactiva
+                        deleteOperation.setActivate(false);
+                        deleteOperation.setDateModification(LocalDateTime.now());
+
+                    }else{
+                        log.info("Ya está borrada");
+                    }
+
+                }else{
+                    log.info("No existe");
+                }
+
+            //Persistir cambios
+            operationRepository.save(deleteOperation);
+
+            log.info("Solicitud de donación {} de la organización {} dada de baja correctamente",
+                    cancelRequestDTO.getIdSolicitud(), cancelRequestDTO.getIdOrganizacion());
+
+        } catch (Exception e) {
+            log.error("Error inesperado procesando baja de solicitud", e);
         }
     }
-        // 🚀 Publicar evento a Kafka
-    operationProducer.sendOperationCreated(operationSaved);
-}
 
+    ///-------------------------------------OTROS--------------------------------------------------////
 
     @Override
     public void processTransfer(String message) {
@@ -230,57 +255,6 @@ public void createOperation(Operation operation) {
     }
 }
 
-  @Transactional
-  public void processCancelRequest(String message) {
-    try {
-        // 1️⃣ Validación de mensaje vacío
-        if (message == null || message.isBlank()) {
-            log.warn("Mensaje vacío recibido en baja-solicitud-donaciones");
-            return;
-        }
 
-        log.info("📩 Mensaje recibido (BAJA SOLICITUD): {}", message);
-
-        // 2️⃣ Deserializar JSON a DTO
-        CancelRequestMapper.CancelRequestDTO cancelDTO =
-                objectMapper.readValue(message, CancelRequestMapper.CancelRequestDTO.class);
-
-        // 3️⃣ Validar DTO
-        try {
-            cancelDTO.validate();
-        } catch (IllegalArgumentException ex) {
-            log.error("❌ Error de validación en DTO: {}", ex.getMessage());
-            return;
-        }
-
-        // 4️⃣ Buscar operación por idOperationMessage
-        Operation existingOperation = operationRepository
-                .findByIdOperationMessage(cancelDTO.getIdOffer())
-                .orElse(null);
-
-        if (existingOperation == null) {
-            log.warn("⚠️ Solicitud {} no encontrada para baja", cancelDTO.getIdOffer());
-            return;
-        }
-
-        // 5️⃣ Mapear con CancelRequestMapper (aplica validaciones de org y estado activo)
-        try {
-            CancelRequestMapper.toEntity(cancelDTO, existingOperation);
-        } catch (IllegalArgumentException | IllegalStateException ex) {
-            log.error("❌ No se pudo dar de baja la solicitud: {}", ex.getMessage());
-            return;
-        }
-
-        // 6️⃣ Persistir cambios
-        operationRepository.save(existingOperation);
-
-        log.info("✅ Solicitud de donación {} de la organización {} dada de baja correctamente",
-                cancelDTO.getIdOffer(), cancelDTO.getIdOrganization());
-
-    } catch (Exception e) {
-        log.error("❌ Error inesperado procesando baja de solicitud", e);
-    }
-    
-}
 
 }
