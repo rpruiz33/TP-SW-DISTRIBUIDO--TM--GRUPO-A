@@ -9,9 +9,9 @@ import com.grpc.grpc_server.MyServiceClass;
 import com.grpc.grpc_server.MyServiceClass.DonationAtEventRequest;
 import com.grpc.grpc_server.MyServiceClass.GenericResponse;
 import com.grpc.grpc_server.MyServiceClass.GetAllDonationsAtEventRequest;
-import com.grpc.grpc_server.entities.DonationsAtEvents;
-import com.grpc.grpc_server.mapper.DonationsAtEventsMapper;
-import com.grpc.grpc_server.services.DonationsAtEventsService;
+import com.grpc.grpc_server.entities.grpc.DonationsAtEvents;
+import com.grpc.grpc_server.mapper.grpc.DonationsAtEventsMapper;
+import com.grpc.grpc_server.services.grpc.DonationsAtEventsService;
 
 
 import io.grpc.stub.StreamObserver;

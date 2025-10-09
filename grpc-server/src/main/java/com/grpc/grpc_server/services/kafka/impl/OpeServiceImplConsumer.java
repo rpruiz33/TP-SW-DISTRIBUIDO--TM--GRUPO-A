@@ -2,6 +2,7 @@ package com.grpc.grpc_server.services.kafka.impl;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.grpc.grpc_server.entities.grpc.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,8 +15,8 @@ import com.grpc.grpc_server.mapper.kafka.OperationMapper.CancelRequestDTO;
 import com.grpc.grpc_server.mapper.kafka.OfferDanationMapper;
 import com.grpc.grpc_server.mapper.kafka.TransferMapper;
 import com.grpc.grpc_server.producer.OperationProducer;
-import com.grpc.grpc_server.repositories.OperationDonationRepository;
-import com.grpc.grpc_server.repositories.OperationRepository;
+import com.grpc.grpc_server.repositories.kafka.OperationDonationRepository;
+import com.grpc.grpc_server.repositories.kafka.OperationRepository;
 import com.grpc.grpc_server.services.kafka.OperationServiceConsumer;
 
 import lombok.extern.slf4j.Slf4j;
@@ -237,7 +238,7 @@ public class OpeServiceImplConsumer implements OperationServiceConsumer{
                 // Crear entidad OperationDonation
                 var donation = new OperationDonation();
                 try {
-                    donation.setCategory(Enum.valueOf(com.grpc.grpc_server.entities.Category.class, categoryStr));
+                    donation.setCategory(Enum.valueOf(Category.class, categoryStr));
                 } catch (IllegalArgumentException ex) {
                     log.warn("⚠️ Categoría inválida, descartada: {}", categoryStr);
                     continue;

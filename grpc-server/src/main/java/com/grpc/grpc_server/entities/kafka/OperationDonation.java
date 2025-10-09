@@ -1,8 +1,6 @@
 package com.grpc.grpc_server.entities.kafka;
-import com.grpc.grpc_server.entities.kafka.Operation;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.grpc.grpc_server.entities.Category;
+import com.grpc.grpc_server.entities.grpc.Category;
 import jakarta.persistence.*;
 import lombok.*;
 

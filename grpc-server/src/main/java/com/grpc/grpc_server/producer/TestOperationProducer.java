@@ -2,7 +2,7 @@
 
 import org.springframework.stereotype.Component;
 
-import com.grpc.grpc_server.repositories.OperationRepository;
+import com.grpc.grpc_server.repositories.kafka.OperationRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

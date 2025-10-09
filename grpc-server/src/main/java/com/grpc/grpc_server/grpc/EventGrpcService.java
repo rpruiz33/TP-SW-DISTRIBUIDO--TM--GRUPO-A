@@ -8,9 +8,9 @@ import com.grpc.grpc_server.MyServiceClass.DeleteEventResponse;
 import com.grpc.grpc_server.MyServiceClass.GenericResponse;
 import com.grpc.grpc_server.MyServiceClass.UpdateEventRequest;
 import com.grpc.grpc_server.EventServiceGrpc;
-import com.grpc.grpc_server.entities.Event;
-import com.grpc.grpc_server.mapper.EventMapper;
-import com.grpc.grpc_server.services.EventService;
+import com.grpc.grpc_server.entities.grpc.Event;
+import com.grpc.grpc_server.mapper.grpc.EventMapper;
+import com.grpc.grpc_server.services.grpc.EventService;
 
 import io.grpc.stub.StreamObserver;
 

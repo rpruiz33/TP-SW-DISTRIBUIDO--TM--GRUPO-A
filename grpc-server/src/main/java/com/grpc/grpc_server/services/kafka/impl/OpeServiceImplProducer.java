@@ -19,7 +19,7 @@ import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import com.grpc.grpc_server.repositories.OperationRepository;
+import com.grpc.grpc_server.repositories.kafka.OperationRepository;
 
 @Slf4j
 @Service

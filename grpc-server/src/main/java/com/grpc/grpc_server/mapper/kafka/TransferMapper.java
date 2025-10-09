@@ -2,7 +2,7 @@ package com.grpc.grpc_server.mapper.kafka;
 
 import org.springframework.stereotype.Component;
 
-import com.grpc.grpc_server.entities.Category;
+import com.grpc.grpc_server.entities.grpc.Category;
 import com.grpc.grpc_server.entities.kafka.Operation;
 import com.grpc.grpc_server.entities.kafka.OperationDonation;
 

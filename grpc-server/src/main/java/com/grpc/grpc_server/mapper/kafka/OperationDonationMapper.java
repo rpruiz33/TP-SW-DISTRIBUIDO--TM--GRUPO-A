@@ -1,9 +1,8 @@
 package com.grpc.grpc_server.mapper.kafka;
 
-import com.grpc.grpc_server.entities.Category;
+import com.grpc.grpc_server.entities.grpc.Category;
 import com.grpc.grpc_server.entities.kafka.Operation;
 import com.grpc.grpc_server.entities.kafka.OperationDonation;
-import com.grpc.grpc_server.mapper.kafka.OperationDonationMapper.OperationDonationDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

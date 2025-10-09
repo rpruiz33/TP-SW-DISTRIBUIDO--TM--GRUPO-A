@@ -3,6 +3,7 @@ package com.grpc.grpc_server.grpc;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.grpc.grpc_server.services.grpc.impl.DonationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.grpc.server.service.GrpcService;
 
@@ -13,9 +14,8 @@ import com.grpc.grpc_server.MyServiceClass;
 import com.grpc.grpc_server.MyServiceClass.DeleteDonationResponse;
 import com.grpc.grpc_server.MyServiceClass.DeleteDonationResponse.Builder;
 import com.grpc.grpc_server.MyServiceClass.UpdateDonationResponse;
-import com.grpc.grpc_server.entities.Donation;
-import com.grpc.grpc_server.mapper.DonationMapper;
-import com.grpc.grpc_server.services.impl.DonationServiceImpl;
+import com.grpc.grpc_server.entities.grpc.Donation;
+import com.grpc.grpc_server.mapper.grpc.DonationMapper;
 
 import io.grpc.stub.StreamObserver;
 

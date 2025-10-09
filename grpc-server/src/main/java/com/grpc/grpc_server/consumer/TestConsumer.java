@@ -12,8 +12,8 @@ import com.grpc.grpc_server.mapper.kafka.OperationMapper;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.RequestDTO;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.OfferDTO;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.CancelRequestDTO;
-import com.grpc.grpc_server.repositories.OperationDonationRepository;
-import com.grpc.grpc_server.repositories.OperationRepository;
+import com.grpc.grpc_server.repositories.kafka.OperationDonationRepository;
+import com.grpc.grpc_server.repositories.kafka.OperationRepository;
 import com.grpc.grpc_server.services.kafka.OperationServiceConsumer;
 
 import lombok.extern.slf4j.Slf4j;

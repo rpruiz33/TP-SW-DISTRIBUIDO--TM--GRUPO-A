@@ -3,6 +3,7 @@ package com.grpc.grpc_server.grpc;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.grpc.grpc_server.services.grpc.impl.UserServiceImpl;
 import com.grpc.grpc_server.utils.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.grpc.grpc_server.MyServiceClass;
 import com.grpc.grpc_server.MyServiceClass.LoginResponse;
 import com.grpc.grpc_server.MyServiceGrpc;
-import com.grpc.grpc_server.entities.User;
-import com.grpc.grpc_server.mapper.UserMapper;
-import com.grpc.grpc_server.services.impl.UserServiceImpl;
+import com.grpc.grpc_server.entities.grpc.User;
+import com.grpc.grpc_server.mapper.grpc.UserMapper;
 import org.springframework.grpc.server.service.GrpcService;
 import io.grpc.stub.StreamObserver;
 
