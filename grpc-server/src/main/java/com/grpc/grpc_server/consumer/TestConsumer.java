@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grpc.grpc_server.entities.kafka.Operation;
+import com.grpc.grpc_server.entities.kafka.OperationType;
 import com.grpc.grpc_server.mapper.kafka.CancelRequestMapper;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.OperationDTO;
@@ -40,7 +41,7 @@ public class TestConsumer {
         try {
 
             OperationDTO dto = objectMapper.readValue(message, OperationDTO.class);
-            Operation operation = OperationMapper.toEntity(dto);
+            Operation operation = OperationMapper.toEntity(dto, OperationType.SOLICITUD);
 
             operationService.createOperation(operation);
 
@@ -72,33 +73,35 @@ public class TestConsumer {
         }
     }
 
+    /// PUNTO 3 (publicar ofertas)
+    @KafkaListener(topics = "oferta-donaciones", groupId = "grupo-unla")
+    public void listenOffer(String message) {
+        try {
+
+            OperationDTO dto = objectMapper.readValue(message, OperationDTO.class);
+            Operation operation = OperationMapper.toEntity(dto, OperationType.TRANSFERENCIA);
+
+            operationService.createOperation(operation);
+
+        } catch (Exception e) {
+            log.error("Error procesando mensaje de oferta", e);
+        }
+    }
+
     ///-----------------------------------OTROS--------------------------------------------------////
 
-   // Listener para transferencias
+    // Listener para transferencias
     @KafkaListener(topics = "transferencia-donaciones-1", groupId = "grupo-unla")
     public void listenTransfer(String message) {
         log.info("📩 Mensaje recibido en 'transferencia-donaciones-1': {}", message);
         operationService.processTransfer(message); // llama a tu método
     }
 
-    @KafkaListener(topics = "oferta-donaciones", groupId = "grupo-unla")
-    public void listenOffer(String message) {
-        try {
-            log.info("📩 Mensaje recibido en topic 'oferta-donaciones': {}", message);
-
-            // Llamamos al servicio que procesa el mensaje y guarda en la DB
-            operationService.processOfferMessage(message);
-
-            log.info("✅ Mensaje de oferta procesado correctamente");
-
-        } catch (Exception e) {
-            log.error("❌ Error procesando mensaje de oferta", e);
-        }
-    }
-
+    /* 
     @KafkaListener(topics = "alta-solicitud-donaciones", groupId = "grupo-ong")
     public void consumirOperacion(String message) {
         log.info("📥 Operación recibida: {}", message);
         // Parsear JSON y guardar en la DB local
     }
+    */
 }

@@ -29,12 +29,12 @@ public class OperationMapper {
         // getters/setters/constructores
     }
 
-    public static Operation toEntity(OperationDTO dto) {
+    public static Operation toEntity(OperationDTO dto, OperationType operationType) {
         Operation operation = new Operation();
         
         operation.setIdOperationMessage(Integer.parseInt(dto.getIdSolicitud().replaceAll("\\D", "")));
         operation.setIdOrganization(Integer.parseInt(dto.getIdOrganizacion().replaceAll("\\D", "")));
-        operation.setOperationType(OperationType.SOLICITUD);
+        operation.setOperationType(operationType);
         operation.setActivate(true);
         operation.setDateRegistration(LocalDateTime.now());
         operation.setDateModification(LocalDateTime.now());

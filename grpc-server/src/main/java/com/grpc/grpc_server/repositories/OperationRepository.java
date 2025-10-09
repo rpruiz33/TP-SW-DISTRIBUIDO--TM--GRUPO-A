@@ -13,5 +13,7 @@ public interface OperationRepository extends JpaRepository<Operation, Integer> {
     
     Optional<Operation> findByIdOperationMessageAndOperationType(int idOperationMessage, OperationType operationType);
 
+    Operation findByIdOperationMessage(int idOperationMessage);
+
 }
 

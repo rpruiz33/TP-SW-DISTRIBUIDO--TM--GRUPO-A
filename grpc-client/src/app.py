@@ -3,7 +3,7 @@ from flask_cors import CORS
 from grpc_client import MyServiceClient
 from google.protobuf.json_format import MessageToJson
 from kafka_client import enviar_mensaje
-from flask_sqlalchemy import SQLAlchemy
+#from flask_sqlalchemy import SQLAlchemy 
 from flask import Flask, request, jsonify
 from kafka_client import publicar_evento, baja_evento, adhesionar_evento
 

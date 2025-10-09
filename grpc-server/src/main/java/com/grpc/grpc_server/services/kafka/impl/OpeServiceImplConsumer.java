@@ -30,10 +30,12 @@ public class OpeServiceImplConsumer implements OperationServiceConsumer{
     @Autowired
     private OperationRepository operationRepository;
 
-     @Autowired
+    @Autowired
     private OperationDonationRepository operationDonationRepository; 
+
     @Autowired
     private TransferMapper tranMapper;
+
     @Autowired
     private ObjectMapper objectMapper;
     
@@ -44,18 +46,24 @@ public class OpeServiceImplConsumer implements OperationServiceConsumer{
     @Override
     public void createOperation(Operation operation) {
         
-        // guardar operación
-        Operation operationSaved = operationRepository.save(operation);
+        if( operationRepository.findByIdOperationMessageAndOperationType(operation.getIdOperationMessage(), operation.getOperationType()).isEmpty()){
+            
+            // guardar operación
+            Operation operationSaved = operationRepository.save(operation);
 
-        // guardar donaciones asociadas
-        if (operation.getOperationDonations() != null) {
-            for (OperationDonation od : operation.getOperationDonations()) {
-                if (od.getQuantity() <= 0) {
-                    throw new IllegalArgumentException("La cantidad de la donación debe ser mayor a 0");
+            // guardar donaciones asociadas
+            if (operation.getOperationDonations() != null) {
+                for (OperationDonation od : operation.getOperationDonations()) {
+                    if (od.getQuantity() <= 0) {
+                        throw new IllegalArgumentException("La cantidad de la donación debe ser mayor a 0");
+                    }
+                    od.setOperation(operationSaved);
+                    operationDonationRepository.save(od);
                 }
-                od.setOperation(operationSaved);
-                operationDonationRepository.save(od);
             }
+
+        }else{
+            log.info("Ya existe");
         }
 
     }
@@ -147,6 +155,8 @@ public class OpeServiceImplConsumer implements OperationServiceConsumer{
             log.error("❌ Error procesando transferencia", e);
         }
     }
+
+    
     @Override
     public void processOfferMessage(String message) {
     try {
@@ -255,6 +265,6 @@ public class OpeServiceImplConsumer implements OperationServiceConsumer{
     }
 }
 
-
+    
 
 }
