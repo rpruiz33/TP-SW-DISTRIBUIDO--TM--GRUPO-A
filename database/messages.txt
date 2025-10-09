@@ -50,3 +50,13 @@
     }
   ]
 }
+
+///MENSAJE PARA PUBLICAR EVENTO
+{
+  "idOrganizacion": "12345",
+  "idEvento": "67890",
+  "nombre": "EventoExterno1",
+  "descripcion" : "Testeando primer evento",
+  "fecha": "2025-10-09 12:50:11"
+
+}

@@ -33,10 +33,10 @@ public class ExternalEvent {
     private int idExternalEvent; 
 
     @Column(name = "id_external_event_message")
-    private String idExternalEventMessage; // del mensaje Kafka 
+    private int idExternalEventMessage; // del mensaje Kafka
 
     @Column(name = "id_organization")
-    private String idOrganization; 
+    private int idOrganization;
 
     @Column(name = "name_external_event") 
     private String nameExternalEvent; 
