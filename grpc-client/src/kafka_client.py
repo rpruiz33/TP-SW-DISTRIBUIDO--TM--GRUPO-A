@@ -1,67 +1,125 @@
+# kafka_client.py
 from kafka import KafkaProducer
 import json
 
-# Configuración del producer apuntando al listener del host
+# ✅ Configuración única de Kafka Producer
 producer = KafkaProducer(
-    bootstrap_servers='localhost:29092',  # <--- puerto host
+    bootstrap_servers='localhost:29092',
     value_serializer=lambda v: json.dumps(v).encode('utf-8')
 )
 
-def enviar_operacion_kafka(mensaje):
+# 1️⃣ Solicitar donaciones
+def solicitar_donaciones(data):
     """
-    Envía un mensaje al tópico Kafka 'operaciones'.
-    Recibe un diccionario y devuelve un dict con status.
+    Publica una solicitud de donaciones en el topic '/solicitud-donaciones'.
+    data: {
+        "id_organizacion_solicitante": int,
+        "id_solicitud": int,
+        "donaciones": [{"categoria": str, "descripcion": str}]
+    }
     """
-    try:
-        producer.send('operaciones', mensaje)
-        producer.flush()
-        return {"success": True, "message": "Mensaje enviado a Kafka"}
-    except Exception as e:
-        return {"success": False, "message": f"No se pudo enviar a Kafka: {str(e)}"}
+    topic = "solicitud-donaciones"
+    producer.send(topic, data)
+    producer.flush()
+    return {"success": True, "message": f"Solicitud publicada en {topic}"}
 
 
-def enviar_mensaje(topic, mensaje):
-    producer.send(topic, mensaje)
-    producer.flush()  # asegura que se envíe inmediatamente
-    print(f"Mensaje enviado a Kafka ({topic}): {mensaje}")
+# 2️⃣ Transferir donaciones
+def transferir_donaciones(id_org_solicitante, data):
+    """
+    Publica en el topic '/transferencia-donaciones/{id-org-solicitante}'.
+    data: {
+        "id_solicitud": int,
+        "id_organizacion_donante": int,
+        "donaciones": [{"categoria": str, "descripcion": str, "cantidad": "2kg"}]
+    }
+    """
+    topic = f"transferencia-donaciones{id_org_solicitante}"
+    producer.send(topic, data)
+    producer.flush()
+    return {"success": True, "message": f"Transferencia publicada en {topic}"}
 
-# 1️⃣ Publicar eventos solidarios
-def publicar_evento(evento):
-    """
-    Publica un evento en el topic '/eventossolidarios'.
-    evento: dict con keys ['id_org', 'id_evento', 'nombre', 'descripcion', 'fecha_hora']
-    """
-    try:
-        producer.send('eventossolidarios', evento)
-        producer.flush()
-        return {"success": True, "message": "Evento publicado"}
-    except Exception as e:
-        return {"success": False, "message": f"No se pudo publicar evento: {str(e)}"}
 
-# 2️⃣ Baja de evento
-def baja_evento(evento):
+# 3️⃣ Ofrecer donaciones
+def ofrecer_donaciones(data):
     """
-    Publica un mensaje de baja de evento en el topic '/baja-evento-solidario'.
-    evento: dict con keys ['id_org', 'id_evento']
+    Publica una oferta de donaciones en '/oferta-donaciones'.
+    data: {
+        "id_oferta": int,
+        "id_organizacion_donante": int,
+        "donaciones": [{"categoria": str, "descripcion": str, "cantidad": "2kg"}]
+    }
     """
-    try:
-        producer.send('baja-evento-solidario', evento)
-        producer.flush()
-        return {"success": True, "message": "Baja de evento enviada"}
-    except Exception as e:
-        return {"success": False, "message": f"No se pudo enviar baja de evento: {str(e)}"}
+    topic = "oferta-donaciones"
+    producer.send(topic, data)
+    producer.flush()
+    return {"success": True, "message": f"Oferta publicada en {topic}"}
 
-# 3️⃣ Adhesión a evento
-def adhesionar_evento(id_organizador, adhesor):
+
+# 4️⃣ Baja de solicitud
+def baja_solicitud_donaciones(data):
     """
-    Publica un mensaje de adhesión en el topic '/adhesion-evento/id-organizador'.
-    id_organizador: int o str
-    adhesor: dict con keys ['id_evento', 'voluntario', 'id_org', 'id_voluntario', 'nombre', 'apellido', 'telefono', 'email']
+    Publica la baja de una solicitud en '/baja-solicitud-donaciones'.
+    data: {
+        "id_organizacion_solicitante": int,
+        "id_solicitud": int
+    }
     """
-    try:
-        topic = f"adhesion-evento-{id_organizador}"
-        producer.send(topic, adhesor)
-        producer.flush()
-        return {"success": True, "message": "Adhesión enviada"}
-    except Exception as e:
-        return {"success": False, "message": f"No se pudo enviar adhesión: {str(e)}"}
+    topic = "baja-solicitud-donaciones"
+    producer.send(topic, data)
+    producer.flush()
+    return {"success": True, "message": f"Baja de solicitud publicada en {topic}"}
+
+
+# 5️⃣ Publicar evento solidario
+def publicar_evento(data):
+    """
+    Publica un evento en '/eventos-solidarios'.
+    data: {
+        "id_organizacion": int,
+        "id_evento": int,
+        "nombre": str,
+        "descripcion": str,
+        "fecha_hora": str
+    }
+    """
+    topic = "eventossolidarios"
+    producer.send(topic, data)
+    producer.flush()
+    return {"success": True, "message": f"Evento publicado en {topic}"}
+
+
+# 6️⃣ Baja evento
+def baja_evento(data):
+    """
+    Publica una baja de evento en '/baja-evento-solidario'.
+    data: {
+        "id_organizacion": int,
+        "id_evento": int
+    }
+    """
+    topic = "baja-evento-solidario"
+    producer.send(topic, data)
+    producer.flush()
+    return {"success": True, "message": f"Baja de evento publicada en {topic}"}
+
+
+# 7️⃣ Adhesión a evento
+def adhesion_evento(id_organizador, data):
+    """
+    Publica una adhesión en '/adhesion-evento/{id-organizador}'.
+    data: {
+        "id_evento": int,
+        "voluntario": str,
+        "id_organizacion": int,
+        "id_voluntario": int,
+        "nombre": str,
+        "apellido": str,
+        "telefono": str,
+        "email": str
+    }
+    """
+    topic = f"adhesion-evento{id_organizador}"
+    producer.send(topic, data)
+    producer.flush()
+    return {"success": True, "message": f"Adhesión publicada en {topic}"}

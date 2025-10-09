@@ -3,9 +3,17 @@ from flask_cors import CORS
 from grpc_client import MyServiceClient
 from google.protobuf.json_format import MessageToJson
 from kafka_client import enviar_mensaje
-#from flask_sqlalchemy import SQLAlchemy 
+from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, request, jsonify
-from kafka_client import publicar_evento, baja_evento, adhesionar_evento
+from kafka_client import (
+    solicitar_donaciones,
+    transferir_donaciones,
+    ofrecer_donaciones,
+    baja_solicitud_donaciones,
+    publicar_evento,
+    baja_evento,
+    adhesion_evento
+)
 
 
 app = Flask(__name__)
@@ -331,59 +339,104 @@ def getAllDonationsAtEvent(id):
 # RUTAS KAFKA
 # ---------------------------
 
-GRPC_SERVER = "localhost:9090"
 
-def enviar_operacion_grpc(data):
-    try:
-        with grpc.insecure_channel(GRPC_SERVER) as channel:
-            stub = service_pb2_grpc.OperationServiceStub(channel)
-            request_message = service_pb2.OperationRequest(
-                category=data.get("category", ""),
-                description=data.get("description", ""),
-                amount=data.get("amount", 0),
-                username=data.get("username", "")
-            )
-            response = stub.CreateOperation(request_message)
-            return response
-    except grpc.RpcError as e:
-        # Capturamos cualquier error de gRPC y lo retornamos como dict
-        return {"error_grpc": e.details(), "codigo_grpc": e.code().name}
 
-@app.route("/api/generarOperacion", methods=["POST"])
-def generar_operacion():
-    try:
-        data = request.get_json()
-        if not data:
-            return jsonify({"success": False, "message": "No se recibieron datos"}), 400
+@app.route("/api/solicitar-donaciones", methods=["POST"])
+def api_solicitar_donaciones():
+    data = request.get_json()
+    return jsonify(solicitar_donaciones(data))
 
-        response = enviar_operacion_grpc(data)
 
-        # Si la respuesta es error de gRPC
-        if isinstance(response, dict) and "error_grpc" in response:
-            return jsonify({"success": False, "message": response["error_grpc"], "codigo": response["codigo_grpc"]})
+# 2️⃣ Transferir donaciones
+@app.route("/api/transferir-donaciones/<int:id_org_solicitante>", methods=["POST"])
+def api_transferir_donaciones(id_org_solicitante):
+    data = request.get_json()
+    return jsonify(transferir_donaciones(id_org_solicitante, data))
 
-        # Respuesta exitosa
-        return jsonify({"success": True, "message": "Operación enviada al gRPC server", "respuesta_grpc": response.message})
 
-    except Exception as e:
-        # Cualquier error inesperado se devuelve como JSON
-        return jsonify({"success": False, "message": f"Error interno: {str(e)}"})
+# 3️⃣ Ofrecer donaciones
+@app.route("/api/ofrecer-donaciones", methods=["POST"])
+def api_ofrecer_donaciones():
+    data = request.get_json()
+    return jsonify(ofrecer_donaciones(data))
 
-@app.route("/api/evento", methods=["POST"])
+
+# 4️⃣ Baja solicitud
+@app.route("/api/baja-solicitud-donaciones", methods=["POST"])
+def api_baja_solicitud():
+    data = request.get_json()
+    return jsonify(baja_solicitud_donaciones(data))
+
+
+# 5️⃣ Publicar evento
+@app.route("/api/publicar-evento", methods=["POST"])
 def api_publicar_evento():
     data = request.get_json()
     return jsonify(publicar_evento(data))
 
 
+# 6️⃣ Baja evento
 @app.route("/api/baja-evento", methods=["POST"])
 def api_baja_evento():
     data = request.get_json()
     return jsonify(baja_evento(data))
 
-@app.route("/api/adhesion/<int:id_organizador>", methods=["POST"])
-def api_adhesion(id_organizador):
+
+# 7️⃣ Adhesión a evento
+@app.route("/api/adhesion-evento/<int:id_organizador>", methods=["POST"])
+def api_adhesion_evento(id_organizador):
     data = request.get_json()
-    return jsonify(adhesionar_evento(id_organizador, data))
+    return jsonify(adhesion_evento(id_organizador, data))
+
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=5000)@app.route("/api/solicitar-donaciones", methods=["POST"])
+def api_solicitar_donaciones():
+    data = request.get_json()
+    return jsonify(solicitar_donaciones(data))
+
+
+# 2️⃣ Transferir donaciones
+@app.route("/api/transferir-donaciones/<int:id_org_solicitante>", methods=["POST"])
+def api_transferir_donaciones(id_org_solicitante):
+    data = request.get_json()
+    return jsonify(transferir_donaciones(id_org_solicitante, data))
+
+
+# 3️⃣ Ofrecer donaciones
+@app.route("/api/ofrecer-donaciones", methods=["POST"])
+def api_ofrecer_donaciones():
+    data = request.get_json()
+    return jsonify(ofrecer_donaciones(data))
+
+
+# 4️⃣ Baja solicitud
+@app.route("/api/baja-solicitud-donaciones", methods=["POST"])
+def api_baja_solicitud():
+    data = request.get_json()
+    return jsonify(baja_solicitud_donaciones(data))
+
+
+# 5️⃣ Publicar evento
+@app.route("/api/publicar-evento", methods=["POST"])
+def api_publicar_evento():
+    data = request.get_json()
+    return jsonify(publicar_evento(data))
+
+
+# 6️⃣ Baja evento
+@app.route("/api/baja-evento", methods=["POST"])
+def api_baja_evento():
+    data = request.get_json()
+    return jsonify(baja_evento(data))
+
+
+# 7️⃣ Adhesión a evento
+@app.route("/api/adhesion-evento/<int:id_organizador>", methods=["POST"])
+def api_adhesion_evento(id_organizador):
+    data = request.get_json()
+    return jsonify(adhesion_evento(id_organizador, data))
+
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
