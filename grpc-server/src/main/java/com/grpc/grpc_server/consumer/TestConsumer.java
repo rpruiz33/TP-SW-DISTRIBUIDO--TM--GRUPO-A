@@ -3,6 +3,8 @@ package com.grpc.grpc_server.consumer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.grpc.grpc_server.entities.kafka.ExternalEvent;
 import com.grpc.grpc_server.services.kafka.impl.ExternalEventConsumerServiceImpl;
+
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -15,6 +17,7 @@ import com.grpc.grpc_server.mapper.kafka.ExternalEventMapper;
 import com.grpc.grpc_server.mapper.kafka.ExternalEventMapper.ExternalEventDTO;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.RequestDTO;
+import com.grpc.grpc_server.mapper.kafka.OperationMapper.TransferDTO;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.OfferDTO;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.CancelRequestDTO;
 import com.grpc.grpc_server.repositories.kafka.OperationDonationRepository;
@@ -91,13 +94,40 @@ public class TestConsumer {
         try {
 
             OfferDTO dto = objectMapper.readValue(message, OfferDTO.class);
-            Operation operation = OperationMapper.toEntity(dto, OperationType.TRANSFERENCIA);
+            Operation operation = OperationMapper.toEntity(dto, OperationType.OFERTA);
 
             operationService.createOperation(operation);
 
         } catch (Exception e) {
-            log.error("Error procesando mensaje de oferta", e);
+            
         }
+    }
+
+    /// PUNTO 2 (publicar transferencias)
+    
+    @KafkaListener(topicPattern = "transferencia-donaciones-.*", groupId = "grupo-unla") 
+    public void consumirTransferencia(ConsumerRecord<String, String> record) { 
+ 
+        String topic = record.topic(); 
+        String message = record.value(); 
+
+        // Extraer el id de la organización solicitante desde el topic 
+        String idOrgSolicitante = topic.substring(topic.lastIndexOf("-") + 1); 
+        System.out.println("Mensaje recibido del topic: " + topic); 
+        System.out.println("ID organización solicitante: " + idOrgSolicitante); 
+        System.out.println("Contenido: " + message); 
+
+        try {
+
+            TransferDTO dto = objectMapper.readValue(message, TransferDTO.class); 
+            Operation operation = OperationMapper.toEntity(dto, OperationType.TRANSFERENCIA);
+            operationService.processTransfer(operation);
+
+        } catch (Exception e) {
+            log.error("Error procesando mensaje de transferencia", e);
+        }
+         
+         
     }
 
     /// PUNTO 5 (publicar eventos)
@@ -127,15 +157,6 @@ public class TestConsumer {
         } catch (Exception e) {
             log.error("Error procesando mensaje de oferta", e);
         }
-    }
-
-    ///-----------------------------------OTROS--------------------------------------------------////
-
-    // Listener para transferencias
-    @KafkaListener(topics = "transferencia-donaciones-1", groupId = "grupo-unla")
-    public void listenTransfer(String message) {
-        log.info("📩 Mensaje recibido en 'transferencia-donaciones-1': {}", message);
-        operationService.processTransfer(message); // llama a tu método
     }
 
 }

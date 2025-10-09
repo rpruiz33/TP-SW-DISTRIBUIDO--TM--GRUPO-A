@@ -84,7 +84,7 @@ public class OpeServiceImplProducer implements OperationServiceProducer{
      */
     public void sendCancelRequest(int idOffer, int idOrganization) {
         try {
-            var dto = new com.grpc.grpc_server.mapper.kafka.CancelRequestMapper.CancelRequestDTO(idOrganization, idOffer);
+            var dto = new com.grpc.grpc_server.mapper.kafka.OperationMapper.CancelRequestDTO(idOrganization, idOffer);
             String message = objectMapper.writeValueAsString(dto);
             kafkaTemplate.send(TOPIC_CANCEL, message);
             log.info("📤 Solicitud de baja enviada a Kafka ({}): {}", TOPIC_CANCEL, message);

@@ -1,20 +1,21 @@
 package com.grpc.grpc_server.services.kafka.impl;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
-import com.grpc.grpc_server.entities.grpc.Category;
+
+import com.grpc.grpc_server.entities.grpc.Donation;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.grpc.grpc_server.entities.kafka.Operation;
 import com.grpc.grpc_server.entities.kafka.OperationDonation;
 import com.grpc.grpc_server.entities.kafka.OperationType;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.CancelRequestDTO;
-import com.grpc.grpc_server.mapper.kafka.OfferDanationMapper;
-import com.grpc.grpc_server.mapper.kafka.TransferMapper;
-import com.grpc.grpc_server.producer.OperationProducer;
+import com.grpc.grpc_server.repositories.grpc.DonationRepository;
 import com.grpc.grpc_server.repositories.kafka.OperationDonationRepository;
 import com.grpc.grpc_server.repositories.kafka.OperationRepository;
 import com.grpc.grpc_server.services.kafka.OperationServiceConsumer;
@@ -31,16 +32,10 @@ public class OpeServiceImplConsumer implements OperationServiceConsumer{
     private OperationRepository operationRepository;
 
     @Autowired
+    private DonationRepository donationRepository;
+
+    @Autowired
     private OperationDonationRepository operationDonationRepository; 
-
-    @Autowired
-    private TransferMapper tranMapper;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-    
-    @Autowired
-    private OperationProducer operationProducer;
 
     ///-------------------------------------OPERACIONES--------------------------------------------------////
     @Override
@@ -107,165 +102,35 @@ public class OpeServiceImplConsumer implements OperationServiceConsumer{
         }
     }
 
-    ///-------------------------------------OTROS--------------------------------------------------////
-
+    ///-------------------------------------TRANSFERENCIAS --------------------------------------------------////
+    /// 1) solo deberia consumir transferencia ajenas
+    /// 2) si no existe la donation deberia crearla?
+    /// 3) que pasa si no se crea la operation
     @Override
-    public void processTransfer(String message) {
+    public void processTransfer(Operation operation) {
         try {
-            if (message == null || message.isBlank()) {
-                throw new IllegalArgumentException("El mensaje de transferencia está vacío");
-            }
 
-            log.info("📩 Mensaje recibido (TRANSFERENCIA): {}", message);
+            createOperation(operation);
 
-            int operationId = 2;
+            if (operation.getOperationDonations() != null) {
+                for (OperationDonation od : operation.getOperationDonations()) {
 
-            Operation operation = operationRepository.findById(operationId)
-                    .orElseGet(() -> {
-                        Operation op = new Operation();
-                        op.setIdOperationMessage((int) (System.currentTimeMillis() % Integer.MAX_VALUE));
-                        op.setIdOrganization(1);
-                        op.setOperationType(OperationType.TRANSFERENCIA);
-                        op.setActivate(true);
-                        op.setDateRegistration(LocalDateTime.now());
-                        op.setDateModification(LocalDateTime.now());
-                        return operationRepository.save(op);
-                    });
-
-            List<OperationDonation> donations = objectMapper.readValue(
-                    message,
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, OperationDonation.class)
-            );
-
-            for (OperationDonation donation : donations) {
-                // Validaciones
-                if (donation.getQuantity() <= 0) {
-                    log.warn("⚠️ Donación inválida (monto <= 0), descartada: {}", donation);
-                    continue; // no guardar
+                    Donation donation = donationRepository.findByCategoryAndDescription(od.getCategory(), od.getDescription());
+                    
+                    if(donation != null){
+                        donation.setAmount(donation.getAmount() + od.getQuantity());
+                        donationRepository.save(donation);
+                    }
+                    
                 }
-            
-
-                // asociar y guardar
-                donation.setOperation(operation);
-                operationDonationRepository.save(donation);
             }
 
-            log.info("✅ Transferencias guardadas en la base de datos.");
+            log.info("Transferencias guardadas en la base de datos.");
+
         } catch (Exception e) {
-            log.error("❌ Error procesando transferencia", e);
+            log.error("Error procesando transferencia", e);
         }
     }
 
-    
-    @Override
-    public void processOfferMessage(String message) {
-    try {
-        // Validación básica del mensaje
-        if (message == null || message.isBlank()) {
-            throw new IllegalArgumentException("El mensaje de oferta está vacío");
-        }
-
-        log.info("📩 Mensaje recibido (OFERTA): {}", message);
-
-        // Deserializar JSON a Map
-        var offerMap = objectMapper.readValue(message, java.util.Map.class);
-
-        // Validar campos principales
-        if (!offerMap.containsKey("idOffer") || !offerMap.containsKey("idOrganizationDonante") ||
-            !offerMap.containsKey("donations")) {
-            throw new IllegalArgumentException("El mensaje de oferta no tiene los campos obligatorios");
-        }
-
-        int idOffer = (Integer) offerMap.get("idOffer");
-        int idOrg = (Integer) offerMap.get("idOrganizationDonante");
-
-        if (idOffer <= 0) {
-            throw new IllegalArgumentException("El ID de la oferta debe ser mayor a 0");
-        }
-
-        if (idOrg <= 0) {
-            throw new IllegalArgumentException("El ID de la organización debe ser mayor a 0");
-        }
-
-        // Crear o recuperar operación
-        Operation operation = operationRepository.findById(idOffer)
-                .orElseGet(() -> {
-                    Operation op = new Operation();
-                    op.setIdOperationMessage(idOffer);
-                    op.setIdOrganization(idOrg);
-                    op.setOperationType(OperationType.OFERTA);
-                    op.setActivate(true);
-                    op.setDateRegistration(LocalDateTime.now());
-                    op.setDateModification(LocalDateTime.now());
-                    return operationRepository.save(op);
-                });
-
-        // Obtener lista de donaciones
-        List<java.util.Map<String, Object>> donationsList =
-                (List<java.util.Map<String, Object>>) offerMap.get("donations");
-
-        if (donationsList == null || donationsList.isEmpty()) {
-            log.warn("⚠️ La oferta no contiene donaciones");
-        } else {
-            for (java.util.Map<String, Object> donationMap : donationsList) {
-
-                // Validaciones de cada donación
-                if (!donationMap.containsKey("category") || !donationMap.containsKey("description") ||
-                    !donationMap.containsKey("quantity")) {
-                    log.warn("⚠️ Donación incompleta, descartada: {}", donationMap);
-                    continue;
-                }
-
-                int quantity = (Integer) donationMap.get("quantity");
-                if (quantity <= 0) {
-                    log.warn("⚠️ Donación con cantidad inválida, descartada: {}", donationMap);
-                    continue;
-                }
-
-                String categoryStr = (String) donationMap.get("category");
-                String description = (String) donationMap.get("description");
-
-                if (categoryStr == null || categoryStr.isBlank()) {
-                    log.warn("⚠️ Donación sin categoría, descartada: {}", donationMap);
-                    continue;
-                }
-
-                if (description == null || description.isBlank()) {
-                    log.warn("⚠️ Donación sin descripción, descartada: {}", donationMap);
-                    continue;
-                }
-
-                // Crear entidad OperationDonation
-                var donation = new OperationDonation();
-                try {
-                    donation.setCategory(Enum.valueOf(Category.class, categoryStr));
-                } catch (IllegalArgumentException ex) {
-                    log.warn("⚠️ Categoría inválida, descartada: {}", categoryStr);
-                    continue;
-                }
-                donation.setDescription(description);
-                donation.setQuantity(quantity);
-                donation.setOperation(operation);
-                operation.getOperationDonations().add(donation);  // Añadir a la lista
-                // Guardar en DB
-                operationDonationRepository.save(donation);
-            }
-        }
-
-        // Actualizar fechas de la operación
-        operation.setDateModification(LocalDateTime.now());
-        operationRepository.save(operation);
-
-        // Mapear a DTO usando el mapper
-        var dto = OfferDanationMapper.toDTO(operation);
-        log.info("✅ Oferta procesada y DTO generado: {}", dto);
-
-    } catch (Exception e) {
-        log.error("❌ Error procesando oferta", e);
-    }
-}
-
-
-    
 
 }

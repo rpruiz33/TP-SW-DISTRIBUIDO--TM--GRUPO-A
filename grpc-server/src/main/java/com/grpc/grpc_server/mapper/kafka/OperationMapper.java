@@ -124,7 +124,7 @@ public class OperationMapper {
     }
 
     //transfer
-    public Operation toEntity(TransferDTO dto, OperationType operationType) {
+    public static Operation toEntity(TransferDTO dto, OperationType operationType) {
 
         Operation operation = new Operation();
         

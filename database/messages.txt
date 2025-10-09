@@ -60,3 +60,25 @@
   "fecha": "2025-10-09 12:50:11"
 
 }
+///MENSAJE DE TRANSFERENCIA 
+{
+	"idSolicitud": "12345",
+	"idOrganizacionDonante": "67890",
+	"donaciones": [
+		{
+			"categoria": "ROPA",
+			"descripcion": "Zapatos para niños",
+			"cantidad": 20
+		},
+		{
+			"categoria": "ROPA",
+			"descripcion": "Donación de camisetas y abrigos",
+			"cantidad": 15
+		},
+		{
+			"categoria": "ALIMENTO",
+			"descripcion": "Donación de arroz y fideos",
+			"cantidad": 50
+		}
+	]
+}

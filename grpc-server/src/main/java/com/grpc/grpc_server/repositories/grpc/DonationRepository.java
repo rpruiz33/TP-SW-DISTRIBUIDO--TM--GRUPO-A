@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.grpc.grpc_server.entities.grpc.Category;
 import com.grpc.grpc_server.entities.grpc.Donation;
 
 
@@ -34,7 +35,7 @@ public interface DonationRepository extends JpaRepository<Donation, Long> {
     @Query("SELECT d FROM Donation d WHERE d.description = :description")
     Donation findByDescription(@Param("description") String description);
     
-   Optional<Donation> findByCategoryAndDescription(String category, String description);
+    Donation findByCategoryAndDescription(Category category, String description);
 
 
 
