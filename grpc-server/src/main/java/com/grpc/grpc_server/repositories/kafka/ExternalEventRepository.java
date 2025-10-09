@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ExternalEventRepository extends JpaRepository<ExternalEvent, Integer> {
 
-
+    ExternalEvent findByIdExternalEventMessage(int id);
 
 
 }

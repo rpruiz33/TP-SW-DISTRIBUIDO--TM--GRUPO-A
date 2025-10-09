@@ -15,6 +15,7 @@ import com.grpc.grpc_server.entities.kafka.Operation;
 import com.grpc.grpc_server.entities.kafka.OperationType;
 import com.grpc.grpc_server.mapper.kafka.ExternalEventMapper;
 import com.grpc.grpc_server.mapper.kafka.ExternalEventMapper.ExternalEventDTO;
+import com.grpc.grpc_server.mapper.kafka.ExternalEventMapper.CancelExternalEventDTO;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.RequestDTO;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.TransferDTO;
@@ -47,6 +48,29 @@ public class TestConsumer {
 
     @Value("${ong.id}")
     String ownONGId;
+    ///-----------------------------------METODOS--------------------------------------------------////
+    public boolean isOwnMessage(String message){
+        boolean result=false;
+
+        try{
+            //LOGICA DE VERIFICACION DE ID DE ORGANIZACION
+            JsonNode root = objectMapper.readTree(message);
+            String idOrganizacion = root.path("idOrganizacion").asText();
+
+            //SI EL MENSAJE ES NUESTRO, LO IGNORAMOS
+            if (ownONGId.equals(idOrganizacion)) {
+                log.debug("Mensaje propio detectado, ignorando...");
+                result=true;
+            }
+
+        } catch (Exception e) {
+            log.info("Error verificando la organizacion del mensaje", e);
+        }
+
+
+        return result;
+    }
+
 
     ///-----------------------------------SOLICITUDES--------------------------------------------------////
     /// PUNTO 1 (publicar solicitudes)
@@ -132,16 +156,13 @@ public class TestConsumer {
 
     /// PUNTO 5 (publicar eventos)
     @KafkaListener(topics = "eventos-solidarios", groupId = "grupo-unla")
-    public void listenEvents(String message) {
+    public void listenExternalEvent(String message) {
         try {
 
             //LOGICA DE VERIFICACION DE ID DE ORGANIZACION
             JsonNode root = objectMapper.readTree(message);
             String idOrganizacion = root.path("idOrganizacion").asText();
 
-            log.info(idOrganizacion);
-            log.info("Nuestro");
-            log.info(ownONGId);
             //SI EL MENSAJE ES NUESTRO, LO IGNORAMOS
             if (ownONGId.equals(idOrganizacion)) {
                 log.debug("Mensaje propio detectado, ignorando...");
@@ -155,7 +176,31 @@ public class TestConsumer {
 
 
         } catch (Exception e) {
-            log.error("Error procesando mensaje de oferta", e);
+            log.error("Error procesando mensaje de EVENTO", e);
+        }
+    }
+
+    /// PUNTO 6 (dar de baja eventos publicados)
+    @KafkaListener(topics = "baja-evento-solidario", groupId = "grupo-unla")
+    public void listenDeleteExternalEvents(String message) {
+        try {
+
+
+            // Validación mínima antes de enviar al service
+            if (message == null || message.isBlank()) {
+                log.warn("Mensaje vacío recibido en baja-evento-externo");
+                return;
+            }
+            if (!isOwnMessage(message)) {
+
+                //FLUJO PARA MENSAJE EXTERNO
+                CancelExternalEventDTO cancelExternalEventDTO = objectMapper.readValue(message, CancelExternalEventDTO.class);
+                externalEventConsumerService.processCancelExternalEvent(cancelExternalEventDTO);
+
+             }
+
+        } catch (Exception e) {
+            log.error("Error procesando mensaje de baja de EVENTO", e);
         }
     }
 

@@ -33,6 +33,16 @@ public class ExternalEventMapper {
         private String fecha;
     }
 
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CancelExternalEventDTO {
+
+        private String idOrganizacion;
+        private String idEvento;
+    }
+
     ///--------------------------------------MAPEO A ENTIDADAD-------------------------------------------------///
     public static ExternalEvent toEntity(ExternalEventDTO dto) {
 
