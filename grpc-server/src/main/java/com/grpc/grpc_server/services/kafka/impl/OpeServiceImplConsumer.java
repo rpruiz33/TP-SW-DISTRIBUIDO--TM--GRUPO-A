@@ -10,8 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grpc.grpc_server.entities.kafka.Operation;
 import com.grpc.grpc_server.entities.kafka.OperationDonation;
 import com.grpc.grpc_server.entities.kafka.OperationType;
-import com.grpc.grpc_server.mapper.kafka.CancelRequestMapper;
-import com.grpc.grpc_server.mapper.kafka.CancelRequestMapper.CancelRequestDTO;
+import com.grpc.grpc_server.mapper.kafka.OperationMapper.CancelRequestDTO;
 import com.grpc.grpc_server.mapper.kafka.OfferDanationMapper;
 import com.grpc.grpc_server.mapper.kafka.TransferMapper;
 import com.grpc.grpc_server.producer.OperationProducer;
@@ -100,7 +99,7 @@ public class OpeServiceImplConsumer implements OperationServiceConsumer{
             operationRepository.save(deleteOperation);
 
             log.info("Solicitud de donación {} de la organización {} dada de baja correctamente",
-                    cancelRequestDTO.getIdSolicitud(), cancelRequestDTO.getIdOrganizacion());
+                    cancelRequestDTO.getIdSolicitud(), cancelRequestDTO.getIdOrganizacionSolicitante());
 
         } catch (Exception e) {
             log.error("Error inesperado procesando baja de solicitud", e);
@@ -264,6 +263,7 @@ public class OpeServiceImplConsumer implements OperationServiceConsumer{
         log.error("❌ Error procesando oferta", e);
     }
 }
+
 
     
 

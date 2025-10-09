@@ -9,7 +9,9 @@ import com.grpc.grpc_server.entities.kafka.Operation;
 import com.grpc.grpc_server.entities.kafka.OperationType;
 import com.grpc.grpc_server.mapper.kafka.CancelRequestMapper;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper;
-import com.grpc.grpc_server.mapper.kafka.OperationMapper.OperationDTO;
+import com.grpc.grpc_server.mapper.kafka.OperationMapper.RequestDTO;
+import com.grpc.grpc_server.mapper.kafka.OperationMapper.OfferDTO;
+import com.grpc.grpc_server.mapper.kafka.OperationMapper.CancelRequestDTO;
 import com.grpc.grpc_server.repositories.OperationDonationRepository;
 import com.grpc.grpc_server.repositories.OperationRepository;
 import com.grpc.grpc_server.services.kafka.OperationServiceConsumer;
@@ -40,7 +42,7 @@ public class TestConsumer {
         
         try {
 
-            OperationDTO dto = objectMapper.readValue(message, OperationDTO.class);
+            RequestDTO dto = objectMapper.readValue(message, RequestDTO.class);
             Operation operation = OperationMapper.toEntity(dto, OperationType.SOLICITUD);
 
             operationService.createOperation(operation);
@@ -62,8 +64,8 @@ public class TestConsumer {
             }
 
             //Deserializar JSON a DTO
-            CancelRequestMapper.CancelRequestDTO cancelDTO =
-                objectMapper.readValue(message, CancelRequestMapper.CancelRequestDTO.class);
+            CancelRequestDTO cancelDTO =
+                objectMapper.readValue(message, OperationMapper.CancelRequestDTO.class);
 
             // Llamada al service que contiene toda la lógica de procesamiento
             operationService.processCancelRequest(cancelDTO);
@@ -78,7 +80,7 @@ public class TestConsumer {
     public void listenOffer(String message) {
         try {
 
-            OperationDTO dto = objectMapper.readValue(message, OperationDTO.class);
+            OfferDTO dto = objectMapper.readValue(message, OfferDTO.class);
             Operation operation = OperationMapper.toEntity(dto, OperationType.TRANSFERENCIA);
 
             operationService.createOperation(operation);
@@ -97,11 +99,4 @@ public class TestConsumer {
         operationService.processTransfer(message); // llama a tu método
     }
 
-    /* 
-    @KafkaListener(topics = "alta-solicitud-donaciones", groupId = "grupo-ong")
-    public void consumirOperacion(String message) {
-        log.info("📥 Operación recibida: {}", message);
-        // Parsear JSON y guardar en la DB local
-    }
-    */
 }
