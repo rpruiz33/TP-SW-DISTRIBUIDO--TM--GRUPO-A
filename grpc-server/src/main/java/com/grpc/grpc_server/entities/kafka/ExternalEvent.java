@@ -45,10 +45,7 @@ public class ExternalEvent {
     private String description; 
 
     @Column(name = "date_and_time") 
-    private LocalDateTime dateAndTime; 
-
-    @Column(name = "active") 
-    private boolean active;
+    private LocalDateTime dateAndTime;
 
     @OneToMany(mappedBy = "externalEvent") 
     private List<EventAdhesion> adhesions;

@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grpc.grpc_server.entities.kafka.Operation;
 import com.grpc.grpc_server.entities.kafka.OperationType;
 import com.grpc.grpc_server.mapper.kafka.ExternalEventMapper;
-import com.grpc.grpc_server.mapper.kafka.EventAdhesionMapper;
 import com.grpc.grpc_server.mapper.kafka.EventAdhesionMapper.EventAdhesionDTO;
 import com.grpc.grpc_server.mapper.kafka.ExternalEventMapper.ExternalEventDTO;
 import com.grpc.grpc_server.mapper.kafka.ExternalEventMapper.CancelExternalEventDTO;

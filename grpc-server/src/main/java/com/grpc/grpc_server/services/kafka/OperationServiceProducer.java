@@ -10,8 +10,8 @@ public interface OperationServiceProducer {
 
 
 
-    void sendOperationCreated(Operation operation);
-    void sendTransfer(Operation operation, List<OperationDonation> donations);
-    void sendCancelRequest(int idOffer, int idOrganization);
-    void sendOffer(Operation operation, List<OperationDonation> donations);
+    String createAndSendOperation(Operation operation);
+    //void sendTransfer(Operation operation, List<OperationDonation> donations);
+    //void sendCancelRequest(int idOffer, int idOrganization);
+    //void sendOffer(Operation operation, List<OperationDonation> donations);
 }

@@ -1,16 +1,15 @@
 package com.grpc.grpc_server.services.kafka.impl;
 
-import com.grpc.grpc_server.entities.grpc.Event;
 import com.grpc.grpc_server.entities.kafka.EventAdhesion;
 import com.grpc.grpc_server.repositories.kafka.EventAdhesionRepository;
-import com.grpc.grpc_server.services.kafka.EventAdhesionConsumer;
+import com.grpc.grpc_server.services.kafka.EventAdhesionConsumerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class EventAdhesionConsumerServiceImpl implements EventAdhesionConsumer {
+public class EventAdhesionConsumerServiceImpl implements EventAdhesionConsumerService {
 
 
     @Autowired

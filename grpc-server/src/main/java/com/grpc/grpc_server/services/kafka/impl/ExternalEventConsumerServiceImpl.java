@@ -2,11 +2,11 @@ package com.grpc.grpc_server.services.kafka.impl;
 
 import com.grpc.grpc_server.entities.kafka.ExternalEvent;
 import com.grpc.grpc_server.mapper.kafka.ExternalEventMapper;
+import com.grpc.grpc_server.repositories.kafka.EventAdhesionRepository;
 import com.grpc.grpc_server.repositories.kafka.ExternalEventRepository;
-import com.grpc.grpc_server.services.kafka.ExternalEventConsumer;
+import com.grpc.grpc_server.services.kafka.ExternalEventConsumerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -14,10 +14,13 @@ import java.time.LocalDateTime;
 
 @Slf4j
 @Service
-public class ExternalEventConsumerServiceImpl implements ExternalEventConsumer {
+public class ExternalEventConsumerServiceImpl implements ExternalEventConsumerService {
 
     @Autowired
     ExternalEventRepository externalEventRepository;
+
+    @Autowired
+    EventAdhesionRepository eventAdhesionRepository;
 
     @Override
     public ExternalEvent getExternalEventWithAdhesions(int id) {
@@ -63,9 +66,12 @@ public class ExternalEventConsumerServiceImpl implements ExternalEventConsumer {
             ExternalEvent e = externalEventRepository.findByIdExternalEventMessage(idEvento);
 
             if (e != null){
-                e.setActive(false);
+
                 //ELIMINAR RELACIONES
-                externalEventRepository.save(e);
+                eventAdhesionRepository.deleteByExternalEvent(e);
+
+                //BAJA FISICA
+                externalEventRepository.delete(e);
                 log.info("Evento dado de baja con exito");
 
             }else{

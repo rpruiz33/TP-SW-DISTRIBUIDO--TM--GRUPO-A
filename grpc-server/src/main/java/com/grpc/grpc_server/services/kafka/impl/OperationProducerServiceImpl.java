@@ -28,19 +28,11 @@ import com.grpc.grpc_server.repositories.kafka.OperationRepository;
 @RequiredArgsConstructor
 public class OperationProducerServiceImpl implements OperationServiceProducer{
  private final OperationRepository operationRepository;
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
 
     @Autowired
     private OperationProducer operationProducer;
 
-    // Definición de los tópicos
-    private static final String TOPIC_CREATE = "operation-create";
-    private static final String TOPIC_TRANSFER = "operation-transfer";
-    private static final String TOPIC_CANCEL = "operation-cancel";
-    private static final String TOPIC_OFFER = "operation-offer";
 
 
     @Transactional
@@ -60,7 +52,7 @@ public class OperationProducerServiceImpl implements OperationServiceProducer{
     }
     /**
      * Envía un mensaje cuando se crea una operación.
-     */
+
     public void sendOperationCreated(Operation operation) {
         try {
             String message = objectMapper.writeValueAsString(operation);
@@ -71,23 +63,23 @@ public class OperationProducerServiceImpl implements OperationServiceProducer{
         }
     }
 
-    /**
+
      * Envía un mensaje de transferencia.
-     */
+
     public void sendTransfer(Operation operation, List<OperationDonation> donations) {
         try {
             String message = objectMapper.writeValueAsString(donations);
             kafkaTemplate.send(TOPIC_TRANSFER, message);
-            log.info("📤 Transferencia enviada a Kafka ({}): OperationId={}, donations={}", 
+            log.info("📤 Transferencia enviada a Kafka ({}): OperationId={}, donations={}",
                       TOPIC_TRANSFER, operation.getIdOperationMessage(), message);
         } catch (JsonProcessingException e) {
             log.error("❌ Error serializando transferencias para Kafka", e);
         }
     }
 
-    /**
+
      * Envía un mensaje de baja de solicitud.
-     */
+
     public void sendCancelRequest(int idOffer, int idOrganization) {
         try {
             var dto = new com.grpc.grpc_server.mapper.kafka.OperationMapper.CancelRequestDTO(idOrganization, idOffer);
@@ -99,9 +91,9 @@ public class OperationProducerServiceImpl implements OperationServiceProducer{
         }
     }
 
-    /**
+
      * Envía un mensaje de oferta.
-     */
+
     public void sendOffer(Operation operation, List<OperationDonation> donations) {
         try {
             // Crear estructura simplificada para la oferta
@@ -117,4 +109,5 @@ public class OperationProducerServiceImpl implements OperationServiceProducer{
             log.error("❌ Error serializando oferta para Kafka", e);
         }
     }
+     */
 }

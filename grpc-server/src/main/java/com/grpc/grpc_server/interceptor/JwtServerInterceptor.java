@@ -22,7 +22,7 @@ public class JwtServerInterceptor implements ServerInterceptor {
         // -------------------------
         // Métodos públicos (no requieren autenticación)
         // -------------------------
-        if (methodName.matches("MyService/Login") ) {
+        if (methodName.matches("MyService/Login") || methodName.contains("KafkaService/") ) {
             return next.startCall(call, headers);
         }
 

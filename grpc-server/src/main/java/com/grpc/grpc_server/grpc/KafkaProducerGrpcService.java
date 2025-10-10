@@ -2,22 +2,26 @@ package com.grpc.grpc_server.grpc;
 
 
 import com.grpc.grpc_server.DonationServiceGrpc;
+import com.grpc.grpc_server.KafkaServiceGrpc;
 import com.grpc.grpc_server.MyServiceClass;
-import com.grpc.grpc_server.OperationServiceGrpc;
 import com.grpc.grpc_server.entities.kafka.Operation;
 import com.grpc.grpc_server.entities.kafka.OperationType;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.RequestDTO;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.RequestDTO;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.RequestDTO;
+import com.grpc.grpc_server.services.kafka.impl.ExternalEventProducerServiceImpl;
 import com.grpc.grpc_server.services.kafka.impl.OperationProducerServiceImpl;
 import io.grpc.stub.StreamObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.grpc.server.service.GrpcService;
 
 @GrpcService
-public class KafkaProducerGrpcService extends OperationServiceGrpc.OperationServiceImplBase
+public class KafkaProducerGrpcService extends KafkaServiceGrpc.KafkaServiceImplBase
 {
+
+    @Autowired
+    ExternalEventProducerServiceImpl externalEventProducerService;
 
     @Autowired
     OperationProducerServiceImpl operationProducerServiceImpl;
@@ -34,7 +38,6 @@ public class KafkaProducerGrpcService extends OperationServiceGrpc.OperationServ
                 result= operationProducerServiceImpl.createAndSendOperation(operation);
             }
 
-
             case "TRANSEFERENCIA":
         }
 
@@ -48,6 +51,22 @@ public class KafkaProducerGrpcService extends OperationServiceGrpc.OperationServ
         responseObserver.onNext(response);
         responseObserver.onCompleted();
 
+    }
+
+    @Override
+    public void createExternalEvent(MyServiceClass.ExternalEventRequest request,  StreamObserver<MyServiceClass.GenericResponse> responseObserver){
+        String result;
+
+        result = externalEventProducerService.createExternalEvent(request.getId());
+
+        // Construir y enviar la respuesta
+        MyServiceClass.GenericResponse response = MyServiceClass.GenericResponse.newBuilder()
+                .setSuccess(true)
+                .setMessage(result)
+                .build();
+
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
     }
 
 
