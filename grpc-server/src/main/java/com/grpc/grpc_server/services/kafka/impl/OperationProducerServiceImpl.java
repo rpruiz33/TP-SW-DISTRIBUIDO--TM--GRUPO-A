@@ -27,11 +27,20 @@ import com.grpc.grpc_server.repositories.kafka.OperationRepository;
 @Service
 @RequiredArgsConstructor
 public class OperationProducerServiceImpl implements OperationServiceProducer{
-
-    private final OperationRepository operationRepository;
+ private final OperationRepository operationRepository;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
-    OperationProducer operationProducer;
+    private KafkaTemplate<String, String> kafkaTemplate;
+
+    @Autowired
+    private OperationProducer operationProducer;
+
+    // Definición de los tópicos
+    private static final String TOPIC_CREATE = "operation-create";
+    private static final String TOPIC_TRANSFER = "operation-transfer";
+    private static final String TOPIC_CANCEL = "operation-cancel";
+    private static final String TOPIC_OFFER = "operation-offer";
 
 
     @Transactional
