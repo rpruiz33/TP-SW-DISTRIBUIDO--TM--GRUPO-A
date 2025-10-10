@@ -1,5 +1,6 @@
 package com.grpc.grpc_server.mapper.kafka;
 
+import com.grpc.grpc_server.MyServiceClass;
 import com.grpc.grpc_server.entities.grpc.Category;
 import com.grpc.grpc_server.entities.kafka.Operation;
 import com.grpc.grpc_server.entities.kafka.OperationDonation;
@@ -17,6 +18,16 @@ public class OperationDonationMapper {
         private String categoria;
         private String descripcion;
         private int cantidad;
+    }
+
+    public static OperationDonationDTO toDTO (MyServiceClass.OperationDonationProto request){
+        OperationDonationDTO dto = new OperationDonationDTO();
+
+        dto.setCategoria(request.getCategory());
+        dto.setDescripcion(request.getDescription());
+        dto.setCantidad(request.getQuantity());
+
+        return dto;
     }
 
     public static OperationDonation toEntity(OperationDonationDTO d, Operation operation) {

@@ -1,7 +1,5 @@
 package com.grpc.grpc_server.services.kafka.impl;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 
 import com.grpc.grpc_server.entities.grpc.Donation;
@@ -26,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
     
-public class OpeServiceImplConsumer implements OperationServiceConsumer{
+public class OperationConsumerServiceImpl implements OperationServiceConsumer{
     
     @Autowired
     private OperationRepository operationRepository;

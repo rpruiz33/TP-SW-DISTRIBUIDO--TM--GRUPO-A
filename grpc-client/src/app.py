@@ -339,8 +339,6 @@ def getAllDonationsAtEvent(id):
 # RUTAS KAFKA
 # ---------------------------
 
-
-
 @app.route("/api/solicitar-donaciones", methods=["POST"])
 def api_solicitar_donaciones():
     data = request.get_json()
@@ -390,53 +388,5 @@ def api_adhesion_evento(id_organizador):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)@app.route("/api/solicitar-donaciones", methods=["POST"])
-def api_solicitar_donaciones():
-    data = request.get_json()
-    return jsonify(solicitar_donaciones(data))
-
-
-# 2️⃣ Transferir donaciones
-@app.route("/api/transferir-donaciones/<int:id_org_solicitante>", methods=["POST"])
-def api_transferir_donaciones(id_org_solicitante):
-    data = request.get_json()
-    return jsonify(transferir_donaciones(id_org_solicitante, data))
-
-
-# 3️⃣ Ofrecer donaciones
-@app.route("/api/ofrecer-donaciones", methods=["POST"])
-def api_ofrecer_donaciones():
-    data = request.get_json()
-    return jsonify(ofrecer_donaciones(data))
-
-
-# 4️⃣ Baja solicitud
-@app.route("/api/baja-solicitud-donaciones", methods=["POST"])
-def api_baja_solicitud():
-    data = request.get_json()
-    return jsonify(baja_solicitud_donaciones(data))
-
-
-# 5️⃣ Publicar evento
-@app.route("/api/publicar-evento", methods=["POST"])
-def api_publicar_evento():
-    data = request.get_json()
-    return jsonify(publicar_evento(data))
-
-
-# 6️⃣ Baja evento
-@app.route("/api/baja-evento", methods=["POST"])
-def api_baja_evento():
-    data = request.get_json()
-    return jsonify(baja_evento(data))
-
-
-# 7️⃣ Adhesión a evento
-@app.route("/api/adhesion-evento/<int:id_organizador>", methods=["POST"])
-def api_adhesion_evento(id_organizador):
-    data = request.get_json()
-    return jsonify(adhesion_evento(id_organizador, data))
-
-
-if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
+    

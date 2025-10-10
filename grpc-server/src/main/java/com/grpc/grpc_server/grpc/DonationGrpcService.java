@@ -105,8 +105,8 @@ public class DonationGrpcService extends DonationServiceGrpc.DonationServiceImpl
 
     
 
-  @Override
-public void altaDonation(MyServiceClass.AltaDonationRequest request, StreamObserver<MyServiceClass.AltaDonationResponse> responseObserver) {
+    @Override
+    public void altaDonation(MyServiceClass.AltaDonationRequest request, StreamObserver<MyServiceClass.AltaDonationResponse> responseObserver) {
         boolean result = donationService.altaDonation(request);
         var responseBuilder = MyServiceClass.AltaDonationResponse.newBuilder();
 

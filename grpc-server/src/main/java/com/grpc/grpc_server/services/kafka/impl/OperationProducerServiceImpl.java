@@ -7,9 +7,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grpc.grpc_server.entities.kafka.Operation;
 import com.grpc.grpc_server.entities.kafka.OperationDonation;
 
+import com.grpc.grpc_server.producer.OperationProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -24,33 +26,28 @@ import com.grpc.grpc_server.repositories.kafka.OperationRepository;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class OpeServiceImplProducer implements OperationServiceProducer{
+public class OperationProducerServiceImpl implements OperationServiceProducer{
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private final ObjectMapper objectMapper;
     private final OperationRepository operationRepository;
 
-    private static final String TOPIC_CREATE = "alta-solicitud-donaciones";
-    private static final String TOPIC_TRANSFER = "transferencia";
-    private static final String TOPIC_CANCEL = "baja-solicitud-donaciones";
-    private static final String TOPIC_OFFER = "oferta";
+    @Autowired
+    OperationProducer operationProducer;
+
+
     @Transactional
-    public void createAndSendOperation(Operation operation) {
-        try {
+    public String createAndSendOperation(Operation operation) {
+        String result = "error";
+
+        // Enviar a Kafka
+        if (operationProducer.sendOperationCreated(operation)){
             // Persistir en DB
             operationRepository.save(operation);
 
-            // Enviar a Kafka
-            String message = objectMapper.writeValueAsString(operation);
-            kafkaTemplate.send(TOPIC_CREATE, message);
-
-            log.info("📥 Operación guardada y enviada a Kafka: {}", message);
-
-        } catch (JsonProcessingException e) {
-            log.error("❌ Error serializando operación para Kafka", e);
-        } catch (Exception e) {
-            log.error("❌ Error guardando operación en DB", e);
+            result = "Solicitud enviada y persistida";
+            log.info(result);
         }
+
+        return result;
     }
     /**
      * Envía un mensaje cuando se crea una operación.

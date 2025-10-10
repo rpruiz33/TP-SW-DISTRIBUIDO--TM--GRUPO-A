@@ -7,6 +7,9 @@ import com.grpc.grpc_server.entities.kafka.OperationDonation;
 
 public interface OperationServiceProducer {
 
+
+
+
     void sendOperationCreated(Operation operation);
     void sendTransfer(Operation operation, List<OperationDonation> donations);
     void sendCancelRequest(int idOffer, int idOrganization);

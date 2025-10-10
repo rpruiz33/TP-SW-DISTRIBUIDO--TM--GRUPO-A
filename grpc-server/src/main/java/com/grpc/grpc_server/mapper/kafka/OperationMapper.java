@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.grpc.grpc_server.MyServiceClass;
 import com.grpc.grpc_server.entities.grpc.Category;
 import com.grpc.grpc_server.entities.kafka.Operation;
 import com.grpc.grpc_server.entities.kafka.OperationDonation;
@@ -14,8 +15,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 
 public class OperationMapper {
+
+    @Value("${ong.id}")
+    static String ownONGId;
 
 
     /// ---------------------------------------------- DTOs ---------------------------------------------///
@@ -78,6 +83,23 @@ public class OperationMapper {
     
 
     ///request
+    public static RequestDTO toDTO(MyServiceClass.OperationRequest request) {
+        RequestDTO requestDTO = new RequestDTO();
+
+        requestDTO.setIdOrganizacionSolicitante(String.valueOf(ownONGId));
+        requestDTO.setIdSolicitud(String.valueOf(request.getIdOperationMessage()));
+
+        if (!request.getDonationsList().isEmpty()) {
+            requestDTO.setDonaciones(
+                    request.getDonationsList().stream()
+                            .map(d -> OperationDonationMapper.toDTO(d))
+                            .collect(Collectors.toList())
+            );
+        }
+
+        return requestDTO;
+    }
+
     public static Operation toEntity(RequestDTO dto, OperationType operationType) {
         Operation operation = new Operation();
         

@@ -20,7 +20,8 @@ public class OperationProducer {
 
     private static final String TOPIC = "alta-solicitud-donaciones";
 
-    public void sendOperationCreated(Operation operation) {
+    public boolean sendOperationCreated(Operation operation) {
+        boolean result =false;
         try {
             // Serializar la entidad a JSON
             String message = objectMapper.writeValueAsString(operation);
@@ -28,8 +29,12 @@ public class OperationProducer {
             kafkaTemplate.send(TOPIC, message);
             log.info("📤 Evento enviado a Kafka ({}): {}", TOPIC, message);
 
+            result=true;
+
         } catch (JsonProcessingException e) {
             log.error("❌ Error serializando operación para Kafka", e);
         }
+
+        return result;
     }
 }
