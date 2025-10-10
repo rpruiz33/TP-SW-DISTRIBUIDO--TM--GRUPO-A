@@ -14,7 +14,9 @@ public class EventAdhesion {
     @GeneratedValue(strategy = GenerationType.IDENTITY) 
     private int idEventAdhesion; 
 
-    // Voluntario propio (si lo manejás en tu sistema) 
+
+    @Column(name = "id_organization")
+    private int idOrganization;
 
     @Column(name = "id_volunteer")
     private int idVolunteer; 

@@ -90,3 +90,15 @@
   "idOrganizacion": "12345",
   "idEvento": "67890",
 }
+
+
+///MENSAJE PARA ADHERIRSE A EVENTO
+{
+  "idEvento": "67890",
+  "idOrganizacion":12345,
+  "idVoluntario": "123",
+  "emailVoluntario": "email@example",
+  "nombreVoluntario": "manolo",
+  "apellidoVoluntario": "lamas",
+  "telefonoVoluntario": "11111"
+}

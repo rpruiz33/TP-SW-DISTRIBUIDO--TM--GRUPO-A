@@ -19,6 +19,10 @@ public class ExternalEventConsumerServiceImpl implements ExternalEventConsumer {
     @Autowired
     ExternalEventRepository externalEventRepository;
 
+    @Override
+    public ExternalEvent getExternalEventWithAdhesions(int id) {
+       return externalEventRepository.findByIdExternalEventMessageWithAdhesions(id);
+    }
 
     @Override
     public void saveExternalEvent(ExternalEvent e) {
@@ -72,4 +76,7 @@ public class ExternalEventConsumerServiceImpl implements ExternalEventConsumer {
 
 
     }
+
+
+
 }
