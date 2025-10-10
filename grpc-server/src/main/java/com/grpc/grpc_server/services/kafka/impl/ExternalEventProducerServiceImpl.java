@@ -39,14 +39,14 @@ public class ExternalEventProducerServiceImpl implements ExternalEventProducerSe
                 ExternalEvent externalEvent = ExternalEventMapper.toEntity(
                                                 ExternalEventMapper.toDTO(event));
 
+                externalEventRepository.save(externalEvent);
+
+                ExternalEventMapper.ExternalEventDTO dtoKafka = ExternalEventMapper.toDTO(event);
+
                 //Enviamos mensaje KAFKA
-                if (externalEventProducer.sendExternalEventCreated(externalEvent)){
-                    //Guardamos en la BD
-                    externalEventRepository.save(externalEvent);
+                if (externalEventProducer.sendExternalEventCreated(dtoKafka)){
                     result="Evento Externo Generado con exito";
-
                 }else {
-
                     result="Error enviando mensaje kafka";
                 }
 

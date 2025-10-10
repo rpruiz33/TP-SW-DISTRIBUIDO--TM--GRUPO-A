@@ -1,6 +1,7 @@
 package com.grpc.grpc_server.producer;
 
 import com.grpc.grpc_server.entities.kafka.ExternalEvent;
+import com.grpc.grpc_server.mapper.kafka.ExternalEventMapper;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -23,11 +24,11 @@ public class ExternalEventProducer {
     private static final String DELETETOPIC = "baja-evento-solidario";
     private static final String ADHESIONTOPIC = "adhesion-evento-";
 
-    public boolean sendExternalEventCreated(ExternalEvent externalEvent) {
+    public boolean sendExternalEventCreated(ExternalEventMapper.ExternalEventDTO externalEventDTO) {
         boolean result =false;
         try {
             // Serializar la entidad a JSON
-            String message = objectMapper.writeValueAsString(externalEvent);
+            String message = objectMapper.writeValueAsString(externalEventDTO);
 
             kafkaTemplate.send(CREATETOPIC, message);
             log.info("📤 Evento enviado a Kafka ({}): {}", CREATETOPIC, message);
