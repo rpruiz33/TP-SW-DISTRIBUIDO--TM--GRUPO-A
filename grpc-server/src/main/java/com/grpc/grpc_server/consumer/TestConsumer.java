@@ -7,6 +7,8 @@ import com.grpc.grpc_server.mapper.kafka.EventAdhesionMapper;
 import com.grpc.grpc_server.services.kafka.impl.EventAdhesionConsumerServiceImpl;
 import com.grpc.grpc_server.services.kafka.impl.ExternalEventConsumerServiceImpl;
 
+import java.util.List;
+
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,8 +28,6 @@ import com.grpc.grpc_server.mapper.kafka.OperationMapper.RequestDTO;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.TransferDTO;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.OfferDTO;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.CancelRequestDTO;
-import com.grpc.grpc_server.repositories.kafka.OperationDonationRepository;
-import com.grpc.grpc_server.repositories.kafka.OperationRepository;
 import com.grpc.grpc_server.services.kafka.OperationServiceConsumer;
 
 import lombok.extern.slf4j.Slf4j;
@@ -48,27 +48,23 @@ public class TestConsumer {
     @Autowired
     private EventAdhesionConsumerServiceImpl eventAdhesionConsumerService;
 
-    @Autowired
-    private OperationDonationRepository donationRepository;
-
-    @Autowired
-    private OperationRepository operationRepository;
-
     @Value("${ong.id}")
     String ownONGId;
+
     ///-----------------------------------METODOS--------------------------------------------------////
     public boolean isOwnMessage(String message){
         boolean result=false;
 
         try{
-            //LOGICA DE VERIFICACION DE ID DE ORGANIZACION
             JsonNode root = objectMapper.readTree(message);
-            String idOrganizacion = root.path("idOrganizacion").asText();
+            List<String> posiblesCampos = List.of("idOrganizacion", "idOrganizacionDonante", "idOrganizacionSolicitante");
 
-            //SI EL MENSAJE ES NUESTRO, LO IGNORAMOS
-            if (ownONGId.equals(idOrganizacion)) {
-                log.debug("Mensaje propio detectado, ignorando...");
-                result=true;
+            for (String campo : posiblesCampos) {
+                String valor = root.path(campo).asText(null);
+                if (ownONGId.equals(valor)) {
+                    log.debug("Mensaje propio detectado por {}, ignorando...", campo);
+                    return true;
+                }
             }
 
         } catch (Exception e) {
@@ -79,18 +75,24 @@ public class TestConsumer {
         return result;
     }
 
-
-    ///-----------------------------------SOLICITUDES--------------------------------------------------////
+    ///-----------------------------------DONACIONES--------------------------------------------------////
     /// PUNTO 1 (publicar solicitudes)
     @KafkaListener(topics = "solicitud-donaciones", groupId = "grupo-unla")
     public void listenRequestDonations(String message) {
         
         try {
 
-            RequestDTO dto = objectMapper.readValue(message, RequestDTO.class);
-            Operation operation = OperationMapper.toEntity(dto, OperationType.SOLICITUD);
+            // Validación mínima antes de enviar al service
+            if (message == null || message.isBlank()) {
+                log.warn("Mensaje vacío recibido en baja-evento-externo");
+                return;
+            }
 
-            operationService.createOperation(operation);
+            if (!isOwnMessage(message)){
+                RequestDTO dto = objectMapper.readValue(message, RequestDTO.class);
+                Operation operation = OperationMapper.toEntity(dto, OperationType.SOLICITUD);
+                operationService.createOperation(operation);
+            }
 
         } catch (Exception e) {
             e.printStackTrace(); 
@@ -104,34 +106,17 @@ public class TestConsumer {
 
             // Validación mínima antes de enviar al service
             if (message == null || message.isBlank()) {
-                log.warn("Mensaje vacío recibido en baja-solicitud-donaciones");
+                log.warn("Mensaje vacío recibido en baja-evento-externo");
                 return;
             }
-
-            //Deserializar JSON a DTO
-            CancelRequestDTO cancelDTO =
-                objectMapper.readValue(message, OperationMapper.CancelRequestDTO.class);
-
-            // Llamada al service que contiene toda la lógica de procesamiento
-            operationService.processCancelRequest(cancelDTO);
+            if (!isOwnMessage(message)){
+        
+                CancelRequestDTO cancelDTO = objectMapper.readValue(message, OperationMapper.CancelRequestDTO.class);
+                operationService.processCancelRequest(cancelDTO);
+            }
 
         } catch (Exception e) {
             log.error("Error en TestConsumer procesando mensaje de baja", e);
-        }
-    }
-
-    /// PUNTO 3 (publicar ofertas)
-    @KafkaListener(topics = "oferta-donaciones", groupId = "grupo-unla")
-    public void listenOffer(String message) {
-        try {
-
-            OfferDTO dto = objectMapper.readValue(message, OfferDTO.class);
-            Operation operation = OperationMapper.toEntity(dto, OperationType.OFERTA);
-
-            operationService.createOperation(operation);
-
-        } catch (Exception e) {
-            
         }
     }
 
@@ -151,16 +136,49 @@ public class TestConsumer {
 
         try {
 
-            TransferDTO dto = objectMapper.readValue(message, TransferDTO.class); 
-            Operation operation = OperationMapper.toEntity(dto, OperationType.TRANSFERENCIA);
-            operationService.processTransfer(operation);
+            // Validación mínima antes de enviar al service
+            if (message == null || message.isBlank()) {
+                log.warn("Mensaje vacío recibido en baja-evento-externo");
+                return;
+            }
+
+            if (!isOwnMessage(message)){
+                TransferDTO dto = objectMapper.readValue(message, TransferDTO.class); 
+                Operation operation = OperationMapper.toEntity(dto, OperationType.TRANSFERENCIA);
+                operationService.processTransfer(operation);
+            }
 
         } catch (Exception e) {
             log.error("Error procesando mensaje de transferencia", e);
         }
          
-         
     }
+
+    /// PUNTO 3 (publicar ofertas)
+    @KafkaListener(topics = "oferta-donaciones", groupId = "grupo-unla")
+    public void listenOffer(String message) {
+        try {
+
+            // Validación mínima antes de enviar al service
+            if (message == null || message.isBlank()) {
+                log.warn("Mensaje vacío recibido en baja-evento-externo");
+                return;
+            }
+
+            if (!isOwnMessage(message)){
+
+                OfferDTO dto = objectMapper.readValue(message, OfferDTO.class);
+                Operation operation = OperationMapper.toEntity(dto, OperationType.OFERTA);
+                operationService.createOperation(operation);
+
+            }
+
+        } catch (Exception e) {
+            
+        }
+    }
+
+    ///-----------------------------------EVENTOS--------------------------------------------------////
 
     /// PUNTO 5 (publicar eventos)
     @KafkaListener(topics = "eventos-solidarios", groupId = "grupo-unla")

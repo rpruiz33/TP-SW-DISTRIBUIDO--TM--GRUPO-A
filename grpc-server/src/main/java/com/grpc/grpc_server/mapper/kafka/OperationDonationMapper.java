@@ -25,6 +25,7 @@ public class OperationDonationMapper {
         donation.setDescription(d.getDescripcion());
         donation.setQuantity(d.getCantidad());
         donation.setOperation(operation);
+        donation.setActivate(true);
         return donation;
     }
 

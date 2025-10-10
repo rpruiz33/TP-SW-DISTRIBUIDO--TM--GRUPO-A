@@ -6,7 +6,7 @@ import com.grpc.grpc_server.mapper.kafka.OperationMapper.CancelRequestDTO;
 
 public interface OperationServiceConsumer {
 
-    void createOperation(Operation operation);
+    boolean createOperation(Operation operation);
     void processTransfer(Operation operation);
     void processCancelRequest(CancelRequestDTO cancelRequestDTO);
 }

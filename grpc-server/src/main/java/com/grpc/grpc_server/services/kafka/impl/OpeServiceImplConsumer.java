@@ -37,9 +37,11 @@ public class OpeServiceImplConsumer implements OperationServiceConsumer{
     @Autowired
     private OperationDonationRepository operationDonationRepository; 
 
-    ///-------------------------------------OPERACIONES--------------------------------------------------////
+    ///PERSISTIR UNA OPERACION 
     @Override
-    public void createOperation(Operation operation) {
+    public boolean createOperation(Operation operation) {
+
+        boolean result = false;
         
         if( operationRepository.findByIdOperationMessageAndOperationType(operation.getIdOperationMessage(), operation.getOperationType()).isEmpty()){
             
@@ -57,13 +59,16 @@ public class OpeServiceImplConsumer implements OperationServiceConsumer{
                 }
             }
 
+            result = true;
+
         }else{
             log.info("Ya existe");
         }
 
+        return result;
     }
 
-    ///-------------------------------------BAJA SOLICITUD--------------------------------------------------////
+    ///ELIMINAR UNA SOLICITUD
     @Transactional
     public void processCancelRequest(CancelRequestDTO cancelRequestDTO) {
         try {
@@ -77,56 +82,72 @@ public class OpeServiceImplConsumer implements OperationServiceConsumer{
 
                 if ( deleteOperation != null) {
                     
-                    if(deleteOperation.isActivate()){
+                    if(deleteOperation.getIdOrganization() == cancelRequestDTO.getIdOrganizacionSolicitante()){
 
-                        // Marcar la operación como inactiva
-                        deleteOperation.setActivate(false);
-                        deleteOperation.setDateModification(LocalDateTime.now());
+                        if(deleteOperation.isActivate()){
+
+                            // Marcar la operación como inactiva
+                            deleteOperation.setActivate(false);
+                            deleteOperation.setDateModification(LocalDateTime.now());
+
+                            if (deleteOperation.getOperationDonations() != null) {
+                                for (OperationDonation od : deleteOperation.getOperationDonations()) {
+                                
+                                    od.setActivate(false);
+                                    operationDonationRepository.save(od);
+                                }
+                            }
+
+                            //Persistir cambio
+                            operationRepository.save(deleteOperation);
+
+                        }else{
+                            log.info("Ya está borrada");
+                        }
 
                     }else{
-                        log.info("Ya está borrada");
+                        log.info("No podés eliminar esta solicitud, no te corresponde");
                     }
 
                 }else{
                     log.info("No existe");
                 }
 
-            //Persistir cambios
-            operationRepository.save(deleteOperation);
-
-            log.info("Solicitud de donación {} de la organización {} dada de baja correctamente",
-                    cancelRequestDTO.getIdSolicitud(), cancelRequestDTO.getIdOrganizacionSolicitante());
-
         } catch (Exception e) {
             log.error("Error inesperado procesando baja de solicitud", e);
         }
     }
 
-    ///-------------------------------------TRANSFERENCIAS --------------------------------------------------////
-    /// 1) solo deberia consumir transferencia ajenas
-    /// 2) si no existe la donation deberia crearla?
-    /// 3) que pasa si no se crea la operation
+    ///CONSUMIR TRANSFERENCIA
+    /// 1) ¿si no existe la donation deberia crearla?
     @Override
     public void processTransfer(Operation operation) {
         try {
 
-            createOperation(operation);
+            if(createOperation(operation)){
 
-            if (operation.getOperationDonations() != null) {
-                for (OperationDonation od : operation.getOperationDonations()) {
+                if (operation.getOperationDonations() != null) {
 
-                    Donation donation = donationRepository.findByCategoryAndDescription(od.getCategory(), od.getDescription());
-                    
-                    if(donation != null){
-                        donation.setAmount(donation.getAmount() + od.getQuantity());
-                        donationRepository.save(donation);
+                    for (OperationDonation od : operation.getOperationDonations()) {
+
+                        Donation donation = donationRepository.findByCategoryAndDescription(od.getCategory(), od.getDescription());
+                        
+                        if(donation != null){
+
+                            donation.setAmount(donation.getAmount() + od.getQuantity());
+                            donationRepository.save(donation);
+
+                        }else{
+                            //acá se crearía
+
+                        }
                     }
-                    
                 }
+
+                log.info("Transferencias guardadas en la base de datos.");
+
             }
-
-            log.info("Transferencias guardadas en la base de datos.");
-
+    
         } catch (Exception e) {
             log.error("Error procesando transferencia", e);
         }

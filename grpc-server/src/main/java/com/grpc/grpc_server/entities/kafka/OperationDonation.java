@@ -26,6 +26,9 @@ public class OperationDonation {
     @Column(name = "quantity")
     private int quantity;
 
+    @Column(name = "activate")
+    private boolean activate;
+
     @ManyToOne
     @JoinColumn(name = "operation_id")  // Clave foránea a Operation
     //@JsonBackReference
