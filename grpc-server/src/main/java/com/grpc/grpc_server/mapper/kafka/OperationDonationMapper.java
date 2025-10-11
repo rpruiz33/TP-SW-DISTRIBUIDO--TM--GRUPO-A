@@ -30,6 +30,16 @@ public class OperationDonationMapper {
         return dto;
     }
 
+    public static OperationDonationDTO toDTO (OperationDonation operationDonation){
+        OperationDonationDTO dto = new OperationDonationDTO();
+
+        dto.setCategoria(String.valueOf(operationDonation.getCategory()));
+        dto.setDescripcion(operationDonation.getDescription());
+        dto.setCantidad(operationDonation.getQuantity());
+
+        return dto;
+    }
+
     public static OperationDonation toEntity(OperationDonationDTO d, Operation operation) {
         OperationDonation donation = new OperationDonation();
         donation.setCategory(Category.valueOf(d.getCategoria().toUpperCase()));

@@ -16,6 +16,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.method.P;
 
 public class OperationMapper {
 
@@ -86,7 +87,7 @@ public class OperationMapper {
     public static RequestDTO toDTO(MyServiceClass.OperationRequest request) {
         RequestDTO requestDTO = new RequestDTO();
 
-        requestDTO.setIdOrganizacionSolicitante(String.valueOf(ownONGId));
+        requestDTO.setIdOrganizacionSolicitante("1");
         requestDTO.setIdSolicitud(String.valueOf(request.getIdOperationMessage()));
 
         if (!request.getDonationsList().isEmpty()) {
@@ -100,23 +101,45 @@ public class OperationMapper {
         return requestDTO;
     }
 
+    ///request
+    public static RequestDTO toDTO(Operation operation) {
+        RequestDTO requestDTO = new RequestDTO();
+
+        requestDTO.setIdOrganizacionSolicitante(String.valueOf(operation.getIdOrganization()));
+        requestDTO.setIdSolicitud(String.valueOf(operation.getIdOperationMessage()));
+
+        if (!operation.getOperationDonations().isEmpty()) {
+            requestDTO.setDonaciones(
+                    operation.getOperationDonations().stream()
+                            .map(d -> OperationDonationMapper.toDTO(d))
+                            .collect(Collectors.toList())
+            );
+        }
+
+        return requestDTO;
+    }
+
     public static Operation toEntity(RequestDTO dto, OperationType operationType) {
         Operation operation = new Operation();
         
+    
         operation.setIdOperationMessage(Integer.parseInt(dto.getIdSolicitud().replaceAll("\\D", "")));
         operation.setIdOrganization(Integer.parseInt(dto.getIdOrganizacionSolicitante().replaceAll("\\D", "")));
         operation.setOperationType(operationType);
         operation.setActivate(true);
         operation.setDateRegistration(LocalDateTime.now());
         operation.setDateModification(LocalDateTime.now());
-
+       
         if (dto.getDonaciones() != null) {
+
             operation.setOperationDonations(
                 dto.getDonaciones().stream()
                    .map(d -> OperationDonationMapper.toEntity(d, operation))
                    .collect(Collectors.toList())
             );
+            
         }
+
 
         return operation;
     }

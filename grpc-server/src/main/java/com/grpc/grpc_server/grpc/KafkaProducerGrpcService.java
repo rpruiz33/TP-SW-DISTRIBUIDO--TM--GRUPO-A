@@ -29,18 +29,23 @@ public class KafkaProducerGrpcService extends KafkaServiceGrpc.KafkaServiceImplB
     @Override
     public void createOperation(MyServiceClass.OperationRequest request, StreamObserver<MyServiceClass.OperationResponse> responseObserver){
 
-        String result ="error";
+        String result = "";
+
+        
         switch (request.getOperationType().toUpperCase()){
 
-            case "SOLICITUD":{
+            case "SOLICITUD":
+
                 RequestDTO dto = OperationMapper.toDTO(request);
                 Operation operation = OperationMapper.toEntity(dto,OperationType.SOLICITUD );
                 result= operationProducerServiceImpl.createAndSendOperation(operation);
-            }
-
-            case "TRANSEFERENCIA":
+            
+            case "TRANSFERENCIA":
+            case "OFERTA":
+            case "BAJA":
+            
         }
-
+        
         // Construir y enviar la respuesta
         MyServiceClass.OperationResponse response = MyServiceClass.OperationResponse.newBuilder()
                 .setSuccess(true)

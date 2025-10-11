@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grpc.grpc_server.entities.kafka.Operation;
 import com.grpc.grpc_server.entities.kafka.OperationDonation;
-
+import com.grpc.grpc_server.mapper.kafka.OperationMapper;
 import com.grpc.grpc_server.producer.OperationProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,19 +33,21 @@ public class OperationProducerServiceImpl implements OperationServiceProducer{
     @Autowired
     private OperationProducer operationProducer;
 
-
-
     @Transactional
     public String createAndSendOperation(Operation operation) {
-        String result = "error";
+        String result = "";
+
+         // Persistir en DB
+        operationRepository.save(operation);
+
+        //transformar a dto
+        OperationMapper.RequestDTO dto = OperationMapper.toDTO(operation);
 
         // Enviar a Kafka
-        if (operationProducer.sendOperationCreated(operation)){
-            // Persistir en DB
-            operationRepository.save(operation);
-
-            result = "Solicitud enviada y persistida";
-            log.info(result);
+        if(operationProducer.sendOperationCreated(dto)){
+            result = "creado y enviado correctamente";
+        }else{
+            result = "no se pudo enviar";
         }
 
         return result;
