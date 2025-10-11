@@ -80,10 +80,97 @@ public class OperationMapper {
         private List<OperationDonationDTO> donaciones;
     }
 
-    ///--------------------------------------MAPEO A ENTIDADAD-------------------------------------------------///
+    ///--------------------------------------MAPEO A DTO-------------------------------------------------///
     
+    
+    
+    ///PROTO --> OFFERDTO
+    public static CancelRequestDTO toCancelRequestDTO(MyServiceClass.OperationRequest request) {
+        
+        CancelRequestDTO cancelRequestDTO = new CancelRequestDTO();
 
-    ///request
+        cancelRequestDTO.setIdOrganizacionSolicitante(1);
+        cancelRequestDTO.setIdSolicitud(request.getIdOperationMessage());
+
+        return cancelRequestDTO;
+    }
+    ///PROTO --> OFFERDTO
+    public static OfferDTO toOfferDTO(MyServiceClass.OperationRequest request) {
+        OfferDTO OfferDTO = new OfferDTO();
+
+        OfferDTO.setIdOrganizacionDonante("1");
+        OfferDTO.setIdOferta(String.valueOf(request.getIdOperationMessage()));
+
+        if (!request.getDonationsList().isEmpty()) {
+            OfferDTO.setDonaciones(
+                    request.getDonationsList().stream()
+                            .map(d -> OperationDonationMapper.toDTO(d))
+                            .collect(Collectors.toList())
+            );
+        }
+
+        return OfferDTO;
+    }
+
+    ///ENTIDAD --> REQUESTDTO
+    public static OfferDTO toOfferDTO(Operation operation) {
+        OfferDTO offerDTO = new OfferDTO();
+
+        offerDTO.setIdOrganizacionDonante(String.valueOf(operation.getIdOrganization()));
+        offerDTO.setIdOferta(String.valueOf(operation.getIdOperationMessage()));
+
+        if (!operation.getOperationDonations().isEmpty()) {
+            offerDTO.setDonaciones(
+                    operation.getOperationDonations().stream()
+                            .map(d -> OperationDonationMapper.toDTO(d))
+                            .collect(Collectors.toList())
+            );
+        }
+
+        return offerDTO;
+    }
+
+
+
+    ///PROTO --> TRANSFERDTO
+    public static TransferDTO toTransferDTO(MyServiceClass.OperationRequest request) {
+        TransferDTO transferDTO = new TransferDTO();
+
+        transferDTO.setIdOrganizacionDonante("1");
+        transferDTO.setIdSolicitud(String.valueOf(request.getIdOperationMessage()));
+
+        if (!request.getDonationsList().isEmpty()) {
+            transferDTO.setDonaciones(
+                    request.getDonationsList().stream()
+                            .map(d -> OperationDonationMapper.toDTO(d))
+                            .collect(Collectors.toList())
+            );
+        }
+
+        return transferDTO;
+    }
+
+    ///ENTIDAD --> REQUESTDTO
+    public static TransferDTO toTransferDTO(Operation operation) {
+        TransferDTO transferDTO = new TransferDTO();
+
+        transferDTO.setIdOrganizacionDonante(String.valueOf(operation.getIdOrganization()));
+        transferDTO.setIdSolicitud(String.valueOf(operation.getIdOperationMessage()));
+
+        if (!operation.getOperationDonations().isEmpty()) {
+            transferDTO.setDonaciones(
+                    operation.getOperationDonations().stream()
+                            .map(d -> OperationDonationMapper.toDTO(d))
+                            .collect(Collectors.toList())
+            );
+        }
+
+        return transferDTO;
+    }
+
+
+
+    ///PROTO --> REQUESTDTO
     public static RequestDTO toDTO(MyServiceClass.OperationRequest request) {
         RequestDTO requestDTO = new RequestDTO();
 
@@ -101,7 +188,7 @@ public class OperationMapper {
         return requestDTO;
     }
 
-    ///request
+    ///ENTIDAD --> REQUESTDTO
     public static RequestDTO toDTO(Operation operation) {
         RequestDTO requestDTO = new RequestDTO();
 
@@ -119,6 +206,8 @@ public class OperationMapper {
         return requestDTO;
     }
 
+
+    ///--------------------------------------MAPEO A ENTIDADAD-------------------------------------------------///
     public static Operation toEntity(RequestDTO dto, OperationType operationType) {
         Operation operation = new Operation();
         

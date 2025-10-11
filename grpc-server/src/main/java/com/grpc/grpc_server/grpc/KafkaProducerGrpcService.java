@@ -1,13 +1,17 @@
 package com.grpc.grpc_server.grpc;
 
 
+import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
 import com.grpc.grpc_server.DonationServiceGrpc;
 import com.grpc.grpc_server.KafkaServiceGrpc;
 import com.grpc.grpc_server.MyServiceClass;
 import com.grpc.grpc_server.entities.kafka.Operation;
 import com.grpc.grpc_server.entities.kafka.OperationType;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper;
+import com.grpc.grpc_server.mapper.kafka.OperationMapper.CancelRequestDTO;
+import com.grpc.grpc_server.mapper.kafka.OperationMapper.OfferDTO;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.RequestDTO;
+import com.grpc.grpc_server.mapper.kafka.OperationMapper.TransferDTO;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.RequestDTO;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.RequestDTO;
 import com.grpc.grpc_server.services.kafka.impl.ExternalEventProducerServiceImpl;
@@ -35,15 +39,27 @@ public class KafkaProducerGrpcService extends KafkaServiceGrpc.KafkaServiceImplB
         switch (request.getOperationType().toUpperCase()){
 
             case "SOLICITUD":
-
                 RequestDTO dto = OperationMapper.toDTO(request);
                 Operation operation = OperationMapper.toEntity(dto,OperationType.SOLICITUD );
                 result= operationProducerServiceImpl.createAndSendOperation(operation);
-            
+            break;
+
             case "TRANSFERENCIA":
+                TransferDTO dto2 = OperationMapper.toTransferDTO(request);
+                Operation operation2 = OperationMapper.toEntity(dto2,OperationType.TRANSFERENCIA );
+                result = operationProducerServiceImpl.processTransfer(operation2);
+            break;
+
             case "OFERTA":
-            case "BAJA":
+                OfferDTO dto3 = OperationMapper.toOfferDTO(request);
+                Operation operation3 = OperationMapper.toEntity(dto3,OperationType.OFERTA );
+                result = operationProducerServiceImpl.createAndSendOperation(operation3);
+            break;
             
+            default:
+                CancelRequestDTO dto4 = OperationMapper.toCancelRequestDTO(request);
+                result = operationProducerServiceImpl.processCancelRequest(dto4);
+            break;
         }
         
         // Construir y enviar la respuesta
