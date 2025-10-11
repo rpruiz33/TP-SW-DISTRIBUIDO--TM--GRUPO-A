@@ -52,25 +52,14 @@ public class OperationProducerServiceImpl implements OperationServiceProducer{
     public String createAndSendOperation(Operation operation) {
         String result = "";
 
-         // Persistir en DB
-        Operation operationSaved = operationRepository.save(operation);
+        // reutilizo el codigo del consumer para persistir un operation
+        // envío el mensaje por kafka al topico correspondiente
+        if(operationServiceConsumer.createOperation(operation) && operationProducer.sendOperationCreated(operation)){
 
-        // guardar donaciones asociadas
-        if (operation.getOperationDonations() != null) {
-            for (OperationDonation od : operation.getOperationDonations()) {
-                if (od.getQuantity() <= 0) {
-                    throw new IllegalArgumentException("La cantidad de la donación debe ser mayor a 0");
-                }
-                od.setOperation(operationSaved);
-                operationDonationRepository.save(od);
-            }
-        }
-
-        // Enviar a Kafka
-        if(operationProducer.sendOperationCreated(operation)){
             result = "creado y enviado correctamente";
         }else{
-            result = "no se pudo enviar";
+
+            result = "no se pudo crear y enviar";
         }
 
         return result;
@@ -83,49 +72,56 @@ public class OperationProducerServiceImpl implements OperationServiceProducer{
 
         String result = "";
 
-        // Persistir en DB
-        Operation operationSaved = operationRepository.save(operation);
+        operationServiceConsumer.createOperation(operation);
 
-        // guardar donaciones asociadas
+        boolean flag = true;
+
         if (operation.getOperationDonations() != null) {
-            for (OperationDonation od : operation.getOperationDonations()) {
-                if (od.getQuantity() <= 0) {
-                    throw new IllegalArgumentException("La cantidad de la donación debe ser mayor a 0");
+
+            List<OperationDonation> od = operation.getOperationDonations();
+            int size = od.size();
+            int i = 0;
+            
+
+            while (flag == true && i<size ) {
+
+                Donation donation = donationRepository.findByCategoryAndDescription(od.get(i).getCategory(), od.get(i).getDescription());
+
+                if( (donation == null) || (donation.getAmount() < od.get(i).getQuantity())){
+                    result = "No existe esa donacion en el inventario o bien la cantidad supera el stock disponible";
+                    flag = false;
                 }
-                od.setOperation(operationSaved);
-                operationDonationRepository.save(od);
-            }
-        }
-
-        if (operation.getOperationDonations() != null) {
-
-            for (OperationDonation od : operation.getOperationDonations()) {
-
-                Donation donation = donationRepository.findByCategoryAndDescription(od.getCategory(), od.getDescription());
                 
-                if(donation != null){
-
-                    donation.setAmount(donation.getAmount() - od.getQuantity());
-                    donationRepository.save(donation);
-
-                }else{
-                    //acá se crearía
-
-                }
+                i++;
             }
+
+            if(flag != false){
+                
+                for (OperationDonation operationDonation : operation.getOperationDonations()) {
+
+                    Donation donation = donationRepository.findByCategoryAndDescription(operationDonation.getCategory(), operationDonation.getDescription());
+                    
+                    donation.setAmount(donation.getAmount() - operationDonation.getQuantity());
+                    donationRepository.save(donation);
+                    
+                }
+                
+            }
+        
         }
 
         // Enviar a Kafka
-        if(operationProducer.sendOperationCreated(operation)){
+        if(operationProducer.sendOperationCreated(operation) && flag == true){
             result = "creado y enviado correctamente";
         }else{
-            result = "no se pudo enviar";
+            result = "no se pudo enviar" + result;
         }
 
         return result;
     }
 
     public String processCancelRequest(CancelRequestDTO cancelRequestDTO){
+        
         String result = "baja de solicitud";
 
         operationServiceConsumer.processCancelRequest(cancelRequestDTO);
@@ -140,64 +136,4 @@ public class OperationProducerServiceImpl implements OperationServiceProducer{
         return result;
     }
     
-    /**
-     * Envía un mensaje cuando se crea una operación.
-
-    public void sendOperationCreated(Operation operation) {
-        try {
-            String message = objectMapper.writeValueAsString(operation);
-            kafkaTemplate.send(TOPIC_CREATE, message);
-            log.info("📤 Evento enviado a Kafka ({}): {}", TOPIC_CREATE, message);
-        } catch (JsonProcessingException e) {
-            log.error("❌ Error serializando operación para Kafka", e);
-        }
-    }
-
-
-     * Envía un mensaje de transferencia.
-
-    public void sendTransfer(Operation operation, List<OperationDonation> donations) {
-        try {
-            String message = objectMapper.writeValueAsString(donations);
-            kafkaTemplate.send(TOPIC_TRANSFER, message);
-            log.info("📤 Transferencia enviada a Kafka ({}): OperationId={}, donations={}",
-                      TOPIC_TRANSFER, operation.getIdOperationMessage(), message);
-        } catch (JsonProcessingException e) {
-            log.error("❌ Error serializando transferencias para Kafka", e);
-        }
-    }
-
-
-     * Envía un mensaje de baja de solicitud.
-
-    public void sendCancelRequest(int idOffer, int idOrganization) {
-        try {
-            var dto = new com.grpc.grpc_server.mapper.kafka.OperationMapper.CancelRequestDTO(idOrganization, idOffer);
-            String message = objectMapper.writeValueAsString(dto);
-            kafkaTemplate.send(TOPIC_CANCEL, message);
-            log.info("📤 Solicitud de baja enviada a Kafka ({}): {}", TOPIC_CANCEL, message);
-        } catch (JsonProcessingException e) {
-            log.error("❌ Error serializando baja de solicitud para Kafka", e);
-        }
-    }
-
-
-     * Envía un mensaje de oferta.
-
-    public void sendOffer(Operation operation, List<OperationDonation> donations) {
-        try {
-            // Crear estructura simplificada para la oferta
-            var offerMessage = new java.util.HashMap<String, Object>();
-            offerMessage.put("idOffer", operation.getIdOperationMessage());
-            offerMessage.put("idOrganizationDonante", operation.getIdOrganization());
-            offerMessage.put("donations", donations);
-
-            String message = objectMapper.writeValueAsString(offerMessage);
-            kafkaTemplate.send(TOPIC_OFFER, message);
-            log.info("📤 Oferta enviada a Kafka ({}): {}", TOPIC_OFFER, message);
-        } catch (JsonProcessingException e) {
-            log.error("❌ Error serializando oferta para Kafka", e);
-        }
-    }
-     */
 }

@@ -28,7 +28,8 @@ public class OperationProducer {
         boolean result =false;
         try {
 
-            String message = "";
+            String message = ""; // loque se manda por kafka
+            
             switch (String.valueOf(operation.getOperationType())){
 
                 case "SOLICITUD":
