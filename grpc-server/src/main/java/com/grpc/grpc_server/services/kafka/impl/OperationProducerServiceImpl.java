@@ -14,6 +14,7 @@ import com.grpc.grpc_server.producer.OperationProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.kafka.common.quota.ClientQuotaAlteration.Op;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -66,9 +67,10 @@ public class OperationProducerServiceImpl implements OperationServiceProducer{
     }
 
 
-    ///validar la cantidad de la transferencia.
-    ///validar que esté registrada la donacion en nuestro inventario.
-    public String processTransfer(Operation operation){
+    ///valida la cantidad de la transferencia.
+    ///valida que esté registrada la donacion en nuestro inventario.
+    ///valida que exista una solicitud que responda a la transferencia
+    public String processTransfer(Operation operation, String idOrganizacionSolicitante){
 
         String result = "";
 
@@ -110,11 +112,17 @@ public class OperationProducerServiceImpl implements OperationServiceProducer{
         
         }
 
+
+        OperationMapper.TransferDTO dto = OperationMapper.toTransferDTO(operation);
+
         // Enviar a Kafka
-        if(operationProducer.sendOperationCreated(operation) && flag == true){
-            result = "creado y enviado correctamente";
-        }else{
-            result = "no se pudo enviar" + result;
+        if(flag == true){
+
+            if(operationProducer.sendTransferCreated(dto, idOrganizacionSolicitante) ){
+                result = "creado y enviado correctamente";
+            }else{
+                result = "no se pudo enviar" + result;
+            }
         }
 
         return result;
@@ -136,4 +144,10 @@ public class OperationProducerServiceImpl implements OperationServiceProducer{
         return result;
     }
     
+
+    public int existsRequest(Operation operation){
+        int idOrganizacionSolicitante = 0;  
+
+        return idOrganizacionSolicitante;
+    }
 }

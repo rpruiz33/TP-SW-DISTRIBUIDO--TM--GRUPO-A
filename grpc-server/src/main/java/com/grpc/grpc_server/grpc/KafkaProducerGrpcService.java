@@ -51,7 +51,7 @@ public class KafkaProducerGrpcService extends KafkaServiceGrpc.KafkaServiceImplB
             case "TRANSFERENCIA":
                 TransferDTO dto2 = OperationMapper.toTransferDTO(request);
                 Operation operation2 = OperationMapper.toEntity(dto2,OperationType.TRANSFERENCIA );
-                result = operationProducerServiceImpl.processTransfer(operation2);
+                result = operationProducerServiceImpl.processTransfer(operation2, String.valueOf(request.getIdOrganization()));
             break;
 
             case "OFERTA":

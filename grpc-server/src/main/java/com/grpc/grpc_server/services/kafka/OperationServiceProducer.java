@@ -12,8 +12,10 @@ public interface OperationServiceProducer {
 
 
     String createAndSendOperation(Operation operation);
-    String processTransfer(Operation operation);
+    String processTransfer(Operation operation, String idOrganizacionSolicitante);
     String processCancelRequest(CancelRequestDTO cancelRequestDTO);
+   
+
     //void sendTransfer(Operation operation, List<OperationDonation> donations);
     //void sendCancelRequest(int idOffer, int idOrganization);
     //void sendOffer(Operation operation, List<OperationDonation> donations);
