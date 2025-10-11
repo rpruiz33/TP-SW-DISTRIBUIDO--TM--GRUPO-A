@@ -1,14 +1,11 @@
 package com.grpc.grpc_server.services.kafka.impl;
 import java.time.LocalDateTime;
 
-
-import com.grpc.grpc_server.entities.grpc.Donation;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
+import com.grpc.grpc_server.entities.grpc.Donation;
 import com.grpc.grpc_server.entities.kafka.Operation;
 import com.grpc.grpc_server.entities.kafka.OperationDonation;
 import com.grpc.grpc_server.entities.kafka.OperationType;
@@ -135,10 +132,18 @@ public class OperationConsumerServiceImpl implements OperationServiceConsumer{
                             donation.setAmount(donation.getAmount() + od.getQuantity());
                             donationRepository.save(donation);
 
-                        }else{
-                            //acá se crearía
+                        }{
+                // Crear nueva donación
+                Donation newDonation = new Donation();
+                newDonation.setCategory(od.getCategory());
+                newDonation.setDescription(od.getDescription());
+                newDonation.setAmount(od.getQuantity());
+                newDonation.setDateRegistration(LocalDateTime.now());
 
-                        }
+                donationRepository.save(newDonation);
+                log.info("Donación creada: {} - {} (cantidad: {})",
+                        od.getCategory(), od.getDescription(), od.getQuantity());
+            }
                     }
                 }
 

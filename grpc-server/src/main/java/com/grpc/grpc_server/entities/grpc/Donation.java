@@ -63,7 +63,8 @@ public class Donation {
     private List<DonationsAtEvents> events;
 
     
-    // Getters y Setters
-}
+        // Getters y Setters
+    }
+
 
 
