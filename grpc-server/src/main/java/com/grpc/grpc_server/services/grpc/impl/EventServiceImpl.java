@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import com.grpc.grpc_server.services.kafka.impl.ExternalEventProducerServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +44,9 @@ public class EventServiceImpl implements EventService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private ExternalEventProducerServiceImpl externalEventProducerService;
 
 
     // Hora actual: 10:57 AM -03 del 12/09/2025
@@ -85,22 +89,44 @@ public class EventServiceImpl implements EventService {
     }
  
     @Transactional
-    public boolean deleteEvent(DeleteEventRequest request){
+    public String deleteEvent(DeleteEventRequest request){
         
-        boolean result = false;
+        String result ;
         
         Event event = eventRepository.findByIdEvent(request.getId());
 
-        if(event != null && event.getDateRegistration().isAfter(NOW)){
-        
-            // Borro relaciones primero
-            memberAtEventRepository.deleteByEvent(event);
-            donationsAtEventsRepository.deleteByEvent(event);
+        if(event != null ){
 
-            // Despues borro el evento en sí
-            eventRepository.delete(event);
-            
-            result = true;
+            if (event.getDateRegistration().isAfter(NOW)){
+                // Borro relaciones primero
+                memberAtEventRepository.deleteByEvent(event);
+                donationsAtEventsRepository.deleteByEvent(event);
+
+                // Despues borro el evento en sí
+                eventRepository.delete(event);
+
+                //IMPLEMENTACION CON KAFKA
+                String resultKafka = externalEventProducerService.processCancelExternalEvent(event.getIdEvent());
+
+                switch (resultKafka) {
+
+                    case "Evento externo eliminado":
+                    case "No se publico este evento en externos":
+                        result = "Evento eliminado con exito-" + resultKafka;
+                        break;
+
+                    case "Error enviando mensaje de kafka":
+                    default:
+                        result=resultKafka;
+                    break;
+                }
+            }else{
+                result="No se puede eliminar un evento pasado";
+            }
+
+        } else {
+
+            result="No se encontro el evento a eliminar";
         }
 
         return result;

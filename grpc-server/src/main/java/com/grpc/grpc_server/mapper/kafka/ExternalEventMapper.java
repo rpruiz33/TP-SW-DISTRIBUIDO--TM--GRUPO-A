@@ -64,6 +64,16 @@ public class ExternalEventMapper {
         return externalEventDTO;
     }
 
+    public static CancelExternalEventDTO toDTO(ExternalEvent event) {
+
+        CancelExternalEventDTO externalEventDTO = new CancelExternalEventDTO();
+
+        externalEventDTO.setIdOrganizacion("1");
+        externalEventDTO.setIdEvento(String.valueOf(event.getIdExternalEventMessage()));
+
+        return externalEventDTO;
+    }
+
 
     ///--------------------------------------MAPEO A ENTIDADAD-------------------------------------------------///
     public static ExternalEvent toEntity(ExternalEventDTO dto) {

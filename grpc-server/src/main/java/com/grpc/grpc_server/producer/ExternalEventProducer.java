@@ -22,7 +22,7 @@ public class ExternalEventProducer {
 
     private static final String CREATETOPIC = "eventos-solidarios";
     private static final String DELETETOPIC = "baja-evento-solidario";
-    private static final String ADHESIONTOPIC = "adhesion-evento-";
+
 
     public boolean sendExternalEventCreated(ExternalEventMapper.ExternalEventDTO externalEventDTO) {
         boolean result =false;
@@ -32,6 +32,24 @@ public class ExternalEventProducer {
 
             kafkaTemplate.send(CREATETOPIC, message);
             log.info("📤 Evento enviado a Kafka ({}): {}", CREATETOPIC, message);
+
+            result=true;
+
+        } catch (JsonProcessingException e) {
+            log.error("❌ Error serializando operación de crear evento externo para Kafka", e);
+        }
+
+        return result;
+    }
+
+    public boolean sendExternalEventDeleted(ExternalEventMapper.CancelExternalEventDTO cancelExternalEventDTO) {
+        boolean result =false;
+        try {
+            // Serializar la entidad a JSON
+            String message = objectMapper.writeValueAsString(cancelExternalEventDTO);
+
+            kafkaTemplate.send(DELETETOPIC, message);
+            log.info("📤 Evento enviado a Kafka ({}): {}", DELETETOPIC, message);
 
             result=true;
 

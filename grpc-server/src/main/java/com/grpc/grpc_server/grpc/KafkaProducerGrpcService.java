@@ -14,6 +14,7 @@ import com.grpc.grpc_server.mapper.kafka.OperationMapper.RequestDTO;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.TransferDTO;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.RequestDTO;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.RequestDTO;
+import com.grpc.grpc_server.services.kafka.impl.EventAdhesionProducerServiceImpl;
 import com.grpc.grpc_server.services.kafka.impl.ExternalEventProducerServiceImpl;
 import com.grpc.grpc_server.services.kafka.impl.OperationProducerServiceImpl;
 import io.grpc.stub.StreamObserver;
@@ -29,6 +30,9 @@ public class KafkaProducerGrpcService extends KafkaServiceGrpc.KafkaServiceImplB
 
     @Autowired
     OperationProducerServiceImpl operationProducerServiceImpl;
+
+    @Autowired
+    EventAdhesionProducerServiceImpl eventAdhesionProducerServiceImpl;
 
     @Override
     public void createOperation(MyServiceClass.OperationRequest request, StreamObserver<MyServiceClass.OperationResponse> responseObserver){
@@ -75,18 +79,52 @@ public class KafkaProducerGrpcService extends KafkaServiceGrpc.KafkaServiceImplB
     }
 
     @Override
-    public void createExternalEvent(MyServiceClass.ExternalEventRequest request,  StreamObserver<MyServiceClass.GenericResponse> responseObserver){
-        String result;
+    public void createExternalEvent(MyServiceClass.ExternalEventRequest request,  StreamObserver<MyServiceClass.GenericResponse> responseObserver) {
+        String result = externalEventProducerService.createExternalEvent(request.getId());
+        var response = MyServiceClass.GenericResponse.newBuilder();
 
-        result = externalEventProducerService.createExternalEvent(request.getId());
+        switch (result) {
+            case "Evento Externo Generado con exito":
+                response.setSuccess(true).setMessage(result);
+                break;
+
+            case "Error enviando mensaje kafka":
+            case "No se encontro un evento con el ID ingresado":
+            case "ID enviado no valido":
+            default:
+                response.setSuccess(false).setMessage(result);
+                break;
+        }
 
         // Construir y enviar la respuesta
-        MyServiceClass.GenericResponse response = MyServiceClass.GenericResponse.newBuilder()
-                .setSuccess(true)
-                .setMessage(result)
-                .build();
+        responseObserver.onNext(response.build());
+        responseObserver.onCompleted();
+    }
 
-        responseObserver.onNext(response);
+    @Override
+    public void createEventAdhesion(MyServiceClass.EventAdhesionRequest request,  StreamObserver<MyServiceClass.GenericResponse> responseObserver) {
+        String result = eventAdhesionProducerServiceImpl.saveEventAdhesion(request.getIdExternalEvent(),request.getEmailVolunteer());
+        var response = MyServiceClass.GenericResponse.newBuilder();
+
+
+        switch (result) {
+            case "Voluntario adherido al evento con exito":
+                response.setSuccess(true).setMessage(result);
+                break;
+
+            case "ID/Email invalido":
+            case "No se encontro el Evento para adherirse":
+            case "Volutario ya registrado en el Evento externo":
+            case "Error encontrando el Voluntario":
+            case "Error enviando mensaje kafka para adherir volunttario":
+            default:
+                response.setSuccess(false).setMessage(result);
+                break;
+        }
+
+
+        // Construir y enviar la respuesta
+        responseObserver.onNext(response.build());
         responseObserver.onCompleted();
     }
 

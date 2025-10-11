@@ -17,10 +17,10 @@ import java.time.LocalDateTime;
 public class ExternalEventConsumerServiceImpl implements ExternalEventConsumerService {
 
     @Autowired
-    ExternalEventRepository externalEventRepository;
+    private ExternalEventRepository externalEventRepository;
 
     @Autowired
-    EventAdhesionRepository eventAdhesionRepository;
+    private EventAdhesionRepository eventAdhesionRepository;
 
     @Override
     public ExternalEvent getExternalEventWithAdhesions(int id) {

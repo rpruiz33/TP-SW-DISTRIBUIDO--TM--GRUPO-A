@@ -13,7 +13,7 @@ public class EventAdhesionConsumerServiceImpl implements EventAdhesionConsumerSe
 
 
     @Autowired
-    EventAdhesionRepository eventAdhesionRepository;
+    private EventAdhesionRepository eventAdhesionRepository;
 
     @Override
     public void saveEventAdhesion(EventAdhesion eventAdhesion) {

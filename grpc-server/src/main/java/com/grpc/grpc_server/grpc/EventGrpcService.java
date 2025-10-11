@@ -72,13 +72,22 @@ public class EventGrpcService extends EventServiceGrpc.EventServiceImplBase {
     @Override
     public void deleteEvent(DeleteEventRequest request, StreamObserver<DeleteEventResponse> responseObserver){
 
-        boolean result = eventService.deleteEvent(request);
+        String result = eventService.deleteEvent(request);
         var responseBuilder = DeleteEventResponse.newBuilder();
 
-        if (result){
-            responseBuilder.setSuccess(true).setMessage("Evento Eliminado");
-        }else{
-            responseBuilder.setSuccess(false).setMessage("No se pudo eliminar el Evento");
+        switch (result){
+            case "Evento eliminado con exito-Evento externo eliminado":
+            case "Evento eliminado con exito-No se publico este evento en externos":
+                responseBuilder.setSuccess(true).setMessage(result);
+                break;
+
+            case "Error enviando mensaje de kafka":
+            case "No se puede eliminar un evento pasado":
+            case "No se encontro el evento a eliminar":
+            default:
+                responseBuilder.setSuccess(false).setMessage(result);
+                break;
+
         }
 
         responseObserver.onNext(responseBuilder.build());

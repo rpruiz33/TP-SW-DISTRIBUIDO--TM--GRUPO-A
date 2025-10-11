@@ -1,5 +1,6 @@
 package com.grpc.grpc_server.mapper.kafka;
 
+import com.grpc.grpc_server.entities.grpc.User;
 import com.grpc.grpc_server.entities.kafka.EventAdhesion;
 import com.grpc.grpc_server.entities.kafka.ExternalEvent;
 import com.grpc.grpc_server.entities.kafka.Operation;
@@ -34,7 +35,21 @@ public class EventAdhesionMapper {
         private String telefonoVoluntario;
 
     }
+    ///--------------------------------------MAPEO A DTO-------------------------------------------------///
+    public static EventAdhesionDTO toDTO(User user, int idEvento) {
 
+        EventAdhesionDTO eventAdhesionDTO = new EventAdhesionDTO();
+        eventAdhesionDTO.setIdEvento(String.valueOf(idEvento));
+        eventAdhesionDTO.setIdOrganizacion("1");
+        eventAdhesionDTO.setIdVoluntario(String.valueOf(user.getIdUser()));
+        eventAdhesionDTO.setEmailVoluntario(user.getEmail());
+        eventAdhesionDTO.setNombreVoluntario(user.getName());
+        eventAdhesionDTO.setApellidoVoluntario(user.getLastName());
+        eventAdhesionDTO.setTelefonoVoluntario(user.getPhone());
+
+
+        return eventAdhesionDTO;
+    }
 
 
     ///--------------------------------------MAPEO A ENTIDADAD-------------------------------------------------///

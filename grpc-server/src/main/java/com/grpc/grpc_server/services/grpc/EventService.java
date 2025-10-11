@@ -12,7 +12,7 @@ public interface EventService {
     
     List<Event> getAllEvents();
     List<Event> getAllEventsWithRelations();
-    boolean deleteEvent(DeleteEventRequest request);
+    String deleteEvent(DeleteEventRequest request);
     boolean createEvent(CreateEventRequest request);
     boolean toggleMemberToEvent(MyServiceClass.ToggleMemberRequest request);
 

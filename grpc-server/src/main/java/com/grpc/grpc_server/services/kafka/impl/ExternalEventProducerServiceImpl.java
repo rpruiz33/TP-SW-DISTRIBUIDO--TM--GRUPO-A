@@ -5,6 +5,7 @@ import com.grpc.grpc_server.entities.kafka.ExternalEvent;
 import com.grpc.grpc_server.mapper.kafka.ExternalEventMapper;
 import com.grpc.grpc_server.producer.ExternalEventProducer;
 import com.grpc.grpc_server.repositories.grpc.EventRepository;
+import com.grpc.grpc_server.repositories.kafka.EventAdhesionRepository;
 import com.grpc.grpc_server.repositories.kafka.ExternalEventRepository;
 import com.grpc.grpc_server.services.kafka.ExternalEventProducerService;
 import lombok.extern.slf4j.Slf4j;
@@ -17,51 +18,79 @@ import org.springframework.stereotype.Service;
 public class ExternalEventProducerServiceImpl implements ExternalEventProducerService {
 
     @Autowired
-    ExternalEventRepository externalEventRepository;
+    private ExternalEventRepository externalEventRepository;
 
     @Autowired
-    EventRepository eventRepository;
+    private EventRepository eventRepository;
 
     @Autowired
-    ExternalEventProducer externalEventProducer;
+    private EventAdhesionRepository eventAdhesionRepository;
+
+    @Autowired
+    private ExternalEventProducer externalEventProducer;
 
     @Override
     public String createExternalEvent(int idExternalEvent) {
         String result;
 
-        if (idExternalEvent > 0 ){
+        if (idExternalEvent > 0) {
 
             Event event = eventRepository.findByIdEvent(idExternalEvent);
 
-            if (event != null){
+            if (event != null) {
 
                 //Mappeamos Event->DTO->ExternalEvent
                 ExternalEvent externalEvent = ExternalEventMapper.toEntity(
-                                                ExternalEventMapper.toDTO(event));
+                        ExternalEventMapper.toDTO(event));
 
                 externalEventRepository.save(externalEvent);
 
                 ExternalEventMapper.ExternalEventDTO dtoKafka = ExternalEventMapper.toDTO(event);
 
                 //Enviamos mensaje KAFKA
-                if (externalEventProducer.sendExternalEventCreated(dtoKafka)){
-                    result="Evento Externo Generado con exito";
-                }else {
-                    result="Error enviando mensaje kafka";
+                if (externalEventProducer.sendExternalEventCreated(dtoKafka)) {
+                    result = "Evento Externo Generado con exito";
+                } else {
+                    result = "Error enviando mensaje kafka";
                 }
 
-            }else{
-                result ="No se encontro un evento con el ID ingresado";
+            } else {
+                result = "No se encontro un evento con el ID ingresado";
             }
-        }else{
-            result= "ID enviado no valido";
+        } else {
+            result = "ID enviado no valido";
         }
 
         return result;
     }
 
     @Override
-    public void processCancelExternalEvent(ExternalEventMapper.CancelExternalEventDTO dto) {
+    public String processCancelExternalEvent(int idEvent) {
+        String result ;
 
+        //VERIFICAR SI EL EVENTO ES EXTERNO
+        ExternalEvent externalEvent = externalEventRepository.findByIdExternalEventMessage(idEvent);
+
+        if (externalEvent != null){
+
+            //Eliminamos relaciones
+            eventAdhesionRepository.deleteByExternalEvent(externalEvent);
+
+            //Eliminamos el evento externo
+            externalEventRepository.delete(externalEvent);
+
+            //Publicamos el mensaje KAFKA}
+            ExternalEventMapper.CancelExternalEventDTO cancelExternalEventDTO = ExternalEventMapper.toDTO(externalEvent);
+
+            if (externalEventProducer.sendExternalEventDeleted(cancelExternalEventDTO)){
+                result="Evento externo eliminado";
+            }else{
+                result="Error enviando mensaje de kafka";
+            }
+        }else{
+            result="No se publico este evento en externos";
+        }
+
+        return result;
     }
 }
