@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 
 @Slf4j
 @Service
@@ -36,23 +38,36 @@ public class ExternalEventProducerServiceImpl implements ExternalEventProducerSe
         if (idExternalEvent > 0) {
 
             Event event = eventRepository.findByIdEvent(idExternalEvent);
-
+            ExternalEvent oldExternalEvent = externalEventRepository.findByIdExternalEventMessage(idExternalEvent);
             if (event != null) {
 
-                //Mappeamos Event->DTO->ExternalEvent
-                ExternalEvent externalEvent = ExternalEventMapper.toEntity(
-                        ExternalEventMapper.toDTO(event));
+                //Si el evento no es previo
+                if (!event.getDateRegistration().isBefore(LocalDateTime.now())){
+                    //si no existe
+                    if (oldExternalEvent == null){
+                        //Mappeamos Event->DTO->ExternalEvent
+                        ExternalEvent externalEvent = ExternalEventMapper.toEntity(
+                                ExternalEventMapper.toDTO(event));
 
-                externalEventRepository.save(externalEvent);
+                        externalEventRepository.save(externalEvent);
 
-                ExternalEventMapper.ExternalEventDTO dtoKafka = ExternalEventMapper.toDTO(event);
+                        ExternalEventMapper.ExternalEventDTO dtoKafka = ExternalEventMapper.toDTO(event);
 
-                //Enviamos mensaje KAFKA
-                if (externalEventProducer.sendExternalEventCreated(dtoKafka)) {
-                    result = "Evento Externo Generado con exito";
-                } else {
-                    result = "Error enviando mensaje kafka";
+                        //Enviamos mensaje KAFKA
+                        if (externalEventProducer.sendExternalEventCreated(dtoKafka)) {
+                            result = "Evento Externo Generado con exito";
+                        } else {
+                            result = "Error enviando mensaje kafka";
+                        }
+                    }else{
+                        result = "Ya se encuentra publicado este evento";
+                    }
+
+                }else{
+                    result = "No se puede publicar un evento pasado";
                 }
+
+
 
             } else {
                 result = "No se encontro un evento con el ID ingresado";

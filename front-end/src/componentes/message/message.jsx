@@ -9,24 +9,10 @@ export default function Mensajeria() {
   const [solicitudes, setSolicitudes] = useState([{ categoria: "", descripcion: "" }]);
   const [ofertas, setOfertas] = useState([{ categoria: "", descripcion: "", cantidad: "" }]);
 
-  const [eventos, setEventos] = useState([]);
-  const [nuevoEvento, setNuevoEvento] = useState({ nombre: "", descripcion: "", fechaHora: "" });
   const [adhesion, setAdhesion] = useState({ idEvento: "", nombre: "", apellido: "", email: "" });
 
-  /*** FETCH DINÁMICO DE EVENTOS ***/
-  useEffect(() => {
-    fetchEventos();
-  }, []);
 
-  const fetchEventos = async () => {
-    try {
-      const resp = await fetch(`${baseURL}/eventlist`);
-      const data = await resp.json();
-      setEventos(data.events || []); // Ajusta según tu JSON
-    } catch (e) {
-      console.error("Error obteniendo eventos:", e);
-    }
-  };
+
 
   /*** DONACIONES ***/
   const handleAgregarSolicitud = () =>
@@ -100,41 +86,7 @@ const handleEnviarOperacion = async () => {
   }
 };
 
-  /*** EVENTOS ***/
-  const handleCrearEvento = async () => {
-    try {
-      const resp = await fetch(`${baseURL}/publicar-evento`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...nuevoEvento, idOrganizacion: 1 }),
-      });
-      const data = await resp.json();
-      if (data.success) {
-        setEventos(prev => [...prev, { ...nuevoEvento, idEvento: data.idEvento }]);
-        setNuevoEvento({ nombre: "", descripcion: "", fechaHora: "" });
-        alert("✅ Evento creado!");
-      } else alert("❌ Error: " + data.message);
-    } catch (e) {
-      alert("❌ Error creando evento: " + e.message);
-    }
-  };
 
-  const handleBajaEvento = async (idEvento) => {
-    try {
-      const resp = await fetch(`${baseURL}/baja-evento`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idEvento, idOrganizacion: 1 }),
-      });
-      const data = await resp.json();
-      if (data.success) {
-        setEventos(eventos.filter(e => e.idEvento !== idEvento));
-        alert("✅ Evento dado de baja");
-      } else alert("❌ Error: " + data.message);
-    } catch (e) {
-      alert("❌ Error dando de baja evento: " + e.message);
-    }
-  };
 
   /*** ADHESIÓN ***/
   const handleAdherir = async () => {
@@ -230,28 +182,6 @@ const handleEnviarOperacion = async () => {
     </div>
   );
 
-      case "eventos":
-        return (
-          <div>
-            <h2 className="text-xl font-semibold mb-3 text-white">Eventos Externos</h2>
-            <div className="mb-4 flex flex-wrap gap-2">
-              <input placeholder="Nombre" value={nuevoEvento.nombre} onChange={e => setNuevoEvento({ ...nuevoEvento, nombre: e.target.value })} className={inputClass} />
-              <input placeholder="Descripción" value={nuevoEvento.descripcion} onChange={e => setNuevoEvento({ ...nuevoEvento, descripcion: e.target.value })} className={inputClass} />
-              <input type="datetime-local" value={nuevoEvento.fechaHora} onChange={e => setNuevoEvento({ ...nuevoEvento, fechaHora: e.target.value })} className={inputClass} />
-             
-            </div>
-             <button onClick={handleCrearEvento} className="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded transition">Crear Evento</button>
-            <ul>
-              {eventos.map(e => (
-                <li key={e.idEvento} className="flex justify-between items-center border border-gray-700 p-2 mb-2 rounded bg-gray-800 text-white">
-                  <div><strong>{e.nombre}</strong> - {e.descripcion} - {e.fechaHora}</div>
-                  <button onClick={() => handleBajaEvento(e.idEvento)} className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded">Baja</button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        );
-
       case "adhesion":
         return (
           <div>
@@ -278,7 +208,6 @@ const handleEnviarOperacion = async () => {
       {/* Botones de pestañas */}
       <div className="flex gap-4 mb-6 justify-center">
         <button onClick={() => setPestana("donaciones")} className="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded">Donaciones</button>
-        <button onClick={() => setPestana("eventos")} className="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded">Eventos</button>
         <button onClick={() => setPestana("adhesion")} className="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded">Adhesión</button>
       </div>
 

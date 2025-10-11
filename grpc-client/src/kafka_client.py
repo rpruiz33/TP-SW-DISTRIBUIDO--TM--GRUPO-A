@@ -2,7 +2,7 @@
 from kafka import KafkaProducer
 import json
 
-# ✅ Configuración única de Kafka Producer
+# ✅ Configuración única de Kafka Producer (SIMULACION DE PRODUCCION DE ONGS EXTERNAS)
 producer = KafkaProducer(
     bootstrap_servers='localhost:29092',
     value_serializer=lambda v: json.dumps(v).encode('utf-8')

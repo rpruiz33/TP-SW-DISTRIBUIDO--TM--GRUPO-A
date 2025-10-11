@@ -18,9 +18,11 @@ import com.grpc.grpc_server.services.kafka.impl.EventAdhesionProducerServiceImpl
 import com.grpc.grpc_server.services.kafka.impl.ExternalEventProducerServiceImpl;
 import com.grpc.grpc_server.services.kafka.impl.OperationProducerServiceImpl;
 import io.grpc.stub.StreamObserver;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.grpc.server.service.GrpcService;
 
+@Slf4j
 @GrpcService
 public class KafkaProducerGrpcService extends KafkaServiceGrpc.KafkaServiceImplBase
 {
@@ -80,6 +82,7 @@ public class KafkaProducerGrpcService extends KafkaServiceGrpc.KafkaServiceImplB
 
     @Override
     public void createExternalEvent(MyServiceClass.ExternalEventRequest request,  StreamObserver<MyServiceClass.GenericResponse> responseObserver) {
+
         String result = externalEventProducerService.createExternalEvent(request.getId());
         var response = MyServiceClass.GenericResponse.newBuilder();
 
@@ -91,6 +94,8 @@ public class KafkaProducerGrpcService extends KafkaServiceGrpc.KafkaServiceImplB
             case "Error enviando mensaje kafka":
             case "No se encontro un evento con el ID ingresado":
             case "ID enviado no valido":
+            case "Ya se encuentra publicado este evento":
+            case "No se puede publicar un evento pasado":
             default:
                 response.setSuccess(false).setMessage(result);
                 break;

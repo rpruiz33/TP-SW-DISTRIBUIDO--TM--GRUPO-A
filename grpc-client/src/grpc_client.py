@@ -17,6 +17,8 @@ class MyServiceClient:
         self.donation_stub = service_pb2_grpc.DonationServiceStub(self.channel)
         self.event_stub = service_pb2_grpc.EventServiceStub(self.channel)
         self.donation_event_stub = service_pb2_grpc.DonationsAtEventsServiceStub(self.channel)
+        self.kafka_stub = service_pb2_grpc.KafkaServiceStub(self.channel)
+
 
     # ----------------- MÉTODOS -----------------
     def login(self, username: str, password: str):
@@ -33,9 +35,7 @@ class MyServiceClient:
         return self.user_stub.AltaUser (request, metadata=metadata)
 
     def getAllUsers(self, metadata=None):
-        print("grpc")
         request = service_pb2.Empty()
-        print("genero request")
         return self.user_stub.GetAllUsers(request, metadata=metadata)
 
     def getActiveUsers(self, metadata=None):
@@ -119,36 +119,14 @@ class MyServiceClient:
         request = service_pb2.GetAllDonationsAtEventRequest(idEvent=idEvent)
         return self.donation_event_stub.GetAllDonationsAtEvent (request, metadata=metadata )
     
+    # ----------------- METODOS PARA KAFKA-PRODUCER-GRPC -----------------
+
+    def publishEvent(self, id: int, metadata=None):
+        print("llego al grpc")
+        request = service_pb2.ExternalEventRequest(id=id)
+        return self.kafka_stub.CreateExternalEvent(request, metadata=metadata )
+    
+    
 
 
-def create_operation(operation_type, descripcion):
-    # Conectarse al servidor gRPC Java (puerto donde corre el servicio)
-    channel = grpc.insecure_channel('localhost:9090')  # Asegurate que coincide con tu configuración de Spring Boot
-    stub = my_service_pb2_grpc.KafkaServiceStub(channel)
 
-    # Crear request gRPC
-    request = my_service_pb2.OperationRequest(
-        operationType=operation_type,
-        descripcion=descripcion
-    )
-
-    # Llamar al método remoto
-    response = stub.CreateOperation(request)
-
-    return {
-        "success": response.success,
-        "message": response.message
-    }
-
-
-def create_external_event(event_id):
-    channel = grpc.insecure_channel('localhost:9090')
-    stub = my_service_pb2_grpc.KafkaServiceStub(channel)
-
-    request = my_service_pb2.ExternalEventRequest(id=event_id)
-    response = stub.CreateExternalEvent(request)
-
-    return {
-        "success": response.success,
-        "message": response.message
-    }

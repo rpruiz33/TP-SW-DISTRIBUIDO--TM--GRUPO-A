@@ -287,6 +287,7 @@ message OperationRequest {
   int32 idOperationMessage = 1;
   string operationType = 2;
   repeated OperationDonationProto donations =3;
+  int32 idOrganization = 4;
 }
 
 message OperationResponse {
@@ -298,6 +299,7 @@ message OperationDonationProto {
   string  category=1;
   string  description=2;
   int32   quantity=3;
+  
 }
 
 // ========================

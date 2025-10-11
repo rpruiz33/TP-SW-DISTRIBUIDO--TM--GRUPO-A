@@ -132,18 +132,19 @@ public class OperationConsumerServiceImpl implements OperationServiceConsumer{
                             donation.setAmount(donation.getAmount() + od.getQuantity());
                             donationRepository.save(donation);
 
-                        }{
-                // Crear nueva donación
-                Donation newDonation = new Donation();
-                newDonation.setCategory(od.getCategory());
-                newDonation.setDescription(od.getDescription());
-                newDonation.setAmount(od.getQuantity());
-                newDonation.setDateRegistration(LocalDateTime.now());
+                        }else{
+                            // Crear nueva donación
+                            Donation newDonation = new Donation();
+                            newDonation.setCategory(od.getCategory());
+                            newDonation.setDescription(od.getDescription());
+                            newDonation.setAmount(od.getQuantity());
+                            newDonation.setDateRegistration(LocalDateTime.now());
+                            newDonation.setRemoved(false);
 
-                donationRepository.save(newDonation);
-                log.info("Donación creada: {} - {} (cantidad: {})",
-                        od.getCategory(), od.getDescription(), od.getQuantity());
-            }
+
+                            donationRepository.save(newDonation);
+                            log.info("Donación creada: {} - {} (cantidad: {})", od.getCategory(), od.getDescription(), od.getQuantity());
+                        }
                     }
                 }
 

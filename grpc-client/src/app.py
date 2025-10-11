@@ -36,7 +36,6 @@ def grpc_call_with_token(stub_method, *args, **kwargs):
     Llama un método gRPC agregando el token del usuario actual en metadata.
     Esto evita repetir la metadata con token en todas las rutas.
     """
-    print("pre metadata")
     metadata = []
 
     
@@ -44,8 +43,6 @@ def grpc_call_with_token(stub_method, *args, **kwargs):
         metadata.append(("authorization", f"Bearer {current_user['token']}"))
 
 
-    print("postmetadata")
-    print(f"Metadata generada: {metadata}")  # 👈 imprime la lista completa
 
     # Pasamos metadata como argumento a la llamada gRPC
     return stub_method(*args, metadata=metadata, **kwargs)
@@ -109,7 +106,6 @@ def altaUser():
 @app.route("/api/userlist", methods=["GET"])
 def getAllUsers():
     try:
-        print("api")
         grpc_response = grpc_call_with_token(grpc_client.getAllUsers)
         json_response = MessageToJson(grpc_response)
         return json_response
@@ -364,13 +360,17 @@ def api_baja_solicitud():
     data = request.get_json()
     return jsonify(baja_solicitud_donaciones(data))
 
-
-# 5️⃣ Publicar evento
-@app.route("/api/publicar-evento", methods=["POST"])
-def api_publicar_evento():
-    data = request.get_json()
-    return jsonify(publicar_evento(data))
-
+#PUBLICAR EVENTO
+@app.route("/api/publishevent/<int:id>", methods=["POST"])
+def publishEvent(id):
+    try:
+        response = grpc_call_with_token(grpc_client.publishEvent, id)
+        return jsonify({
+            "success": response.success,
+            "message": response.message
+        })
+    except Exception as e:
+        return jsonify({"message": "Error publicando evento", "error": str(e)}), 500
 
 # 6️⃣ Baja evento
 @app.route("/api/baja-evento", methods=["POST"])
@@ -384,6 +384,7 @@ def api_baja_evento():
 def api_adhesion_evento(id_organizador):
     data = request.get_json()
     return jsonify(adhesion_evento(id_organizador, data))
+
 # ---------------------------
 # RUTAS EXTRA
 @app.route("/api/crear-operacion", methods=["POST"])
