@@ -384,7 +384,20 @@ def api_baja_evento():
 def api_adhesion_evento(id_organizador):
     data = request.get_json()
     return jsonify(adhesion_evento(id_organizador, data))
+# ---------------------------
+# RUTAS EXTRA
+@app.route("/api/crear-operacion", methods=["POST"])
+def crear_operacion():
+    data = request.get_json()
+    result = create_operation(data["operationType"], data["descripcion"])
+    return jsonify(result)
 
+
+@app.route("/api/crear-evento-externo", methods=["POST"])
+def crear_evento_externo():
+    data = request.get_json()
+    result = create_external_event(data["id"])
+    return jsonify(result)
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)

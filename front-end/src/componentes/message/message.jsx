@@ -82,6 +82,23 @@ export default function Mensajeria() {
       alert("❌ Error enviando oferta: " + e.message);
     }
   };
+const handleEnviarOperacion = async () => {
+  try {
+    const resp = await fetch(`${baseURL}/crear-operacion`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        operationType: "SOLICITUD",
+        descripcion: "Solicitud desde React con gRPC",
+      }),
+    });
+    const data = await resp.json();
+    if (data.success) alert("✅ Operación creada: " + data.message);
+    else alert("❌ Error: " + data.message);
+  } catch (e) {
+    alert("❌ Error: " + e.message);
+  }
+};
 
   /*** EVENTOS ***/
   const handleCrearEvento = async () => {

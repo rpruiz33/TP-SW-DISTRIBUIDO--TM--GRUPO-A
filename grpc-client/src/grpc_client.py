@@ -118,3 +118,37 @@ class MyServiceClient:
     def getAllDonationsAtEvent(self, idEvent: int, metadata=None):
         request = service_pb2.GetAllDonationsAtEventRequest(idEvent=idEvent)
         return self.donation_event_stub.GetAllDonationsAtEvent (request, metadata=metadata )
+    
+
+
+def create_operation(operation_type, descripcion):
+    # Conectarse al servidor gRPC Java (puerto donde corre el servicio)
+    channel = grpc.insecure_channel('localhost:9090')  # Asegurate que coincide con tu configuración de Spring Boot
+    stub = my_service_pb2_grpc.KafkaServiceStub(channel)
+
+    # Crear request gRPC
+    request = my_service_pb2.OperationRequest(
+        operationType=operation_type,
+        descripcion=descripcion
+    )
+
+    # Llamar al método remoto
+    response = stub.CreateOperation(request)
+
+    return {
+        "success": response.success,
+        "message": response.message
+    }
+
+
+def create_external_event(event_id):
+    channel = grpc.insecure_channel('localhost:9090')
+    stub = my_service_pb2_grpc.KafkaServiceStub(channel)
+
+    request = my_service_pb2.ExternalEventRequest(id=event_id)
+    response = stub.CreateExternalEvent(request)
+
+    return {
+        "success": response.success,
+        "message": response.message
+    }
