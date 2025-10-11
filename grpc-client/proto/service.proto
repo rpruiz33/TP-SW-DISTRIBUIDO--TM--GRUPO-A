@@ -1,6 +1,8 @@
 syntax = "proto3";
 
 
+option java_package = "com.grpc.grpc_server";
+option java_outer_classname = "MyServiceClass";
 
 // ========================
 // Service de Usuario
@@ -234,10 +236,7 @@ message UpdateDonationResponse {
   string message = 2;
 }
 
-message GenericResponse {
-  bool success = 1;
-  string message = 2;
-}
+
 message DeleteDonationRequest{
   int32 id = 1;
   string username = 2;
@@ -268,12 +267,17 @@ message AltaDonationResponse{
 message Empty {
 }
 
-
+message GenericResponse {
+  bool success = 1;
+  string message = 2;
+}
 // ========================
 // MENSAJES PARA KAFKA
 // ========================
-service OperationService {
+service KafkaService {
   rpc CreateOperation(OperationRequest) returns (OperationResponse);
+  rpc CreateExternalEvent(ExternalEventRequest) returns (GenericResponse);
+  rpc CreateEventAdhesion(EventAdhesionRequest) returns (GenericResponse);
 }
 
 // ========================
@@ -296,7 +300,18 @@ message OperationDonationProto {
   int32   quantity=3;
 }
 
+// ========================
+// Messages de ExternalEvent
+// ========================
 
+message ExternalEventRequest{
+  int32 id=1;
+}
+
+message EventAdhesionRequest{
+  int32  idExternalEvent=2;
+  string emailVolunteer=1;
+}
 
 
 

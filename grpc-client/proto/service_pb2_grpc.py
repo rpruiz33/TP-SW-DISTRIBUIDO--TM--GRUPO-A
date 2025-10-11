@@ -5,7 +5,7 @@ import warnings
 
 import service_pb2 as service__pb2
 
-GRPC_GENERATED_VERSION = '1.74.0'
+GRPC_GENERATED_VERSION = '1.75.1'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
@@ -1080,9 +1080,9 @@ class DonationService(object):
             _registered_method=True)
 
 
-class OperationServiceStub(object):
+class KafkaServiceStub(object):
     """========================
-    Service de Operaciones (Kafka + DB)
+    MENSAJES PARA KAFKA
     ========================
     """
 
@@ -1093,20 +1093,25 @@ class OperationServiceStub(object):
             channel: A grpc.Channel.
         """
         self.CreateOperation = channel.unary_unary(
-                '/OperationService/CreateOperation',
+                '/KafkaService/CreateOperation',
                 request_serializer=service__pb2.OperationRequest.SerializeToString,
                 response_deserializer=service__pb2.OperationResponse.FromString,
                 _registered_method=True)
-        self.GetAllOperations = channel.unary_unary(
-                '/OperationService/GetAllOperations',
-                request_serializer=service__pb2.Empty.SerializeToString,
-                response_deserializer=service__pb2.OperationListResponse.FromString,
+        self.CreateExternalEvent = channel.unary_unary(
+                '/KafkaService/CreateExternalEvent',
+                request_serializer=service__pb2.ExternalEventRequest.SerializeToString,
+                response_deserializer=service__pb2.GenericResponse.FromString,
+                _registered_method=True)
+        self.CreateEventAdhesion = channel.unary_unary(
+                '/KafkaService/CreateEventAdhesion',
+                request_serializer=service__pb2.EventAdhesionRequest.SerializeToString,
+                response_deserializer=service__pb2.GenericResponse.FromString,
                 _registered_method=True)
 
 
-class OperationServiceServicer(object):
+class KafkaServiceServicer(object):
     """========================
-    Service de Operaciones (Kafka + DB)
+    MENSAJES PARA KAFKA
     ========================
     """
 
@@ -1116,36 +1121,47 @@ class OperationServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetAllOperations(self, request, context):
+    def CreateExternalEvent(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def CreateEventAdhesion(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_OperationServiceServicer_to_server(servicer, server):
+def add_KafkaServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'CreateOperation': grpc.unary_unary_rpc_method_handler(
                     servicer.CreateOperation,
                     request_deserializer=service__pb2.OperationRequest.FromString,
                     response_serializer=service__pb2.OperationResponse.SerializeToString,
             ),
-            'GetAllOperations': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetAllOperations,
-                    request_deserializer=service__pb2.Empty.FromString,
-                    response_serializer=service__pb2.OperationListResponse.SerializeToString,
+            'CreateExternalEvent': grpc.unary_unary_rpc_method_handler(
+                    servicer.CreateExternalEvent,
+                    request_deserializer=service__pb2.ExternalEventRequest.FromString,
+                    response_serializer=service__pb2.GenericResponse.SerializeToString,
+            ),
+            'CreateEventAdhesion': grpc.unary_unary_rpc_method_handler(
+                    servicer.CreateEventAdhesion,
+                    request_deserializer=service__pb2.EventAdhesionRequest.FromString,
+                    response_serializer=service__pb2.GenericResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'OperationService', rpc_method_handlers)
+            'KafkaService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('OperationService', rpc_method_handlers)
+    server.add_registered_method_handlers('KafkaService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class OperationService(object):
+class KafkaService(object):
     """========================
-    Service de Operaciones (Kafka + DB)
+    MENSAJES PARA KAFKA
     ========================
     """
 
@@ -1163,7 +1179,7 @@ class OperationService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/OperationService/CreateOperation',
+            '/KafkaService/CreateOperation',
             service__pb2.OperationRequest.SerializeToString,
             service__pb2.OperationResponse.FromString,
             options,
@@ -1177,7 +1193,7 @@ class OperationService(object):
             _registered_method=True)
 
     @staticmethod
-    def GetAllOperations(request,
+    def CreateExternalEvent(request,
             target,
             options=(),
             channel_credentials=None,
@@ -1190,9 +1206,36 @@ class OperationService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/OperationService/GetAllOperations',
-            service__pb2.Empty.SerializeToString,
-            service__pb2.OperationListResponse.FromString,
+            '/KafkaService/CreateExternalEvent',
+            service__pb2.ExternalEventRequest.SerializeToString,
+            service__pb2.GenericResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def CreateEventAdhesion(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/KafkaService/CreateEventAdhesion',
+            service__pb2.EventAdhesionRequest.SerializeToString,
+            service__pb2.GenericResponse.FromString,
             options,
             channel_credentials,
             insecure,
