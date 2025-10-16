@@ -64,6 +64,8 @@ public class KafkaProducerGrpcService extends KafkaServiceGrpc.KafkaServiceImplB
             
             default:
                 CancelRequestDTO dto4 = OperationMapper.toCancelRequestDTO(request);
+                System.out.println(dto4.getIdSolicitud());
+                System.out.println(dto4.getIdOrganizacionSolicitante());
                 result = operationProducerServiceImpl.processCancelRequest(dto4);
             break;
         }

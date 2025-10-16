@@ -5,6 +5,8 @@ import com.grpc.grpc_server.mapper.kafka.ExternalEventMapper;
 import com.grpc.grpc_server.repositories.kafka.EventAdhesionRepository;
 import com.grpc.grpc_server.repositories.kafka.ExternalEventRepository;
 import com.grpc.grpc_server.services.kafka.ExternalEventConsumerService;
+
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,8 +54,9 @@ public class ExternalEventConsumerServiceImpl implements ExternalEventConsumerSe
 
 
     }
-
+    
     @Override
+    @Transactional
     public void processCancelExternalEvent(ExternalEventMapper.CancelExternalEventDTO dto) {
 
         int idEvento= Integer.parseInt(dto.getIdEvento());

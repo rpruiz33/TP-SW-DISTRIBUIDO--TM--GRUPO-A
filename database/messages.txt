@@ -1,4 +1,6 @@
 
+///---------------------------------------------------KAFBAT--------------------------------------------////
+
 ///MENSAJE PARA SOLICITUD DE DONACION
 {
   "idSolicitud": "12345",
@@ -6,18 +8,13 @@
   "donaciones": [
     {
       "categoria": "ROPA",
-      "descripcion": "Remeras",
-      "cantidad": 20
-    },
-    {
-      "categoria": "ROPA",
-      "descripcion": "Pantalones",
-      "cantidad": 15
+      "descripcion": "Donación de camisetas y abrigos",
+      "cantidad": 3
     },
     {
       "categoria": "ALIMENTO",
-      "descripcion": "Arroz",
-      "cantidad": 50
+      "descripcion": "Donación de arroz y fideos",
+      "cantidad": 3
     }
   ]
 }
@@ -28,39 +25,33 @@
   "idSolicitud": "12345"
 }
 
+
 ///MENSAJE PARA OFERTA DE DONACION
 {
   "idOferta": "12345",
   "idOrganizacionDonante": "67890",
   "donaciones": [
-    {
+     {
       "categoria": "ROPA",
-      "descripcion": "Remeras",
-      "cantidad": 20
-    },
-    {
-      "categoria": "ROPA",
-      "descripcion": "Pantalones",
-      "cantidad": 15
+      "descripcion": "Donación de camisetas y abrigos",
+      "cantidad": 3
     },
     {
       "categoria": "ALIMENTO",
-      "descripcion": "Arroz",
-      "cantidad": 50
+      "descripcion": "Donación de arroz y fideos",
+      "cantidad": 3
     }
   ]
 }
 
 ///MENSAJE DE TRANSFERENCIA 
+//topic --> transferencia-donaciones-111
+//topic --> transferencia-donaciones-1
+
 {
 	"idSolicitud": "12345",
 	"idOrganizacionDonante": "67890",
 	"donaciones": [
-		{
-			"categoria": "ROPA",
-			"descripcion": "Zapatos para niños",
-			"cantidad": 20
-		},
 		{
 			"categoria": "ROPA",
 			"descripcion": "Donación de camisetas y abrigos",
@@ -80,15 +71,14 @@
   "idEvento": "67890",
   "nombre": "EventoExterno1",
   "descripcion" : "Testeando primer evento",
-  "fecha": "2025-12-09 12:50:11"
-
+  "fecha": "2025-12-12 12:50:11"
 }
 
 
 ///MENSAJE PARA DAR DE BAJA UN EVENTO
 {
   "idOrganizacion": "12345",
-  "idEvento": "67890",
+  "idEvento": "67890"
 }
 
 
@@ -104,7 +94,9 @@
 }
 
 
-/// PARA POSTMAN
+///------------------------------------------------POSTMAN------------------------------------------------///
+
+///SOLICITUD
 {
   "idOperationMessage": 12345,
   "operationType": "SOLICITUD",
@@ -120,4 +112,35 @@
       "quantity": 3
     }
   ]
+}
+
+///BAJA
+{
+  "idOperationMessage": 54321
+}
+
+///TRANSFERENCIA
+{
+  "idOperationMessage": 54321,
+  "operationType": "TRANSFERENCIA",
+  "idOrganization": 99,
+  "donations": [
+    {
+      "category": "ROPA",
+      "description": "Donación de camisetas y abrigos",
+      "quantity": 3
+    },
+    {
+      "category": "ALIMENTO",
+      "description": "Donación de arroz y fideos",
+      "quantity": 5
+    }
+  ]
+}
+
+
+///EvenAdhesion
+{
+  idExternalEvent= 5,
+  emailVolunteer= "user2@demo.com"
 }

@@ -69,7 +69,7 @@ public class OperationConsumerServiceImpl implements OperationServiceConsumer{
         try {
 
             log.info("Mensaje recibido (BAJA SOLICITUD): {}", cancelRequestDTO);
-
+            log.info("HOLAAA --> ", cancelRequestDTO.getIdSolicitud());
             // Buscar operación por idOperationMessage y que sea solicitud
             Operation deleteOperation = operationRepository
                     .findByIdOperationMessageAndOperationType(cancelRequestDTO.getIdSolicitud(), OperationType.SOLICITUD)

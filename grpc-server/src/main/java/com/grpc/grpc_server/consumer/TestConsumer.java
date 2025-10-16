@@ -119,7 +119,7 @@ public class TestConsumer {
         }
     }
 
-    /// PUNTO 2 (publicar transferencias)
+    /// PUNTO 2 (consumir transferencias)
     
     @KafkaListener(topicPattern = "transferencia-donaciones-.*", groupId = "grupo-unla") 
     public void consumirTransferencia(ConsumerRecord<String, String> record) { 
