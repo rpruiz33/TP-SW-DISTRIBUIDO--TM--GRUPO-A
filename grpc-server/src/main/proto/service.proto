@@ -29,6 +29,7 @@ message LoginResponse {
   bool success = 1;
   string message = 2;
   string role_name = 3;
+  string token = 4;
 }
 
 message AltaUsuarioRequest {
@@ -66,6 +67,8 @@ message UpdateUsuarioRequest {
   string phone = 4;
   string email = 5;
   string role = 6;
+  string oldUsername=7;
+  string oldEmail=8;
 }
 
 message DeleteUsuarioRequest {
@@ -180,9 +183,6 @@ message ToggleMemberRequest {
 }
 
 
-// Mensaje vacío (si no hay parámetros de entrada)
-message Empty {}
-
 // ========================
 // Messages de donacion x evento
 // ========================
@@ -236,10 +236,7 @@ message UpdateDonationResponse {
   string message = 2;
 }
 
-message GenericResponse {
-  bool success = 1;
-  string message = 2;
-}
+
 message DeleteDonationRequest{
   int32 id = 1;
   string username = 2;
@@ -262,3 +259,61 @@ message AltaDonationResponse{
   bool success = 1;
   string message = 2;
 }
+
+
+// ========================
+// Mensajes auxiliares
+// ========================
+message Empty {
+}
+
+message GenericResponse {
+  bool success = 1;
+  string message = 2;
+}
+// ========================
+// MENSAJES PARA KAFKA
+// ========================
+service KafkaService {
+  rpc CreateOperation(OperationRequest) returns (OperationResponse);
+  rpc CreateExternalEvent(ExternalEventRequest) returns (GenericResponse);
+  rpc CreateEventAdhesion(EventAdhesionRequest) returns (GenericResponse);
+}
+
+// ========================
+// Messages de Operation
+// ========================
+message OperationRequest {
+  int32 idOperationMessage = 1;
+  string operationType = 2;
+  repeated OperationDonationProto donations =3;
+  int32 idOrganization = 4;
+}
+
+message OperationResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message OperationDonationProto {
+  string  category=1;
+  string  description=2;
+  int32   quantity=3;
+  
+}
+
+// ========================
+// Messages de ExternalEvent
+// ========================
+
+message ExternalEventRequest{
+  int32 id=1;
+}
+
+message EventAdhesionRequest{
+  int32  idExternalEvent=2;
+  string emailVolunteer=1;
+}
+
+
+

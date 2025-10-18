@@ -1078,3 +1078,170 @@ class DonationService(object):
             timeout,
             metadata,
             _registered_method=True)
+
+
+class KafkaServiceStub(object):
+    """========================
+    MENSAJES PARA KAFKA
+    ========================
+    """
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.CreateOperation = channel.unary_unary(
+                '/KafkaService/CreateOperation',
+                request_serializer=service__pb2.OperationRequest.SerializeToString,
+                response_deserializer=service__pb2.OperationResponse.FromString,
+                _registered_method=True)
+        self.CreateExternalEvent = channel.unary_unary(
+                '/KafkaService/CreateExternalEvent',
+                request_serializer=service__pb2.ExternalEventRequest.SerializeToString,
+                response_deserializer=service__pb2.GenericResponse.FromString,
+                _registered_method=True)
+        self.CreateEventAdhesion = channel.unary_unary(
+                '/KafkaService/CreateEventAdhesion',
+                request_serializer=service__pb2.EventAdhesionRequest.SerializeToString,
+                response_deserializer=service__pb2.GenericResponse.FromString,
+                _registered_method=True)
+
+
+class KafkaServiceServicer(object):
+    """========================
+    MENSAJES PARA KAFKA
+    ========================
+    """
+
+    def CreateOperation(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def CreateExternalEvent(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def CreateEventAdhesion(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_KafkaServiceServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'CreateOperation': grpc.unary_unary_rpc_method_handler(
+                    servicer.CreateOperation,
+                    request_deserializer=service__pb2.OperationRequest.FromString,
+                    response_serializer=service__pb2.OperationResponse.SerializeToString,
+            ),
+            'CreateExternalEvent': grpc.unary_unary_rpc_method_handler(
+                    servicer.CreateExternalEvent,
+                    request_deserializer=service__pb2.ExternalEventRequest.FromString,
+                    response_serializer=service__pb2.GenericResponse.SerializeToString,
+            ),
+            'CreateEventAdhesion': grpc.unary_unary_rpc_method_handler(
+                    servicer.CreateEventAdhesion,
+                    request_deserializer=service__pb2.EventAdhesionRequest.FromString,
+                    response_serializer=service__pb2.GenericResponse.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'KafkaService', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('KafkaService', rpc_method_handlers)
+
+
+ # This class is part of an EXPERIMENTAL API.
+class KafkaService(object):
+    """========================
+    MENSAJES PARA KAFKA
+    ========================
+    """
+
+    @staticmethod
+    def CreateOperation(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/KafkaService/CreateOperation',
+            service__pb2.OperationRequest.SerializeToString,
+            service__pb2.OperationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def CreateExternalEvent(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/KafkaService/CreateExternalEvent',
+            service__pb2.ExternalEventRequest.SerializeToString,
+            service__pb2.GenericResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def CreateEventAdhesion(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/KafkaService/CreateEventAdhesion',
+            service__pb2.EventAdhesionRequest.SerializeToString,
+            service__pb2.GenericResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)

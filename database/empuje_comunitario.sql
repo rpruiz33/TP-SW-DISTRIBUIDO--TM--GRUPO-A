@@ -143,3 +143,50 @@ COLLATE = utf8mb4_0900_ai_ci;
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+CREATE TABLE event_adhesions (
+    id_event_adhesion INT AUTO_INCREMENT PRIMARY KEY,
+    id_volunteer INT,
+    name_volunteer VARCHAR(255),
+    last_name_volunteer VARCHAR(255),
+    phone_volunteer VARCHAR(50),
+    email_volunteer VARCHAR(255),
+    external_event_id INT NOT NULL,
+    CONSTRAINT fk_eventadhesion_externalevent FOREIGN KEY (external_event_id)
+        REFERENCES external_events (id_external_event)
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE external_events (
+    id_external_event INT AUTO_INCREMENT PRIMARY KEY,
+    id_external_event_message VARCHAR(255),
+    id_organization VARCHAR(255),
+    name_external_event VARCHAR(255),
+    description TEXT,
+    date_and_time DATETIME,
+    active BOOLEAN NOT NULL,
+    -- Relación 1:N con adhesions (EventAdhesion), se agrega después cuando tengas esa entidad
+    INDEX (id_external_event_message)
+);
+
+CREATE TABLE operations (
+    id_operation INT AUTO_INCREMENT PRIMARY KEY,
+    id_operation_message INT,
+    id_organization INT,
+    operation_type ENUM('SOLICITUD', 'TRANSFERENCIA', 'OFERTA'),
+    activate BOOLEAN NOT NULL,
+    date_registration DATETIME,
+    date_modification DATETIME
+    -- Relación 1:N con operation_donations
+);
+
+CREATE TABLE operation_donations (
+    id_operation_donation INT AUTO_INCREMENT PRIMARY KEY,
+    category ENUM('ROPA', 'ALIMENTOS', 'MEDICAMENTOS', 'OTROS'), -- según tu enum Category
+    description VARCHAR(255),
+    quantity INT NOT NULL,
+    operation_id INT,
+    CONSTRAINT fk_operation FOREIGN KEY (operation_id)
+        REFERENCES operations (id_operation)
+        ON DELETE CASCADE ON UPDATE CASCADE
+);

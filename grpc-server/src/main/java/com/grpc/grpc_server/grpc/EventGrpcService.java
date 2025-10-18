@@ -5,20 +5,15 @@ import com.grpc.grpc_server.MyServiceClass.CreateEventRequest;
 import com.grpc.grpc_server.MyServiceClass.CreateEventResponse;
 import com.grpc.grpc_server.MyServiceClass.DeleteEventRequest;
 import com.grpc.grpc_server.MyServiceClass.DeleteEventResponse;
-import com.grpc.grpc_server.MyServiceClass.EventProto;
 import com.grpc.grpc_server.MyServiceClass.GenericResponse;
-import com.grpc.grpc_server.MyServiceClass.UpdateDonationResponse;
 import com.grpc.grpc_server.MyServiceClass.UpdateEventRequest;
 import com.grpc.grpc_server.EventServiceGrpc;
-import com.grpc.grpc_server.entities.Event;
-import com.grpc.grpc_server.mapper.EventMapper;
-import com.grpc.grpc_server.services.EventService;
+import com.grpc.grpc_server.entities.grpc.Event;
+import com.grpc.grpc_server.mapper.grpc.EventMapper;
+import com.grpc.grpc_server.services.grpc.EventService;
 
-import com.grpc.grpc_server.services.impl.EventServiceImpl;
 import io.grpc.stub.StreamObserver;
 
-import org.hibernate.event.spi.DeleteEvent;
-import org.hibernate.sql.Update;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.grpc.server.service.GrpcService;
 
@@ -77,13 +72,22 @@ public class EventGrpcService extends EventServiceGrpc.EventServiceImplBase {
     @Override
     public void deleteEvent(DeleteEventRequest request, StreamObserver<DeleteEventResponse> responseObserver){
 
-        boolean result = eventService.deleteEvent(request);
+        String result = eventService.deleteEvent(request);
         var responseBuilder = DeleteEventResponse.newBuilder();
 
-        if (result){
-            responseBuilder.setSuccess(true).setMessage("Evento Eliminado");
-        }else{
-            responseBuilder.setSuccess(false).setMessage("No se pudo eliminar el Evento");
+        switch (result){
+            case "Evento eliminado con exito-Evento externo eliminado":
+            case "Evento eliminado con exito-No se publico este evento en externos":
+                responseBuilder.setSuccess(true).setMessage(result);
+                break;
+
+            case "Error enviando mensaje de kafka":
+            case "No se puede eliminar un evento pasado":
+            case "No se encontro el evento a eliminar":
+            default:
+                responseBuilder.setSuccess(false).setMessage(result);
+                break;
+
         }
 
         responseObserver.onNext(responseBuilder.build());

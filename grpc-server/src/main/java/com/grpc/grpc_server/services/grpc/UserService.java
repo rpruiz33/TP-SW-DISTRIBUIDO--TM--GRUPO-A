@@ -1,0 +1,22 @@
+package com.grpc.grpc_server.services.grpc;
+
+import java.util.List;
+
+import com.grpc.grpc_server.MyServiceClass;
+import com.grpc.grpc_server.MyServiceClass.AltaUsuarioRequest;
+import com.grpc.grpc_server.entities.grpc.User;
+
+public interface UserService {
+
+
+
+    List<User> getAllUsers();
+    List<User> getActiveUsers();
+
+    ///---------------------------------------------------------------------------------------------------------------------
+
+    String login(MyServiceClass.LoginRequest request);
+    String altaUser(AltaUsuarioRequest request);
+    String updateUser(MyServiceClass.UpdateUsuarioRequest request);
+    String deleteUser(MyServiceClass.DeleteUsuarioRequest request);
+}

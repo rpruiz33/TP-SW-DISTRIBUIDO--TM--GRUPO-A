@@ -67,6 +67,19 @@ export default function EventList() {
     }
   };
 
+    const publishEvent = async (event) => {
+
+    try {
+      const response = await axios.post(`http://localhost:5000/api/publishevent/${event.id}`);
+
+      alert(response.data.message);
+
+    } catch (error) {
+      console.error("Error al publicar el evento:", error);
+      alert("Hubo un error al publicar el evento. Intente nuevamente.");
+    }
+  };
+
   return (
     <div className="p-6 bg-[#01000F] min-h-screen flex flex-col">
       {/* Título y botón */}
@@ -142,7 +155,7 @@ export default function EventList() {
 
                 <td className="px-4 py-2 border border-gray-700 space-x-2">
                   {showUpdateDeleteDonationButton &&(<button
-                    className="px-3 py-1 bg-yellow-500 text-black rounded hover:bg-yellow-600"
+                    className="px-2 py-1 bg-yellow-500 text-black rounded hover:bg-yellow-600"
                     onClick={() => navigate("/eventform", { state: { event } })}
                   >
                     Modificar
@@ -150,14 +163,14 @@ export default function EventList() {
 
                    {showUpdateDeleteDonationButton &&(<button
                     onClick={() => deleteEvent(event)}
-                    className="px-3 py-1 bg-red-500 text-black rounded hover:bg-red-600"
+                    className="px-2 py-1 bg-red-500 text-black rounded hover:bg-red-600"
                   >
                     Eliminar
                   </button>)}
 
                   {new Date(event.dateRegistration) > new Date() &&  (
                     <button
-                      className="px-3 py-1 bg-blue-200 text-black rounded hover:bg-blue-500"
+                      className="px-2 py-1 bg-blue-200 text-black rounded hover:bg-blue-500"
                       onClick={() => memberManagment(event)}
                     >
                       {isVoluntario != null ? (isVoluntario ? "Asignarse a Evento" : "Gestionar Miembros") : "N/A"}
@@ -166,10 +179,19 @@ export default function EventList() {
 
                   {new Date(event.dateRegistration) < new Date() && showUpdateDeleteDonationButton && (
                     <button
-                      className="px-3 py-1 bg-blue-500 text-black rounded hover:bg-blue-500"
+                      className="px-2 py-1 bg-blue-500 text-black rounded hover:bg-blue-500"
                       onClick={() => donationManagment(event)}
                     >
                       Asignar Donaciones
+                    </button>
+                  )}
+
+                  {new Date(event.dateRegistration) > new Date() &&  (
+                    <button
+                      className="px-2 py-1 bg-green-500 text-black rounded hover:bg-blue-500"
+                      onClick={() => publishEvent(event)}
+                    >
+                      Publicar
                     </button>
                   )}
                 </td>

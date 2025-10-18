@@ -16,9 +16,20 @@ export default function UserForm() {
     rol: "",
   });
 
+  const [oldData, setOldData] = useState({
+    oldUsername: "",
+    oldEmail: ""
+  })
+
   // 👇 Si venimos con un usuario, llenar el form
   useEffect(() => {
     if (userToEdit) {
+
+      setOldData({
+        oldUsername: userToEdit.username,
+        email: userToEdit.email,
+      })
+
       setFormData({
         username: userToEdit.username,
         nombre: userToEdit.name,
@@ -40,11 +51,27 @@ export default function UserForm() {
       let response;
       if (userToEdit) {
         // 👉 UPDATE
-        response = await axios.put("http://localhost:5000/api/updateuser", formData);
+        console.log("1",userToEdit)
+        console.log("2",formData)
+
+        const protoData = {
+          username: formData.username,
+          nombre: formData.nombre,
+          apellido: formData.apellido,
+          telefono: formData.telefono,
+          email: formData.email,
+          rol: formData.rol,
+          oldUsername: oldData.username,
+          oldEmail: oldData.email,
+        }
+        console.log("3",protoData)
+
+        response = await axios.put("http://localhost:5000/api/updateuser", protoData);
       } else {
         // 👉 ALTA
         response = await axios.post("http://localhost:5000/api/altauser", formData);
       }
+
       if (response.data.success) {
         alert(response.data.message);
         navigate("/userlist");
@@ -75,7 +102,7 @@ export default function UserForm() {
           className="w-full p-2 border mb-2"
           required
         />
-        
+
         <label className="font-bold">Nombre</label>
         <input
           type="text"
