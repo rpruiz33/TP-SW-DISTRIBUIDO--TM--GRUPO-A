@@ -5,8 +5,10 @@ import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
 import com.grpc.grpc_server.DonationServiceGrpc;
 import com.grpc.grpc_server.KafkaServiceGrpc;
 import com.grpc.grpc_server.MyServiceClass;
+import com.grpc.grpc_server.entities.grpc.User;
 import com.grpc.grpc_server.entities.kafka.Operation;
 import com.grpc.grpc_server.entities.kafka.OperationType;
+import com.grpc.grpc_server.mapper.grpc.UserMapper;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.CancelRequestDTO;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.OfferDTO;
@@ -21,6 +23,9 @@ import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.grpc.server.service.GrpcService;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @GrpcService
@@ -41,7 +46,7 @@ public class KafkaProducerGrpcService extends KafkaServiceGrpc.KafkaServiceImplB
 
         String result = "";
 
-        
+
         switch (request.getOperationType().toUpperCase()){
 
             case "SOLICITUD":
@@ -133,6 +138,38 @@ public class KafkaProducerGrpcService extends KafkaServiceGrpc.KafkaServiceImplB
         // Construir y enviar la respuesta
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
+    }
+
+    @Override
+    public void getRequestList (MyServiceClass.RequestListRequest request, StreamObserver<MyServiceClass.OperationListResponse> responseObserver){
+
+        // 1️⃣ Obtener entidades desde la capa service
+        List<Operation> externalRequest;
+
+
+        if (request.getIsExternal()){
+            externalRequest= operationProducerServiceImpl.getAllExternalRequest(OperationType.SOLICITUD,1);
+        }else{
+            externalRequest = operationProducerServiceImpl.getAllOwnRequest(OperationType.SOLICITUD,1);
+        }
+
+
+        // 2️⃣ Mapear a Proto usando Mapper
+        List<MyServiceClass.OperationRequest> grpcExternalRequest = externalRequest.stream()
+                .map(OperationMapper::toProto)
+                .collect(Collectors.toList());
+
+
+
+        // 3️⃣ Construir y enviar la respuesta
+        MyServiceClass.OperationListResponse response = MyServiceClass.OperationListResponse.newBuilder()
+                .addAllOperations(grpcExternalRequest)
+                .build();
+
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+
+
     }
 
 

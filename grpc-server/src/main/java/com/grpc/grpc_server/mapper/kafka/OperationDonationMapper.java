@@ -50,4 +50,11 @@ public class OperationDonationMapper {
         return donation;
     }
 
+    public static MyServiceClass.OperationDonationProto toProto (OperationDonation operationDonation){
+        return MyServiceClass.OperationDonationProto.newBuilder()
+                .setCategory(operationDonation.getCategory().name())
+                .setDescription(operationDonation.getDescription())
+                .setQuantity(operationDonation.getQuantity())
+                .build();
+    }
 }

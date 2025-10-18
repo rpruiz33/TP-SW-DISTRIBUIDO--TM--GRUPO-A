@@ -37,18 +37,16 @@ public class OperationConsumerServiceImpl implements OperationServiceConsumer{
     public boolean createOperation(Operation operation) {
 
         boolean result = false;
-        
+
         if( operationRepository.findByIdOperationMessageAndOperationType(operation.getIdOperationMessage(), operation.getOperationType()).isEmpty()){
-            
+
             // guardar operación
             Operation operationSaved = operationRepository.save(operation);
 
             // guardar donaciones asociadas
+
             if (operation.getOperationDonations() != null) {
                 for (OperationDonation od : operation.getOperationDonations()) {
-                    if (od.getQuantity() <= 0) {
-                        throw new IllegalArgumentException("La cantidad de la donación debe ser mayor a 0");
-                    }
                     od.setOperation(operationSaved);
                     operationDonationRepository.save(od);
                 }

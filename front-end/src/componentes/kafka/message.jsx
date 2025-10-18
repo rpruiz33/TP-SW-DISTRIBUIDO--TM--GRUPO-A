@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
 
 const baseURL = "http://localhost:5000/api";
 const CATEGORIAS = ["ROPA", "ALIMENTO", "JUGUETE", "UTIL_ESCOLAR"];
@@ -12,6 +15,23 @@ export default function Mensajeria() {
   const [adhesion, setAdhesion] = useState({ idEvento: "", nombre: "", apellido: "", email: "" });
 
 
+  const navigate = useNavigate();
+  
+  /* Operacion */
+
+  //Generamos un id para la operacion de solicitud y oferta, que no dependen de nada
+  //Lo generamos automaticamente con año mes dia hora y minutos para que sea unico y lo asignamos a la llamada a la api
+  const generarIdOperacion = () => {
+    const ahora = new Date();
+    const anio = ahora.getFullYear();
+    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+    const dia = String(ahora.getDate()).padStart(2, '0');
+    const hora = String(ahora.getHours()).padStart(2, '0');
+    const minutos = String(ahora.getMinutes()).padStart(2, '0');
+
+    var idOp = parseInt(`${anio}${mes}${dia}${hora}${minutos}`)
+    return  (idOp - 202000000000); // le sacamos los primeros 3 numeros del año, para que entre en un int 202.510.171.024 -> 510.171.024
+  };
 
 
   /*** DONACIONES ***/
@@ -24,19 +44,31 @@ export default function Mensajeria() {
     setSolicitudes(nuevas);
   };
 
+  const requestList = (isExternal) => {
+
+    navigate("/requestlist", { state: { isExternal } });
+  };
+
   const handleEnviarSolicitud = async () => {
-    if (solicitudes.some(s => !CATEGORIAS.includes(s.categoria))) return alert("⚠️ Categoría inválida.");
+    const idSolicitud = generarIdOperacion();
+
+    const protoData ={
+      idOperationMessage : idSolicitud,
+      operationType : "SOLICITUD",
+      donations: solicitudes      
+    }
+
     try {
-      const resp = await fetch(`${baseURL}/solicitar-donaciones`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idOrganizacion: 1, listaDonaciones: solicitudes }),
-      });
-      const data = await resp.json();
-      if (data.success) {
+    
+      const response = await axios.post("http://localhost:5000/api/solicitardonaciones", protoData);
+
+      if (response.data.success) {
+
         alert("✅ Solicitud enviada!");
         setSolicitudes([{ categoria: "", descripcion: "" }]);
-      } else alert("❌ Error: " + data.message);
+      } else alert("❌ Error: " + response.data.message);
+
+
     } catch (e) {
       alert("❌ Error enviando solicitud: " + e.message);
     }
@@ -68,24 +100,6 @@ export default function Mensajeria() {
       alert("❌ Error enviando oferta: " + e.message);
     }
   };
-const handleEnviarOperacion = async () => {
-  try {
-    const resp = await fetch(`${baseURL}/crear-operacion`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        operationType: "SOLICITUD",
-        descripcion: "Solicitud desde React con gRPC",
-      }),
-    });
-    const data = await resp.json();
-    if (data.success) alert("✅ Operación creada: " + data.message);
-    else alert("❌ Error: " + data.message);
-  } catch (e) {
-    alert("❌ Error: " + e.message);
-  }
-};
-
 
 
   /*** ADHESIÓN ***/
@@ -106,11 +120,12 @@ const handleEnviarOperacion = async () => {
     }
   };
 
+
+
+
   /*** RENDER PESTAÑAS ***/
   const renderPestana = () => {
     const inputClass = "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500";
-    const selectClass = inputClass + " cursor-pointer";
-    const buttonClass = "bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded mr-2 transition";
 
     switch (pestana) {
       case "donaciones":
@@ -120,6 +135,8 @@ const handleEnviarOperacion = async () => {
       {/* Solicitar Donaciones */}
       <div className="flex flex-col gap-3 items-center">
         <h2 className="text-xl font-semibold mb-2">Solicitar Donaciones</h2>
+        
+
         {solicitudes.map((d, i) => (
           <div key={i} className="flex flex-col gap-2 w-full">
             <select
@@ -142,6 +159,13 @@ const handleEnviarOperacion = async () => {
           <button onClick={handleAgregarSolicitud} className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded">Agregar</button>
           <button onClick={handleEnviarSolicitud} className="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded">Enviar Solicitud</button>
         </div>
+
+        <div className="flex gap-2 mt-2">
+          <button onClick={() => requestList(true)} className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded">Solicitudes Externas</button>
+          <button onClick={() => requestList(false)} className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded">Solicitudes Propias</button>
+
+        </div>
+
       </div>
 
       <hr className="border-gray-700 my-4" />

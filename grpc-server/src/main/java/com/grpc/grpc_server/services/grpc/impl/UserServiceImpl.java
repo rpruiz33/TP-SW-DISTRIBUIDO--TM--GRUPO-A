@@ -142,13 +142,11 @@ public class UserServiceImpl implements UserService {
     ///MODIFICAR USER
     public String updateUser(UpdateUsuarioRequest request) {
 
-        log.debug("ENTRAMOS AL IMP");
 
         // Buscar al usuario original por oldEmail y oldUsername
         User user = userRepository.findByEmailAndUsername(request.getOldEmail(), request.getOldUsername()).orElse(null);
 
         if (user == null) {
-            log.debug("Usuario no encontrado ");
             return "Usuario no encontrado";
         }
 
@@ -191,7 +189,6 @@ public class UserServiceImpl implements UserService {
         user.setRole(rol);
 
         userRepository.save(user);
-        log.debug("Usuario actualizado correctamente");
 
         return "Usuario modificado con éxito";
     }

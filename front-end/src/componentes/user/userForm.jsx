@@ -51,8 +51,6 @@ export default function UserForm() {
       let response;
       if (userToEdit) {
         // 👉 UPDATE
-        console.log("1",userToEdit)
-        console.log("2",formData)
 
         const protoData = {
           username: formData.username,
@@ -64,7 +62,6 @@ export default function UserForm() {
           oldUsername: oldData.username,
           oldEmail: oldData.email,
         }
-        console.log("3",protoData)
 
         response = await axios.put("http://localhost:5000/api/updateuser", protoData);
       } else {

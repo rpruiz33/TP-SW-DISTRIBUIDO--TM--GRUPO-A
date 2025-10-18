@@ -129,9 +129,7 @@ public class UserGrpcService extends MyServiceGrpc.MyServiceImplBase {
     @Override
     public void updateUser(MyServiceClass.UpdateUsuarioRequest request, StreamObserver<MyServiceClass.AltaUsuarioResponse> responseObserver){
 
-        log.debug("LLEGAMOS AL UPDATE con: " + request.getAllFields());
         String result = userService.updateUser(request);
-        log.debug("Salimos con el resultado: "+ result);
         var responseBuilder = MyServiceClass.AltaUsuarioResponse.newBuilder();
 
         switch (result) {

@@ -1,4 +1,5 @@
 package com.grpc.grpc_server.repositories.kafka;
+import java.util.List;
 import java.util.Optional;
 import java.util.Locale.Category;
 
@@ -18,5 +19,17 @@ public interface OperationRepository extends JpaRepository<Operation, Integer> {
     Optional<Operation> findByIdOperationMessageAndOperationType(int idOperationMessage, OperationType operationType);
 
     Operation findByIdOperationMessage(int idOperationMessage);
+
+    // Solicitudes externas (idOrganization distinto)
+    @Query("SELECT o FROM Operation o LEFT JOIN FETCH o.operationDonations " +
+            "WHERE o.operationType = :type AND o.idOrganization <> :idOrganization")
+    List<Operation> findAllByOperationTypeAndIdOrganizationNotWithDonations(@Param("type") OperationType type,
+                                                                            @Param("idOrganization") int idOrganization);
+
+    // Solicitudes propias (idOrganization igual)
+    @Query("SELECT o FROM Operation o LEFT JOIN FETCH o.operationDonations " +
+            "WHERE o.operationType = :type AND o.idOrganization = :idOrganization")
+    List<Operation> findAllByOperationTypeAndIdOrganizationWithDonations(@Param("type") OperationType type,
+                                                                         @Param("idOrganization") int idOrganization);
 }
 

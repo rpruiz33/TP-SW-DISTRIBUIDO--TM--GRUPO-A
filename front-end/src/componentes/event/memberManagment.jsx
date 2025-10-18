@@ -51,7 +51,6 @@ const MemberManagment = () => {
     };
 
     try {
-      console.log("llamando al endpoint con los datos: ", protoPayload);
       const response = await axios.put("http://localhost:5000/api/togglemember", protoPayload);
       console.log(response);
 

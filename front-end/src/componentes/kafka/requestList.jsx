@@ -1,0 +1,120 @@
+import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import axios from "axios";
+
+const RequestList = () => {
+  const location = useLocation();
+  const [requests, setRequests] = useState([]);
+  const [error, setError] = useState("");
+
+  // Cada vez que location cambie, se dispara la llamada
+  useEffect(() => {
+    const isExternal = location.state?.isExternal || false;
+
+    const fetchRequests = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/api/listasolicitudes",
+          { params: { isExternal } }
+        );
+
+        const operations = response.data.operations || [];
+        setRequests(Array.isArray(operations) ? operations : []);
+      } catch (err) {
+        console.error("Error obteniendo solicitudes:", err);
+        setError("Error de conexión con el servidor");
+      }
+    };
+
+    fetchRequests();
+  }, [location]);
+
+  const handleCancelar = (operation) => {
+    console.log("Cancelar solicitud:", operation);
+  };
+
+  const handleTransferir = (operation) => {
+    console.log("Transferir solicitud externa:", operation);
+  };
+
+  const isExternal = location.state?.isExternal || false;
+
+  return (
+    <div className="p-6 bg-[#01000F] min-h-screen flex flex-col">
+      {/* Título */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-4xl font-bold text-white">
+          {isExternal ? "Solicitudes Externas" : "Solicitudes Propias"}
+        </h1>
+      </div>
+
+      {/* Mensaje de error */}
+      {error && <div className="text-red-500 mb-4">{error}</div>}
+
+      {/* Tabla */}
+      <div className="overflow-x-auto flex-grow">
+        <table className="min-w-full border border-gray-700 text-center">
+          <thead>
+            <tr className="bg-gray-900 text-white">
+              <th className="px-4 py-2 border border-gray-700">ID Solicitud</th>
+              <th className="px-4 py-2 border border-gray-700">Organización</th>
+              <th className="px-4 py-2 border border-gray-700">Donaciones</th>
+              <th className="px-4 py-2 border border-gray-700">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {requests.map((req, idx) => (
+              <tr key={idx} className="text-gray-200">
+                <td className="px-4 py-2 border border-gray-700">{req.idOperationMessage}</td>
+                <td className="px-4 py-2 border border-gray-700">{req.idOrganization}</td>
+                <td className="px-4 py-2 border border-gray-700 text-left">
+                  {req.donations && req.donations.length > 0 ? (
+                    <details className="cursor-pointer">
+                      <summary className="text-blue-400 hover:underline">Ver Donaciones</summary>
+                      <ul className="mt-2">
+                        {req.donations.map((don, i) => (
+                          <li key={i} className="py-1 border-b border-gray-700 text-sm">
+                            <span className="font-semibold text-white">{don.category}</span> - {don.description} ({don.quantity})
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                  ) : (
+                    "Sin donaciones"
+                  )}
+                </td>
+
+                {/* Acciones */}
+                <td className="px-4 py-2 border border-gray-700">
+                  {isExternal ? (
+                    <button
+                      onClick={() => handleTransferir(req)}
+                      className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded"
+                    >
+                      Transferir
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleCancelar(req)}
+                      className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded"
+                    >
+                      Cancelar Solicitud
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {requests.length === 0 && !error && (
+          <p className="text-gray-400 text-center mt-4">
+            No se encontraron solicitudes.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default RequestList;

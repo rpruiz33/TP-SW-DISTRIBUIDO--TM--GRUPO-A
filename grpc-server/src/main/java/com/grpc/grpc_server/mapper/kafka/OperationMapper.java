@@ -9,6 +9,7 @@ import com.grpc.grpc_server.entities.grpc.Category;
 import com.grpc.grpc_server.entities.kafka.Operation;
 import com.grpc.grpc_server.entities.kafka.OperationDonation;
 import com.grpc.grpc_server.entities.kafka.OperationType;
+import com.grpc.grpc_server.mapper.grpc.UserMapper;
 import com.grpc.grpc_server.mapper.kafka.OperationDonationMapper.OperationDonationDTO;
 
 import lombok.AllArgsConstructor;
@@ -279,6 +280,22 @@ public class OperationMapper {
 
         return operation;
     }
-    
+
+    ///--------------------------------------MAPEO A Proto-------------------------------------------------///
+    public static MyServiceClass.OperationRequest toProto(Operation operation) {
+
+        MyServiceClass.OperationRequest.Builder builder = MyServiceClass.OperationRequest.newBuilder()
+                .setIdOperationMessage(operation.getIdOperationMessage())
+                .setOperationType(operation.getOperationType().name())
+                .setIdOrganization(operation.getIdOrganization())
+                .addAllDonations(operation.getOperationDonations().stream()
+                        .map(OperationDonationMapper::toProto)
+                        .collect(Collectors.toList())
+                );
+
+        return builder.build();
+    }
+
+
 
 }

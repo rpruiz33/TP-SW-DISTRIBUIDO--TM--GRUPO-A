@@ -34,8 +34,9 @@ import com.grpc.grpc_server.repositories.kafka.OperationRepository;
 @Service
 @RequiredArgsConstructor
 public class OperationProducerServiceImpl implements OperationServiceProducer{
- private final OperationRepository operationRepository;
 
+    @Autowired
+    private  OperationRepository operationRepository;
 
     @Autowired
     private OperationProducer operationProducer;
@@ -52,6 +53,7 @@ public class OperationProducerServiceImpl implements OperationServiceProducer{
     @Transactional
     public String createAndSendOperation(Operation operation) {
         String result = "";
+
 
         // reutilizo el codigo del consumer para persistir un operation
         // envío el mensaje por kafka al topico correspondiente
@@ -143,11 +145,21 @@ public class OperationProducerServiceImpl implements OperationServiceProducer{
 
         return result;
     }
-    
 
     public int existsRequest(Operation operation){
         int idOrganizacionSolicitante = 0;  
 
         return idOrganizacionSolicitante;
     }
+
+    public List<Operation> getAllExternalRequest(OperationType type, int idOrganization){
+
+        return operationRepository.findAllByOperationTypeAndIdOrganizationNotWithDonations(type,idOrganization);
+    }
+
+    public List<Operation> getAllOwnRequest(OperationType type, int idOrganization){
+
+        return operationRepository.findAllByOperationTypeAndIdOrganizationWithDonations(type,idOrganization);
+    }
+
 }

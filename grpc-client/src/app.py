@@ -334,10 +334,33 @@ def getAllDonationsAtEvent(id):
 # RUTAS KAFKA
 # ---------------------------
 
-@app.route("/api/solicitar-donaciones", methods=["POST"])
+# Traer solicitudes externas
+@app.route("/api/listasolicitudes", methods=["GET"])
+def getRequestList():
+    print("api")
+    is_external = request.args.get("isExternal", default="false").lower() == "true"
+    try:
+        grpc_response = grpc_call_with_token(grpc_client.getRequestList, is_external)
+        json_response = MessageToJson(grpc_response)
+        return json_response
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Solicitud Donaciones
+@app.route("/api/solicitardonaciones", methods=["POST"])
 def api_solicitar_donaciones():
-    data = request.get_json()
-    return jsonify(solicitar_donaciones(data))
+    
+    print("llega a la api")
+    data = request.json
+    print (data)
+    try:
+        response = grpc_call_with_token(grpc_client.requestDonation, data.get("idOperationMessage"),data.get("operationType"),data.get("donations") )
+        return jsonify({
+            "success": response.success,
+            "message": response.message
+        })
+    except Exception as e:
+        return jsonify({"message": "Error generando solicitud", "error": str(e)}), 500
 
 
 # 2️⃣ Transferir donaciones
@@ -385,20 +408,7 @@ def api_adhesion_evento(id_organizador):
     data = request.get_json()
     return jsonify(adhesion_evento(id_organizador, data))
 
-# ---------------------------
-# RUTAS EXTRA
-@app.route("/api/crear-operacion", methods=["POST"])
-def crear_operacion():
-    data = request.get_json()
-    result = create_operation(data["operationType"], data["descripcion"])
-    return jsonify(result)
 
-
-@app.route("/api/crear-evento-externo", methods=["POST"])
-def crear_evento_externo():
-    data = request.get_json()
-    result = create_external_event(data["id"])
-    return jsonify(result)
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)

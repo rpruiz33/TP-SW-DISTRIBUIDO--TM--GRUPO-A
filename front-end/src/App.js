@@ -11,12 +11,15 @@ import DonationForm from './componentes/donation/donationForm';
 import EventForm from './componentes/event/eventForm';
 import DonationManagment from './componentes/event/donationManagment';
 import AssignNewDonation from './componentes/event/assignNewDonation';
-import 'tailwindcss/tailwind.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import EventList from './componentes/event/eventList';
 import Dashboard from './componentes/dashboard/Dashboard';
-import Mensajeria from './componentes/message/message';
-import OperationForm from './componentes/operationForm/operationForm';  
+
+import Mensajeria from './componentes/kafka/message';
+import RequestList from './componentes/kafka/requestList';
+
+
+import 'tailwindcss/tailwind.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 function App() {
   return (
     <Router>
@@ -46,7 +49,8 @@ function App() {
             <Route path="/eventform" element={<EventForm />} />
 
             <Route path="/mensajeria" element={<Mensajeria />} />
-            <Route path="/operationform" element={<OperationForm />} />
+            <Route path="/requestlist" element={<RequestList />} />
+
           </Routes>
         </div>
         <Footer />

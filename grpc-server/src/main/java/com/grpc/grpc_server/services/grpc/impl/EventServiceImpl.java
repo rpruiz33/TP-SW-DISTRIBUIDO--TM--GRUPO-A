@@ -167,11 +167,10 @@ public class EventServiceImpl implements EventService {
         if (mainEvent == null || member == null){
             return result;
         }
-        log.debug("EN EL METODO A PUNTO DEL IF");
+
 
         //Logica en caso que ya este asignado el usuario al evento
         if (request.getAlreadyAssigned()){
-            log.debug("Caso miembro asignado arranca");
 
             MemberAtEvent existing = memberAtEventRepository.findByEventAndUser(mainEvent, member);
 
@@ -182,12 +181,10 @@ public class EventServiceImpl implements EventService {
                 mainEvent.getMembers().remove(existing);
                 member.getEvents().remove(existing);
             }
-            log.debug("Caso miembro asignado termina");
 
             result=true;
 
         }else{ //Logica en caso que se tenga que asignar el usuario
-            log.debug("Caso miembro sin asignar arranca");
 
             MemberAtEvent newMember = new MemberAtEvent();
             newMember.setEvent(mainEvent);
@@ -196,7 +193,6 @@ public class EventServiceImpl implements EventService {
             // Actualizar listas
             mainEvent.getMembers().add(newMember);
             member.getEvents().add(newMember);
-            log.debug("Caso miembro sin asignar terminaa");
 
             result=true;
         }

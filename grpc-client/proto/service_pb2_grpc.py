@@ -5,7 +5,7 @@ import warnings
 
 import service_pb2 as service__pb2
 
-GRPC_GENERATED_VERSION = '1.74.0'
+GRPC_GENERATED_VERSION = '1.75.1'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
@@ -1107,6 +1107,11 @@ class KafkaServiceStub(object):
                 request_serializer=service__pb2.EventAdhesionRequest.SerializeToString,
                 response_deserializer=service__pb2.GenericResponse.FromString,
                 _registered_method=True)
+        self.GetRequestList = channel.unary_unary(
+                '/KafkaService/GetRequestList',
+                request_serializer=service__pb2.RequestListRequest.SerializeToString,
+                response_deserializer=service__pb2.OperationListResponse.FromString,
+                _registered_method=True)
 
 
 class KafkaServiceServicer(object):
@@ -1133,6 +1138,12 @@ class KafkaServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetRequestList(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_KafkaServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -1150,6 +1161,11 @@ def add_KafkaServiceServicer_to_server(servicer, server):
                     servicer.CreateEventAdhesion,
                     request_deserializer=service__pb2.EventAdhesionRequest.FromString,
                     response_serializer=service__pb2.GenericResponse.SerializeToString,
+            ),
+            'GetRequestList': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetRequestList,
+                    request_deserializer=service__pb2.RequestListRequest.FromString,
+                    response_serializer=service__pb2.OperationListResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -1236,6 +1252,33 @@ class KafkaService(object):
             '/KafkaService/CreateEventAdhesion',
             service__pb2.EventAdhesionRequest.SerializeToString,
             service__pb2.GenericResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetRequestList(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/KafkaService/GetRequestList',
+            service__pb2.RequestListRequest.SerializeToString,
+            service__pb2.OperationListResponse.FromString,
             options,
             channel_credentials,
             insecure,
