@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.graphql</groupId>
-	<artifactId>web-service-graphql</artifactId>
+	<artifactId>web-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>web-service-graphql</name>
+	<name>web-service</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>

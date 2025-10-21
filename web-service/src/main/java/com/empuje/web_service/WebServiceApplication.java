@@ -1,13 +1,15 @@
-package com.graphql.web_service_graphql;
+package com.empuje.web_service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class WebServiceGraphqlApplication {
+public class WebServiceApplication  {
 
 	public static void main(String[] args) {
-		SpringApplication.run(WebServiceGraphqlApplication.class, args);
+		System.out.println(System.getenv("DB_URL"));
+
+		SpringApplication.run(WebServiceApplication .class, args);
 	}
 
 }
