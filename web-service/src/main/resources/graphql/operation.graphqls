@@ -1,0 +1,14 @@
+type Operation {
+    idOperation: ID!
+    idOperationMessage: Int
+    idOrganization: Int
+    operationType: String
+    activate: Boolean
+    dateRegistration: String
+    dateModification: String
+}
+
+
+type Query {
+    operations: [Operation!]!
+}
