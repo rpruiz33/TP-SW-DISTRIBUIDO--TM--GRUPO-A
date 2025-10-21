@@ -49,12 +49,12 @@ public class ExternalEventProducer {
             String message = objectMapper.writeValueAsString(cancelExternalEventDTO);
 
             kafkaTemplate.send(DELETETOPIC, message);
-            log.info("📤 Evento enviado a Kafka ({}): {}", DELETETOPIC, message);
+            log.info("📤 Evento deleted enviado a Kafka ({}): {}", DELETETOPIC, message);
 
             result=true;
 
         } catch (JsonProcessingException e) {
-            log.error("❌ Error serializando operación de crear evento externo para Kafka", e);
+            log.error("❌ Error serializando operación de borrar evento externo para Kafka", e);
         }
 
         return result;

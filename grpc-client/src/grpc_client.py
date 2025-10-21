@@ -122,7 +122,6 @@ class MyServiceClient:
     # ----------------- METODOS PARA KAFKA-PRODUCER-GRPC -----------------
 
     def getRequestList(self, isExternal: bool, metadata=None):
-        print(isExternal)
 
         request = service_pb2.RequestListRequest(isExternal=isExternal)
         return self.kafka_stub.GetRequestList (request, metadata=metadata )
@@ -148,10 +147,45 @@ class MyServiceClient:
         request.donations.extend(donation_protos)
         return self.kafka_stub.CreateOperation(request, metadata=metadata )
     
+    
+    def transferDonations(self, idOperationMessage:int , operationType: str, donations, idOrganization:int, metadata=None ):
+        # Convertir lista de diccionarios -> lista de OperationDonationProto
+        donation_protos = []
+        for d in donations:
+                proto = service_pb2.OperationDonationProto(
+                category=d["category"],
+                description=d["description"],
+                quantity=int(d.get("quantity", 0))
+                )
+                donation_protos.append(proto)
+
+        request = service_pb2.OperationRequest(
+            idOperationMessage=idOperationMessage,
+            operationType=operationType,
+            idOrganization=idOrganization
+        )
+        request.donations.extend(donation_protos)
+
+        return self.kafka_stub.CreateOperation(request, metadata=metadata )
+    
+    def deleteRequest(self,  idOperationMessage:int , operationType: str, metadata=None):
+        request = service_pb2.OperationRequest(idOperationMessage=idOperationMessage,operationType=operationType,idOrganization=1)
+        return self.kafka_stub.CreateOperation(request, metadata=metadata )
+
+
+    def getExternalEventList(self, metadata=None):
+        request = service_pb2.Empty()
+        return self.kafka_stub.GetExternalEventList (request, metadata=metadata )
+    
 
     def publishEvent(self, id: int, metadata=None):
         request = service_pb2.ExternalEventRequest(id=id)
         return self.kafka_stub.CreateExternalEvent(request, metadata=metadata )
+    
+    def eventAdhesion(self, idExternalEvent:int, emailVolunteer:str, metadata=None):
+        print("grpc")
+        request = service_pb2.EventAdhesionRequest(idExternalEvent=idExternalEvent,emailVolunteer=emailVolunteer)
+        return self.kafka_stub.CreateEventAdhesion(request, metadata=metadata )
     
     
 

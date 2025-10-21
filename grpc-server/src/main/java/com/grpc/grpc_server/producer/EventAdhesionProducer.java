@@ -35,12 +35,12 @@ public class EventAdhesionProducer {
             String topicName = ADHESIONTOPIC + idOrganizacionExterna;
 
             kafkaTemplate.send(topicName, message);
-            log.info("📤 Evento enviado a Kafka ({}): {}", topicName, message);
+            log.info("📤 Adhesion enviada a Kafka ({}): {}", topicName, message);
 
             result = true;
 
         } catch (JsonProcessingException e) {
-            log.error("❌ Error serializando operación de crear evento externo para Kafka", e);
+            log.error("❌ Error serializando operación de crear adhesion a evento externo para Kafka", e);
         }
 
         return result;

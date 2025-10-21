@@ -15,7 +15,7 @@ public interface OperationServiceProducer {
     String createAndSendOperation(Operation operation);
     String processTransfer(Operation operation, String idOrganizacionSolicitante);
     String processCancelRequest(CancelRequestDTO cancelRequestDTO);
-    List<Operation> getAllExternalRequest(OperationType type, int idOrganization);
+    List<Operation> getRequestList(boolean isExternal);
 
     //void sendTransfer(Operation operation, List<OperationDonation> donations);
     //void sendCancelRequest(int idOffer, int idOrganization);

@@ -16,6 +16,8 @@ import Dashboard from './componentes/dashboard/Dashboard';
 
 import Mensajeria from './componentes/kafka/message';
 import RequestList from './componentes/kafka/requestList';
+import RequestForm from './componentes/kafka/requestForm';
+
 
 
 import 'tailwindcss/tailwind.css';
@@ -50,6 +52,8 @@ function App() {
 
             <Route path="/mensajeria" element={<Mensajeria />} />
             <Route path="/requestlist" element={<RequestList />} />
+            <Route path="/requestform" element={<RequestForm />} />
+
 
           </Routes>
         </div>

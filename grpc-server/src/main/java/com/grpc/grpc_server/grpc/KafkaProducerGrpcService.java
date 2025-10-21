@@ -6,9 +6,11 @@ import com.grpc.grpc_server.DonationServiceGrpc;
 import com.grpc.grpc_server.KafkaServiceGrpc;
 import com.grpc.grpc_server.MyServiceClass;
 import com.grpc.grpc_server.entities.grpc.User;
+import com.grpc.grpc_server.entities.kafka.ExternalEvent;
 import com.grpc.grpc_server.entities.kafka.Operation;
 import com.grpc.grpc_server.entities.kafka.OperationType;
 import com.grpc.grpc_server.mapper.grpc.UserMapper;
+import com.grpc.grpc_server.mapper.kafka.ExternalEventMapper;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.CancelRequestDTO;
 import com.grpc.grpc_server.mapper.kafka.OperationMapper.OfferDTO;
@@ -56,6 +58,7 @@ public class KafkaProducerGrpcService extends KafkaServiceGrpc.KafkaServiceImplB
             break;
 
             case "TRANSFERENCIA":
+                log.debug("Llega a transferencia");
                 TransferDTO dto2 = OperationMapper.toTransferDTO(request);
                 Operation operation2 = OperationMapper.toEntity(dto2,OperationType.TRANSFERENCIA );
                 result = operationProducerServiceImpl.processTransfer(operation2, String.valueOf(request.getIdOrganization()));
@@ -69,8 +72,6 @@ public class KafkaProducerGrpcService extends KafkaServiceGrpc.KafkaServiceImplB
             
             default:
                 CancelRequestDTO dto4 = OperationMapper.toCancelRequestDTO(request);
-                System.out.println(dto4.getIdSolicitud());
-                System.out.println(dto4.getIdOrganizacionSolicitante());
                 result = operationProducerServiceImpl.processCancelRequest(dto4);
             break;
         }
@@ -144,14 +145,7 @@ public class KafkaProducerGrpcService extends KafkaServiceGrpc.KafkaServiceImplB
     public void getRequestList (MyServiceClass.RequestListRequest request, StreamObserver<MyServiceClass.OperationListResponse> responseObserver){
 
         // 1️⃣ Obtener entidades desde la capa service
-        List<Operation> externalRequest;
-
-
-        if (request.getIsExternal()){
-            externalRequest= operationProducerServiceImpl.getAllExternalRequest(OperationType.SOLICITUD,1);
-        }else{
-            externalRequest = operationProducerServiceImpl.getAllOwnRequest(OperationType.SOLICITUD,1);
-        }
+        List<Operation> externalRequest = operationProducerServiceImpl.getRequestList(request.getIsExternal());
 
 
         // 2️⃣ Mapear a Proto usando Mapper
@@ -172,6 +166,27 @@ public class KafkaProducerGrpcService extends KafkaServiceGrpc.KafkaServiceImplB
 
     }
 
+    @Override
+    public void getExternalEventList(MyServiceClass.Empty request, StreamObserver<MyServiceClass.ExternalEventListResponse> responseObserver){
+        // 1️⃣ Obtener entidades desde la capa service
+        List<ExternalEvent> externalEventList = externalEventProducerService.getExternalEventList();
 
+
+        // 2️⃣ Mapear a Proto usando Mapper
+        List<MyServiceClass.ExternalEventResponse> grpcExternalEvents = externalEventList.stream()
+                .map(ExternalEventMapper::toProto)
+                .collect(Collectors.toList());
+
+
+
+        // 3️⃣ Construir y enviar la respuesta
+        MyServiceClass.ExternalEventListResponse response = MyServiceClass.ExternalEventListResponse.newBuilder()
+                .addAllExternalEvents(grpcExternalEvents)
+                .build();
+
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+
+    }
 
 }

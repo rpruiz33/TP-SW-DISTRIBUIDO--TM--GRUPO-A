@@ -68,7 +68,6 @@ public class OperationProducerServiceImpl implements OperationServiceProducer{
         return result;
     }
 
-
     ///valida la cantidad de la transferencia.
     ///valida que esté registrada la donacion en nuestro inventario.
     ///valida que exista una solicitud que responda a la transferencia
@@ -152,14 +151,18 @@ public class OperationProducerServiceImpl implements OperationServiceProducer{
         return idOrganizacionSolicitante;
     }
 
-    public List<Operation> getAllExternalRequest(OperationType type, int idOrganization){
+    public List<Operation> getRequestList(boolean isExternal) {
+        List<Operation> requests;
 
-        return operationRepository.findAllByOperationTypeAndIdOrganizationNotWithDonations(type,idOrganization);
+        if (isExternal){
+            requests= operationRepository.findAllByOperationTypeAndIdOrganizationNotWithDonations(OperationType.SOLICITUD,1);
+        }else {
+            requests = operationRepository.findAllByOperationTypeAndIdOrganizationWithDonations(OperationType.SOLICITUD,1);
+        }
+
+        return  requests;
     }
 
-    public List<Operation> getAllOwnRequest(OperationType type, int idOrganization){
 
-        return operationRepository.findAllByOperationTypeAndIdOrganizationWithDonations(type,idOrganization);
-    }
 
 }

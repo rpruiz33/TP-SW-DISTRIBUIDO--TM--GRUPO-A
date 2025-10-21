@@ -334,10 +334,9 @@ def getAllDonationsAtEvent(id):
 # RUTAS KAFKA
 # ---------------------------
 
-# Traer solicitudes externas
-@app.route("/api/listasolicitudes", methods=["GET"])
+#TRAER SOLICITUDES 
+@app.route("/api/requestlist", methods=["GET"])
 def getRequestList():
-    print("api")
     is_external = request.args.get("isExternal", default="false").lower() == "true"
     try:
         grpc_response = grpc_call_with_token(grpc_client.getRequestList, is_external)
@@ -346,13 +345,11 @@ def getRequestList():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# Solicitud Donaciones
-@app.route("/api/solicitardonaciones", methods=["POST"])
+#SOLICITAR DONACIONES
+@app.route("/api/requestdonation", methods=["POST"])
 def api_solicitar_donaciones():
     
-    print("llega a la api")
     data = request.json
-    print (data)
     try:
         response = grpc_call_with_token(grpc_client.requestDonation, data.get("idOperationMessage"),data.get("operationType"),data.get("donations") )
         return jsonify({
@@ -363,11 +360,26 @@ def api_solicitar_donaciones():
         return jsonify({"message": "Error generando solicitud", "error": str(e)}), 500
 
 
-# 2️⃣ Transferir donaciones
-@app.route("/api/transferir-donaciones/<int:id_org_solicitante>", methods=["POST"])
-def api_transferir_donaciones(id_org_solicitante):
-    data = request.get_json()
-    return jsonify(transferir_donaciones(id_org_solicitante, data))
+#TRANSFERIR DONACIONES
+@app.route("/api/transferdonations", methods=["POST"])
+def api_transferir_donaciones():
+    data = request.json
+    try:
+        response = grpc_call_with_token(
+            grpc_client.transferDonations, 
+            data.get("idOperationMessage"),
+            data.get("operationType"),
+            data.get("donations"),
+            data.get("idOrganization") 
+        )
+        
+        return jsonify({
+            "success": response.success,
+            "message": response.message
+        })
+    except Exception as e:
+        return jsonify({"message": "Error generando transferencia", "error": str(e)}), 500
+
 
 
 # 3️⃣ Ofrecer donaciones
@@ -377,11 +389,29 @@ def api_ofrecer_donaciones():
     return jsonify(ofrecer_donaciones(data))
 
 
-# 4️⃣ Baja solicitud
-@app.route("/api/baja-solicitud-donaciones", methods=["POST"])
-def api_baja_solicitud():
-    data = request.get_json()
-    return jsonify(baja_solicitud_donaciones(data))
+#DAR DE BAJA SOLICITUD
+@app.route("/api/deleterequest", methods=["POST"])
+def deleteRequest():
+    data = request.json
+    try:
+        response = grpc_call_with_token(grpc_client.deleteRequest, data.get("idOperationMessage"),data.get("operationType") )
+        return jsonify({
+            "success": response.success,
+            "message": response.message
+        })
+    except Exception as e:
+        return jsonify({"message": "Error generando solicitud", "error": str(e)}), 500
+
+#TRAER EVENTOS EXTERNOS
+@app.route("/api/externalevents", methods=["GET"])
+def getExternalEventList():
+    try:
+        grpc_response = grpc_call_with_token(grpc_client.getExternalEventList)
+        json_response = MessageToJson(grpc_response)
+        return json_response
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 #PUBLICAR EVENTO
 @app.route("/api/publishevent/<int:id>", methods=["POST"])
@@ -395,19 +425,20 @@ def publishEvent(id):
     except Exception as e:
         return jsonify({"message": "Error publicando evento", "error": str(e)}), 500
 
-# 6️⃣ Baja evento
-@app.route("/api/baja-evento", methods=["POST"])
-def api_baja_evento():
-    data = request.get_json()
-    return jsonify(baja_evento(data))
 
-
-# 7️⃣ Adhesión a evento
-@app.route("/api/adhesion-evento/<int:id_organizador>", methods=["POST"])
-def api_adhesion_evento(id_organizador):
-    data = request.get_json()
-    return jsonify(adhesion_evento(id_organizador, data))
-
+#ADHESION A EVENTO
+@app.route("/api/eventadhesion", methods=["POST"])
+def eventAdhesion():
+    data = request.json
+    print("api")
+    try:
+        response = grpc_call_with_token(grpc_client.eventAdhesion, data.get("idExternalEvent"),data.get("emailVolunteer"))
+        return jsonify({
+            "success": response.success,
+            "message": response.message
+        })
+    except Exception as e:
+        return jsonify({"message": "Error generando adhesion", "error": str(e)}), 500
 
 
 if __name__ == "__main__":

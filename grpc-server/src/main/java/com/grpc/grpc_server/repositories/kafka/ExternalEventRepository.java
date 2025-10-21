@@ -5,10 +5,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface ExternalEventRepository extends JpaRepository<ExternalEvent, Integer> {
 
     ExternalEvent findByIdExternalEventMessage(int id);
 
     @Query("SELECT e FROM ExternalEvent e LEFT JOIN FETCH e.adhesions WHERE e.idExternalEventMessage = :id")
     ExternalEvent findByIdExternalEventMessageWithAdhesions(@Param("id") int id);
+
+
+    List<ExternalEvent> findAllByIdOrganizationNot(int id);
 }

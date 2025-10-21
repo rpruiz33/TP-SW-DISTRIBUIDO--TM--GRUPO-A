@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Slf4j
@@ -107,5 +108,10 @@ public class ExternalEventProducerServiceImpl implements ExternalEventProducerSe
         }
 
         return result;
+    }
+
+
+    public List<ExternalEvent> getExternalEventList(){
+        return externalEventRepository.findAllByIdOrganizationNot(1);
     }
 }

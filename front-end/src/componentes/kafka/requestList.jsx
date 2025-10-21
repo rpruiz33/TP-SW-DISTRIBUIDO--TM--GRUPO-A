@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const RequestList = () => {
   const location = useLocation();
   const [requests, setRequests] = useState([]);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   // Cada vez que location cambie, se dispara la llamada
   useEffect(() => {
@@ -14,7 +16,7 @@ const RequestList = () => {
     const fetchRequests = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/listasolicitudes",
+          "http://localhost:5000/api/requestlist",
           { params: { isExternal } }
         );
 
@@ -29,12 +31,33 @@ const RequestList = () => {
     fetchRequests();
   }, [location]);
 
-  const handleCancelar = (operation) => {
-    console.log("Cancelar solicitud:", operation);
+  const handleCancelar = async (operation) => {
+
+    const protoData = {
+      idOperationMessage:operation.idOperationMessage,
+      operationType: "CANCELAR",
+    }
+
+    try {
+        const response = await axios.post(
+          "http://localhost:5000/api/deleterequest", protoData
+          
+        );
+
+        if (response.data.success){
+          alert("Solicitud dada de baja",response.data.message);
+        }else{
+          alert("ERROR:",response.data.message);
+        }
+
+
+      } catch (err) {
+        setError("Error de conexión con el servidor");
+      }
   };
 
   const handleTransferir = (operation) => {
-    console.log("Transferir solicitud externa:", operation);
+    navigate("/requestform", { state: { operation } });
   };
 
   const isExternal = location.state?.isExternal || false;
@@ -74,7 +97,7 @@ const RequestList = () => {
                       <ul className="mt-2">
                         {req.donations.map((don, i) => (
                           <li key={i} className="py-1 border-b border-gray-700 text-sm">
-                            <span className="font-semibold text-white">{don.category}</span> - {don.description} ({don.quantity})
+                            <span className="font-semibold text-white">{don.category}</span> - {don.description} 
                           </li>
                         ))}
                       </ul>

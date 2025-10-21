@@ -88,22 +88,22 @@ VALUES (510180003, 3, 'SOLICITUD', TRUE, '2025-10-18 02:00:00', '2025-10-18 02:0
 -- ===========================
 INSERT INTO operation_donations (category, description, quantity, activate, operation_id)
 VALUES 
-('ROPA', 'Camisas y pantalones', 10, TRUE, 1),
-('ALIMENTO', 'Latas de comida', 20, TRUE, 1);
+('ROPA', 'Camisas y pantalones', 0, TRUE, 1),
+('ALIMENTO', 'Latas de comida', 0, TRUE, 1);
 
 -- ===========================
 -- Donaciones para la operación externa 1
 -- ===========================
 INSERT INTO operation_donations (category, description, quantity, activate, operation_id)
 VALUES 
-('JUGUETE', 'Peluches', 15, TRUE, 2),
-('UTIL_ESCOLAR', 'Cuadernos y lápices', 25, TRUE, 2);
+('JUGUETE', 'Peluches', 0, TRUE, 2),
+('UTIL_ESCOLAR', 'Cuadernos y lápices', 0, TRUE, 2);
 
 -- ===========================
 -- Donaciones para la operación externa 2
 -- ===========================
 INSERT INTO operation_donations (category, description, quantity, activate, operation_id)
 VALUES 
-('ROPA', 'Zapatos', 30, TRUE, 3),
-('ALIMENTO', 'Arroz y fideos', 50, TRUE, 3);
+('ROPA', 'Zapatos', 0, TRUE, 3),
+('ALIMENTO', 'Arroz y fideos', 0, TRUE, 3);
 
