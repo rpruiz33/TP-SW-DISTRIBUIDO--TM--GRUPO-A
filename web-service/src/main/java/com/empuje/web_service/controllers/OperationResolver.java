@@ -1,8 +1,8 @@
 // src/main/java/com/ejemplo/controllers/OperationResolver.java
 package com.empuje.web_service.controllers;
 
-import com.empuje.web_service.entities.Operation;
-import com.empuje.web_service.entities.Operation;
+
+import com.empuje.web_service.entities.kafka.Operation;
 import com.empuje.web_service.services.OperationService;
 
 import org.springframework.beans.factory.annotation.Autowired;

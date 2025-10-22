@@ -1,7 +1,6 @@
-package com.empuje.web_service.entities;
+package com.empuje.web_service.entities.kafka;
 
-import com.empuje.web_service.entities.Category;
-
+import com.empuje.web_service.entities.grpc.Category;
 import jakarta.persistence.*;
 import lombok.*;
 

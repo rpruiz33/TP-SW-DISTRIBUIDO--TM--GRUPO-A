@@ -1,6 +1,8 @@
 package com.empuje.web_service.dto;
 
-import com.empuje.web_service.entities.Category;
+
+import com.empuje.web_service.entities.grpc.Category;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

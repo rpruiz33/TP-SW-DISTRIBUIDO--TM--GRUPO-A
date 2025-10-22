@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.empuje.web_service.dto.DonationReportDTO;
-import com.empuje.web_service.entities.Category;
+import com.empuje.web_service.entities.grpc.Category;
 import com.empuje.web_service.repositories.OperationDonationRepository;
 import com.empuje.web_service.services.OperationDonationService;
 

@@ -1,11 +1,11 @@
-package com.empuje.web_service.entities;
+package com.empuje.web_service.entities.kafka;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-
 import lombok.*;
 
 @Entity 

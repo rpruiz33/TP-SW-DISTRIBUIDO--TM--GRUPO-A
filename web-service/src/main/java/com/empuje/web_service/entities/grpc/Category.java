@@ -1,4 +1,4 @@
-package com.empuje.web_service.entities;
+package com.empuje.web_service.entities.grpc;
 
 public enum Category {
     ROPA,
