@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.empuje.web_service.entities.web_service.DeletedStatus;
 import com.empuje.web_service.entities.web_service.SavedFilter;
 import com.empuje.web_service.repositories.SavedFilterRepository;
 import com.empuje.web_service.services.SavedFilterService;
@@ -49,10 +50,13 @@ public class SavedFilterServiceImpl implements SavedFilterService {
     }
 
     @Override
-    public void deleteFilter(Long id) {
-        if (!savedFilterRepository.existsById(id)) {
-            throw new RuntimeException("Filtro no encontrado.");
-        }
-        savedFilterRepository.deleteById(id);
+    public Boolean deleteStatus(Long id) {
+        return savedFilterRepository.findById(id)
+            .map(filter -> {
+                filter.setDeletedStatus(DeletedStatus.SI);
+                savedFilterRepository.save(filter);
+                return true;
+            })
+            .orElse(false);
     }
 }

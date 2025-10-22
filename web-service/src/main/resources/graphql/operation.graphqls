@@ -2,81 +2,73 @@
 # Tipos y enums principales
 # ===========================
 
-# Operaciones
 type Operation {
-    idOperation: ID!
-    idOperationMessage: Int
-    idOrganization: Int
-    operationType: String
-    activate: Boolean
-    dateRegistration: String
-    dateModification: String
+  idOperation: ID!
+  idOperationMessage: Int
+  idOrganization: Int
+  operationType: String
+  activate: Boolean
+  dateRegistration: String
+  dateModification: String
 }
 
-# Reportes de donaciones
 type DonationReport {
-    category: Category
-    activate: Boolean
-    totalQuantity: Int
+  category: Category
+  activate: Boolean
+  totalQuantity: Int
 }
 
-# Categorías de donación
 enum Category {
-    ROPA
-    ALIMENTO
-    JUGUETE
-    UTIL_ESCOLAR
+  ROPA
+  ALIMENTO
+  JUGUETE
+  UTIL_ESCOLAR
 }
 
-# Estado de eliminación
 enum DeletedStatus {
-    SI
-    NO
-    AMBOS
+  SI
+  NO
+  AMBOS
 }
 
-# Filtros guardados
 type SavedFilter {
-    id: ID!
-    userId: ID!
-    name: String!
-    category: Category
-    startDate: String
-    endDate: String
-    deletedStatus: DeletedStatus
+  id: ID!
+  userId: ID!
+  name: String!
+  category: Category
+  startDate: String
+  endDate: String
+  deletedStatus: DeletedStatus
 }
 
-# Input para crear o actualizar filtros
 input SavedFilterInputDTO {
-    userId: ID!
-    name: String!
-    category: Category
-    startDate: String
-    endDate: String
-    deletedStatus: DeletedStatus
+  userId: ID!
+  name: String!
+  category: Category
+  startDate: String
+  endDate: String
+  deletedStatus: DeletedStatus
 }
 
 # ===========================
 # Queries
 # ===========================
 type Query {
-    operations: [Operation!]!
-    
-    donationReport(
-        category: Category,
-        startDate: String,
-        endDate: String,
-        activate: Boolean
-    ): [DonationReport!]!
-    
-    getSavedFilters(userId: ID!): [SavedFilter!]!
+  operations: [Operation!]!
+  donationReport(
+    category: Category,
+    startDate: String,
+    endDate: String,
+    activate: Boolean
+  ): [DonationReport!]!
+  getSavedFilters(userId: ID!): [SavedFilter!]!
 }
 
 # ===========================
 # Mutations
 # ===========================
 type Mutation {
-    saveFilter(input: SavedFilterInputDTO!): SavedFilter!
-    updateFilter(id: ID!, input: SavedFilterInputDTO!): SavedFilter!
-    deleteFilter(id: ID!): Boolean!
+  saveFilter(input: SavedFilterInputDTO!): SavedFilter!
+  updateFilter(id: ID!, input: SavedFilterInputDTO!): SavedFilter!
+  deleteStatus(id: ID!): Boolean!
 }
