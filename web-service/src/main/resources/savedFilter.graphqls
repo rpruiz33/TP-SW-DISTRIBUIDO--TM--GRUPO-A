@@ -1,0 +1,39 @@
+# Enum para el estado eliminado
+enum DeletedStatus {
+    SI
+    NO
+    AMBOS
+}
+
+# Tipo que representa un filtro guardado
+type SavedFilter {
+    id: ID!
+    userId: Long!
+    name: String!
+    category: String
+    startDate: String
+    endDate: String
+    deletedStatus: DeletedStatus
+}
+
+# Input para crear o actualizar filtros
+input SavedFilterInputDTO {
+    userId: Long!
+    name: String!
+    category: String
+    startDate: String
+    endDate: String
+    deletedStatus: DeletedStatus
+}
+
+# Queries disponibles
+type Query {
+    getSavedFilters(userId: Long!): [SavedFilter!]!
+}
+
+# Mutations disponibles
+type Mutation {
+    saveFilter(input: SavedFilterInputDTO!): SavedFilter!
+    updateFilter(id: ID!, input: SavedFilterInputDTO!): SavedFilter!
+    deleteFilter(id: ID!): Boolean!
+}

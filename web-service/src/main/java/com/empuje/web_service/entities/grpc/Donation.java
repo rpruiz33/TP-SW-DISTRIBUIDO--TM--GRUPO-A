@@ -1,5 +1,4 @@
-package com.empuje.web_service.entities.grpc;
-
+package com.empuje.web_service.entities.grpc;   
 
 import java.time.LocalDateTime;
 import java.util.List;
