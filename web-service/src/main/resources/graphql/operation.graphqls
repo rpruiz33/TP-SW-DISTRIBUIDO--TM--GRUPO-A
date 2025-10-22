@@ -8,7 +8,26 @@ type Operation {
     dateModification: String
 }
 
+type DonationReport {
+    category: String
+    activate: Boolean
+    totalQuantity: Int
+}
+
+enum Category {
+    ROPA
+    ALIMENTO
+    JUGUETE
+    UTIL_ESCOLAR
+}
 
 type Query {
     operations: [Operation!]!
+    donationReport(
+        category: Category,
+        startDate: String,
+        endDate: String,
+        activate: Boolean
+    ): [DonationReport!]!
 }
+
