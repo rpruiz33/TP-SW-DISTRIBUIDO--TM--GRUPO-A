@@ -35,10 +35,12 @@ public class UserFilter {
     @Column(name = "end_date",nullable = true)
     private LocalDateTime endDate;
 
+
+    // --- Filtros de DONATION_REPORT ---
+
     @Column(name = "activate",nullable = true)
     private Boolean activate;
 
-    // --- Filtros de DONATION_REPORT ---
     @Enumerated(EnumType.STRING)
     @Column(name = "category", nullable = true)
     private Category category;
