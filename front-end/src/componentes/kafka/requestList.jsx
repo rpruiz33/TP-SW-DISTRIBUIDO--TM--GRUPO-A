@@ -9,58 +9,62 @@ const RequestList = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+
+  const isExternal = location.state?.isExternal || false;
+
   // Cada vez que location cambie, se dispara la llamada
   useEffect(() => {
-    const isExternal = location.state?.isExternal || false;
-
-    const fetchRequests = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:5000/api/requestlist",
-          { params: { isExternal } }
-        );
-
-        const operations = response.data.operations || [];
-        setRequests(Array.isArray(operations) ? operations : []);
-      } catch (err) {
-        console.error("Error obteniendo solicitudes:", err);
-        setError("Error de conexión con el servidor");
-      }
-    };
 
     fetchRequests();
   }, [location]);
 
+
+  const fetchRequests = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:5000/api/requestlist",
+        { params: { isExternal } }
+      );
+
+      const operations = response.data.operations || [];
+      setRequests(Array.isArray(operations) ? operations : []);
+    } catch (err) {
+      console.error("Error obteniendo solicitudes:", err);
+      setError("Error de conexión con el servidor");
+    }
+  };
+
   const handleCancelar = async (operation) => {
 
     const protoData = {
-      idOperationMessage:operation.idOperationMessage,
+      idOperationMessage: operation.idOperationMessage,
       operationType: "CANCELAR",
     }
 
     try {
-        const response = await axios.post(
-          "http://localhost:5000/api/deleterequest", protoData
-          
-        );
+      const response = await axios.post(
+        "http://localhost:5000/api/deleterequest", protoData
 
-        if (response.data.success){
-          alert("Solicitud dada de baja",response.data.message);
-        }else{
-          alert("ERROR:",response.data.message);
-        }
+      );
 
+      if (response.data.success) {
+        alert("Solicitud dada de baja", response.data.message);
+        fetchRequests();
 
-      } catch (err) {
-        setError("Error de conexión con el servidor");
+      } else {
+        alert("ERROR:", response.data.message);
       }
+
+
+    } catch (err) {
+      setError("Error de conexión con el servidor");
+    }
   };
 
   const handleTransferir = (operation) => {
     navigate("/requestform", { state: { operation } });
   };
 
-  const isExternal = location.state?.isExternal || false;
 
   return (
     <div className="p-6 bg-[#01000F] min-h-screen flex flex-col">
@@ -82,6 +86,11 @@ const RequestList = () => {
               <th className="px-4 py-2 border border-gray-700">ID Solicitud</th>
               <th className="px-4 py-2 border border-gray-700">Organización</th>
               <th className="px-4 py-2 border border-gray-700">Donaciones</th>
+
+              {/* Mostrar columna "Activo" solo si NO es externa */}
+              {!isExternal && (
+                <th className="px-4 py-2 border border-gray-700">Activo</th>
+              )}
               <th className="px-4 py-2 border border-gray-700">Acciones</th>
             </tr>
           </thead>
@@ -97,7 +106,7 @@ const RequestList = () => {
                       <ul className="mt-2">
                         {req.donations.map((don, i) => (
                           <li key={i} className="py-1 border-b border-gray-700 text-sm">
-                            <span className="font-semibold text-white">{don.category}</span> - {don.description} 
+                            <span className="font-semibold text-white">{don.category}</span> - {don.description}
                           </li>
                         ))}
                       </ul>
@@ -106,6 +115,18 @@ const RequestList = () => {
                     "Sin donaciones"
                   )}
                 </td>
+
+
+                {/* Mostrar columna "Activo" solo si NO es externa */}
+                {!isExternal && (
+                  <td className="px-4 py-2 border border-gray-700">
+                    {req.active ? (
+                      <span className="text-green-400 font-semibold">Sí</span>
+                    ) : (
+                      <span className="text-red-400 font-semibold">No</span>
+                    )}
+                  </td>
+                )}
 
                 {/* Acciones */}
                 <td className="px-4 py-2 border border-gray-700">
@@ -118,8 +139,13 @@ const RequestList = () => {
                     </button>
                   ) : (
                     <button
+                      disabled={!req.active}
                       onClick={() => handleCancelar(req)}
-                      className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded"
+                      className={`px-3 py-1 rounded text-white transition 
+                        ${req.active
+                          ? "bg-red-600 hover:bg-red-700 cursor-pointer"
+                          : "bg-gray-600 cursor-not-allowed opacity-70"
+                        }`}
                     >
                       Cancelar Solicitud
                     </button>

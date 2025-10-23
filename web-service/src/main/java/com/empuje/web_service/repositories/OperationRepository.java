@@ -18,5 +18,4 @@ public interface OperationRepository extends JpaRepository<Operation, Integer> {
     
     
     
-}   
-
+}

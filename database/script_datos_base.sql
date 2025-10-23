@@ -107,7 +107,7 @@ VALUES
 ('ROPA', 'Zapatos', 0, TRUE, 3),
 ('ALIMENTO', 'Arroz y fideos', 0, TRUE, 3);
 
------------------------------TRANSFERENCIAS-----------------------------------------------
+-- ---------------------------TRANSFERENCIAS-----------------------------------------------
 
 -- Operación propia
 INSERT INTO operations (id_operation_message, id_organization, operation_type, activate, date_registration, date_modification)

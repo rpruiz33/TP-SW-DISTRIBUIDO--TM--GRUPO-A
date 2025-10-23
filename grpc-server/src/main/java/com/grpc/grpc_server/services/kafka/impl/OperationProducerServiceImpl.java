@@ -155,7 +155,7 @@ public class OperationProducerServiceImpl implements OperationServiceProducer{
         List<Operation> requests;
 
         if (isExternal){
-            requests= operationRepository.findAllByOperationTypeAndIdOrganizationNotWithDonations(OperationType.SOLICITUD,1);
+            requests= operationRepository.findAllByOperationTypeAndIdOrganizationNotAndActivateWithDonations(OperationType.SOLICITUD,1);
         }else {
             requests = operationRepository.findAllByOperationTypeAndIdOrganizationWithDonations(OperationType.SOLICITUD,1);
         }

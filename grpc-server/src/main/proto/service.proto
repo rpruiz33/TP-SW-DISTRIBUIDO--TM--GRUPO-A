@@ -275,7 +275,7 @@ message GenericResponse {
 // MENSAJES PARA KAFKA
 // ========================
 service KafkaService {
-  rpc CreateOperation(OperationRequest) returns (OperationResponse);
+  rpc CreateOperation(OperationRequest) returns (GenericResponse);
   rpc CreateExternalEvent(ExternalEventRequest) returns (GenericResponse);
   rpc CreateEventAdhesion(EventAdhesionRequest) returns (GenericResponse);
   rpc GetRequestList (RequestListRequest) returns (OperationListResponse);
@@ -293,9 +293,13 @@ message OperationRequest {
 }
 
 message OperationResponse {
-  bool success = 1;
-  string message = 2;
+  int32 idOperationMessage = 1;
+  string operationType = 2;
+  repeated OperationDonationProto donations =3;
+  int32 idOrganization = 4; //Organizacion solicitante, para operacion de transferencia
+  optional bool active=5;
 }
+
 
 message OperationDonationProto {
   string  category=1;
@@ -309,7 +313,7 @@ message RequestListRequest{
 }
 
 message OperationListResponse{
-  repeated OperationRequest operations=1;
+  repeated OperationResponse operations=1;
 }
 
 // ========================

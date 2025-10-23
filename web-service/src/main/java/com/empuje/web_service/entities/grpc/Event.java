@@ -1,6 +1,7 @@
 package com.empuje.web_service.entities.grpc;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -34,10 +35,10 @@ public class Event {
     private LocalDateTime dateRegistration;
 
     @OneToMany(mappedBy = "event")
-    private List<DonationsAtEvents> donations;
+    private Set<DonationsAtEvents> donations;
 
     @OneToMany(mappedBy = "event")
-    private List<MemberAtEvent> members;
+    private Set<MemberAtEvent> members;
 
    
 }

@@ -282,12 +282,13 @@ public class OperationMapper {
     }
 
     ///--------------------------------------MAPEO A Proto-------------------------------------------------///
-    public static MyServiceClass.OperationRequest toProto(Operation operation) {
+    public static MyServiceClass.OperationResponse toProto(Operation operation) {
 
-        MyServiceClass.OperationRequest.Builder builder = MyServiceClass.OperationRequest.newBuilder()
+        MyServiceClass.OperationResponse.Builder builder = MyServiceClass.OperationResponse.newBuilder()
                 .setIdOperationMessage(operation.getIdOperationMessage())
                 .setOperationType(operation.getOperationType().name())
                 .setIdOrganization(operation.getIdOrganization())
+                .setActive(operation.isActivate())
                 .addAllDonations(operation.getOperationDonations().stream()
                         .map(OperationDonationMapper::toProto)
                         .collect(Collectors.toList())

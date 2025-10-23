@@ -1095,7 +1095,7 @@ class KafkaServiceStub(object):
         self.CreateOperation = channel.unary_unary(
                 '/KafkaService/CreateOperation',
                 request_serializer=service__pb2.OperationRequest.SerializeToString,
-                response_deserializer=service__pb2.OperationResponse.FromString,
+                response_deserializer=service__pb2.GenericResponse.FromString,
                 _registered_method=True)
         self.CreateExternalEvent = channel.unary_unary(
                 '/KafkaService/CreateExternalEvent',
@@ -1161,7 +1161,7 @@ def add_KafkaServiceServicer_to_server(servicer, server):
             'CreateOperation': grpc.unary_unary_rpc_method_handler(
                     servicer.CreateOperation,
                     request_deserializer=service__pb2.OperationRequest.FromString,
-                    response_serializer=service__pb2.OperationResponse.SerializeToString,
+                    response_serializer=service__pb2.GenericResponse.SerializeToString,
             ),
             'CreateExternalEvent': grpc.unary_unary_rpc_method_handler(
                     servicer.CreateExternalEvent,
@@ -1213,7 +1213,7 @@ class KafkaService(object):
             target,
             '/KafkaService/CreateOperation',
             service__pb2.OperationRequest.SerializeToString,
-            service__pb2.OperationResponse.FromString,
+            service__pb2.GenericResponse.FromString,
             options,
             channel_credentials,
             insecure,

@@ -22,8 +22,8 @@ public interface OperationRepository extends JpaRepository<Operation, Integer> {
 
     // Solicitudes externas (idOrganization distinto)
     @Query("SELECT o FROM Operation o LEFT JOIN FETCH o.operationDonations " +
-            "WHERE o.operationType = :type AND o.idOrganization <> :idOrganization")
-    List<Operation> findAllByOperationTypeAndIdOrganizationNotWithDonations(@Param("type") OperationType type,
+            "WHERE o.operationType = :type AND o.idOrganization <> :idOrganization AND o.activate = true")
+    List<Operation> findAllByOperationTypeAndIdOrganizationNotAndActivateWithDonations(@Param("type") OperationType type,
                                                                             @Param("idOrganization") int idOrganization);
 
     // Solicitudes propias (idOrganization igual)

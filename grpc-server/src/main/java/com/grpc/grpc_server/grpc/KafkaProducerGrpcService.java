@@ -44,7 +44,7 @@ public class KafkaProducerGrpcService extends KafkaServiceGrpc.KafkaServiceImplB
     EventAdhesionProducerServiceImpl eventAdhesionProducerServiceImpl;
 
     @Override
-    public void createOperation(MyServiceClass.OperationRequest request, StreamObserver<MyServiceClass.OperationResponse> responseObserver){
+    public void createOperation(MyServiceClass.OperationRequest request, StreamObserver<MyServiceClass.GenericResponse> responseObserver){
 
         String result = "";
 
@@ -77,7 +77,7 @@ public class KafkaProducerGrpcService extends KafkaServiceGrpc.KafkaServiceImplB
         }
         
         // Construir y enviar la respuesta
-        MyServiceClass.OperationResponse response = MyServiceClass.OperationResponse.newBuilder()
+        MyServiceClass.GenericResponse response = MyServiceClass.GenericResponse.newBuilder()
                 .setSuccess(true)
                 .setMessage(result)
                 .build();
@@ -149,7 +149,7 @@ public class KafkaProducerGrpcService extends KafkaServiceGrpc.KafkaServiceImplB
 
 
         // 2️⃣ Mapear a Proto usando Mapper
-        List<MyServiceClass.OperationRequest> grpcExternalRequest = externalRequest.stream()
+        List<MyServiceClass.OperationResponse> grpcExternalRequest = externalRequest.stream()
                 .map(OperationMapper::toProto)
                 .collect(Collectors.toList());
 
