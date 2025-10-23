@@ -12,10 +12,20 @@ type Operation {
   dateModification: String
 }
 
+
+# --- Tipo para los detalles individuales ---
+type DonationDetail {
+  description: String
+  quantity: Int
+}
+
+
+# --- Tipo principal del reporte ---
 type DonationReport {
   category: Category
   activate: Boolean
   totalQuantity: Int
+  details: [DonationDetail]
 }
 
 enum Category {
@@ -54,13 +64,18 @@ input SavedFilterInputDTO {
 # Queries
 # ===========================
 type Query {
+  
   operations: [Operation!]!
+
   donationReport(
     category: Category,
     startDate: String,
     endDate: String,
-    activate: Boolean
+    activate: Boolean,
+    isExternal: Boolean
+    
   ): [DonationReport!]!
+
   getSavedFilters(userId: ID!): [SavedFilter!]!
 }
 

@@ -13,6 +13,7 @@ public interface OperationDonationService {
         Category category,
         LocalDateTime startDate,
         LocalDateTime endDate,
-        Boolean activate
+        Boolean activate,
+        Boolean isExternal
     );
 } 

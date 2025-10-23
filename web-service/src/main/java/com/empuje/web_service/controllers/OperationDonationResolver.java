@@ -16,7 +16,6 @@ import com.empuje.web_service.services.OperationDonationService;
 public class OperationDonationResolver {
 
     private final OperationDonationService service;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     public OperationDonationResolver(OperationDonationService service) {
         this.service = service;
@@ -25,13 +24,11 @@ public class OperationDonationResolver {
     @QueryMapping
     public List<DonationReportDTO> donationReport(
         @Argument Category category,
-        @Argument String startDate,
-        @Argument String endDate,
-        @Argument Boolean activate
+        @Argument LocalDateTime startDate,
+        @Argument LocalDateTime endDate,
+        @Argument Boolean activate,
+        @Argument Boolean isExternal
     ) {
-        LocalDateTime start = startDate != null ? LocalDateTime.parse(startDate, formatter) : null;
-        LocalDateTime end = endDate != null ? LocalDateTime.parse(endDate, formatter) : null;
-
-        return service.getDonationReport(category, start, end, activate);
+        return service.getDonationReport(category, startDate, endDate, activate, isExternal);
     }
 }
