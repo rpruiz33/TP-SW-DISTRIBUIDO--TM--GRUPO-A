@@ -1,0 +1,29 @@
+extend type Query{
+    # Devuelve todos los eventos con sus relaciones
+    eventReport: [EventReportDTO]
+}
+
+
+type EventReportDTO {
+    idEvent: ID
+    nameEvent: String
+    descriptionEvent: String
+    dateRegistration: String
+    members: [UserDTO]
+    donations: [DonationAtEventDTO]
+}
+
+type UserDTO {
+    fullName: String
+    roleName: String
+}
+
+type DonationAtEventDTO {
+    donation: DonationDTO
+    quantity: Int
+}
+
+type DonationDTO {
+    category: String
+    description: String
+}
