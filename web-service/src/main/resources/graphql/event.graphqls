@@ -1,8 +1,21 @@
 extend type Query{
     # Devuelve todos los eventos con sus relaciones
-    eventReport: [EventReportDTO]
+    eventReportAll: [EventReportDTO]
 }
 
+extend type Query {
+    eventReport(
+        emailUser: String!,        # obligatorio
+        startDate: String,         # opcional
+        endDate: String,           # opcional
+        withDonations: String      # "SI", "NO" o "AMBOS"
+    ): [EventPerMonthDTO]
+}
+
+type EventPerMonthDTO {
+    month: String
+    events: [EventReportDTO]
+}
 
 type EventReportDTO {
     idEvent: ID

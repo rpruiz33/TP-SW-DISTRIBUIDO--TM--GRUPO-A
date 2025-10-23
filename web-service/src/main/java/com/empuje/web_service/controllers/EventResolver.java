@@ -1,11 +1,8 @@
 package com.empuje.web_service.controllers;
 
 
-import com.empuje.web_service.dto.DonationReportDTO;
+import com.empuje.web_service.dto.EventPerMonthDTO;
 import com.empuje.web_service.dto.EventReportDTO;
-import com.empuje.web_service.entities.grpc.Category;
-import com.empuje.web_service.services.EventService;
-import com.empuje.web_service.services.OperationDonationService;
 import com.empuje.web_service.services.impl.EventServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -23,8 +20,21 @@ public class EventResolver {
 
 
     @QueryMapping
-    public List<EventReportDTO> eventReport() {
+    public List<EventReportDTO> eventReportAll() {
         return eventService.getAllEventWithRelations();
+    }
+
+    @QueryMapping
+    public List<EventPerMonthDTO> eventReport(
+            @Argument String emailUser,
+            @Argument String startDate,
+            @Argument String endDate,
+            @Argument String withDonations)
+    {
+        LocalDateTime start = startDate != null ? LocalDateTime.parse(startDate) : null;
+        LocalDateTime end = endDate != null ? LocalDateTime.parse(endDate) : null;
+
+        return eventService.getEventPerMonthWithFilters(emailUser,start,end,withDonations);
     }
 }
 

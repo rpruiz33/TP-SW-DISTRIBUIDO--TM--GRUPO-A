@@ -1,12 +1,16 @@
 package com.empuje.web_service.services;
 
+import com.empuje.web_service.dto.EventPerMonthDTO;
 import com.empuje.web_service.dto.EventReportDTO;
-import com.empuje.web_service.entities.grpc.Event;
 
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EventService {
 
 
     List<EventReportDTO> getAllEventWithRelations();
+    List<EventPerMonthDTO> getEventPerMonthWithFilters(String emailUser, LocalDateTime startDate, LocalDateTime endDate,String withDonations);
+
 }

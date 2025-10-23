@@ -1,12 +1,12 @@
 package com.empuje.web_service.entities.web_service;
 
 
-import jakarta.persistence.*;
-import lombok.*;
-import java.time.LocalDateTime;
-
 import com.empuje.web_service.entities.grpc.Category;
 import com.empuje.web_service.entities.grpc.User;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "user_filters")

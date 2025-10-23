@@ -4,7 +4,6 @@ package com.empuje.web_service.dto;
 import java.util.List;
 
 import com.empuje.web_service.entities.grpc.Category;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -1,14 +1,13 @@
 package com.empuje.web_service.dto;
 
-import java.time.LocalDate;
-
 import com.empuje.web_service.entities.web_service.DeletedStatus;
 import com.empuje.web_service.entities.web_service.SavedFilter;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor

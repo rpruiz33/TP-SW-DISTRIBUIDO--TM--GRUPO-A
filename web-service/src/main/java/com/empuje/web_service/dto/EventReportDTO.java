@@ -1,7 +1,6 @@
 package com.empuje.web_service.dto;
 
 import com.empuje.web_service.entities.grpc.Event;
-import com.empuje.web_service.entities.grpc.User;
 import lombok.*;
 
 import java.time.LocalDateTime;

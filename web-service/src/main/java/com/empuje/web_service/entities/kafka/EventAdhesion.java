@@ -1,7 +1,10 @@
 package com.empuje.web_service.entities.kafka;
 
-import jakarta.persistence.*; 
-import lombok.*; 
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity @Table(name = "event_adhesions") 
 @Data @NoArgsConstructor 

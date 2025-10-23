@@ -1,14 +1,13 @@
 package com.empuje.web_service.services.impl;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.stereotype.Service;
-
 import com.empuje.web_service.entities.web_service.DeletedStatus;
 import com.empuje.web_service.entities.web_service.SavedFilter;
 import com.empuje.web_service.repositories.SavedFilterRepository;
 import com.empuje.web_service.services.SavedFilterService;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SavedFilterServiceImpl implements SavedFilterService {

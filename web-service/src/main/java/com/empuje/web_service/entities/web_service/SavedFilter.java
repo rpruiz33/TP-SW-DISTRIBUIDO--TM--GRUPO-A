@@ -1,8 +1,12 @@
 package com.empuje.web_service.entities.web_service;
 
-import java.time.LocalDate;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "saved_filters")

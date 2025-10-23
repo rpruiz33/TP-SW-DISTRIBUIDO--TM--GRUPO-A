@@ -1,9 +1,9 @@
 package com.empuje.web_service.services;
 
+import com.empuje.web_service.entities.web_service.SavedFilter;
+
 import java.util.List;
 import java.util.Optional;
-
-import com.empuje.web_service.entities.web_service.SavedFilter;
 
 public interface SavedFilterService {
 

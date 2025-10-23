@@ -1,7 +1,6 @@
 package com.empuje.web_service.dto;
 
 
-import com.empuje.web_service.entities.grpc.Category;
 import com.empuje.web_service.entities.grpc.Donation;
 import lombok.*;
 @Getter

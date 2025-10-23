@@ -16,6 +16,11 @@ import com.empuje.web_service.dto.DonationReportDTO;
 import com.empuje.web_service.entities.grpc.Category;
 import com.empuje.web_service.repositories.OperationDonationRepository;
 import com.empuje.web_service.services.OperationDonationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class OperationDonationServiceImpl implements OperationDonationService{

@@ -1,16 +1,15 @@
 package com.empuje.web_service.repositories;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
+import com.empuje.web_service.dto.DonationReportDTO;
+import com.empuje.web_service.entities.grpc.Category;
+import com.empuje.web_service.entities.kafka.OperationDonation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.empuje.web_service.dto.DonationDetailDTO;
-import com.empuje.web_service.dto.DonationReportDTO;
-import com.empuje.web_service.entities.grpc.Category;
-import com.empuje.web_service.entities.kafka.OperationDonation;
+import java.time.LocalDateTime;
+import java.util.List;
 
 
 public interface OperationDonationRepository extends JpaRepository<OperationDonation, Integer> {
