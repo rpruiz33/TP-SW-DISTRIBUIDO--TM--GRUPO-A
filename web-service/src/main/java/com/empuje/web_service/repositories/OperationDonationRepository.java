@@ -13,6 +13,9 @@ import com.empuje.web_service.dto.OperationDonationExcelDTO;
 import com.empuje.web_service.entities.grpc.Category;
 import com.empuje.web_service.entities.kafka.OperationDonation;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 
 public interface OperationDonationRepository extends JpaRepository<OperationDonation, Integer> {
 
@@ -59,7 +62,7 @@ public interface OperationDonationRepository extends JpaRepository<OperationDona
         )
         FROM OperationDonation od
         WHERE od.operation.operationType = com.empuje.web_service.entities.kafka.OperationType.TRANSFERENCIA
-        AND od.operation.idOrganization = 1 
+        AND od.operation.idOrganization = 1
         AND (:category IS NULL OR od.category = :category)
         AND (:startDate IS NULL OR od.operation.dateRegistration >= :startDate)
         AND (:endDate IS NULL OR od.operation.dateRegistration <= :endDate)
@@ -84,7 +87,7 @@ public interface OperationDonationRepository extends JpaRepository<OperationDona
     )
     FROM OperationDonation od
     WHERE od.operation.operationType = com.empuje.web_service.entities.kafka.OperationType.TRANSFERENCIA
-      AND od.operation.idOrganization = 1  
+      AND od.operation.idOrganization = 1
       AND (:category IS NULL OR od.category = :category)
       AND (:startDate IS NULL OR od.operation.dateRegistration >= :startDate)
       AND (:endDate IS NULL OR od.operation.dateRegistration <= :endDate)
@@ -106,7 +109,7 @@ public interface OperationDonationRepository extends JpaRepository<OperationDona
         )
         FROM OperationDonation od
         WHERE od.operation.operationType = com.empuje.web_service.entities.kafka.OperationType.TRANSFERENCIA
-        AND od.operation.idOrganization <> 1 
+        AND od.operation.idOrganization <> 1
         AND (:category IS NULL OR od.category = :category)
         AND (:startDate IS NULL OR od.operation.dateRegistration >= :startDate)
         AND (:endDate IS NULL OR od.operation.dateRegistration <= :endDate)
@@ -131,7 +134,7 @@ public interface OperationDonationRepository extends JpaRepository<OperationDona
     )
     FROM OperationDonation od
     WHERE od.operation.operationType = com.empuje.web_service.entities.kafka.OperationType.TRANSFERENCIA
-      AND od.operation.idOrganization <> 1  
+      AND od.operation.idOrganization <> 1
       AND (:category IS NULL OR od.category = :category)
       AND (:startDate IS NULL OR od.operation.dateRegistration >= :startDate)
       AND (:endDate IS NULL OR od.operation.dateRegistration <= :endDate)

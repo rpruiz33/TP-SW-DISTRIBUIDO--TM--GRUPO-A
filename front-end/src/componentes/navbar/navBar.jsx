@@ -39,12 +39,21 @@ const NavBar = () => {
             {isLoggedIn && (
               <>
                 {/* 👇 Solo se muestra si el rol es "presidente" */}
-                {role === "PRESIDENTE" && (
+                {role !== "VOLUNTARIO" && (
                   <Link
                     to="/mensajeria"
                     className="text-gray-100 hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium"
                   >
                     Mensajería
+                  </Link>
+                )}
+
+                {role !== "VOLUNTARIO" && (
+                  <Link
+                    to="/webservice"
+                    className="text-gray-100 hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium"
+                  >
+                    WebService
                   </Link>
                 )}
 

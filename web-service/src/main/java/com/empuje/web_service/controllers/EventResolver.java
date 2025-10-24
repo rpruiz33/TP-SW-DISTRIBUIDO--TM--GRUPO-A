@@ -10,6 +10,9 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.util.List;
 
 @Controller
@@ -31,8 +34,16 @@ public class EventResolver {
             @Argument String endDate,
             @Argument String withDonations)
     {
-        LocalDateTime start = startDate != null ? LocalDateTime.parse(startDate) : null;
-        LocalDateTime end = endDate != null ? LocalDateTime.parse(endDate) : null;
+
+        DateTimeFormatter formatter = new DateTimeFormatterBuilder()
+                .appendPattern("yyyy-MM-dd['T'HH:mm[:ss]]") // acepta yyyy-MM-dd o yyyy-MM-ddTHH:mm o yyyy-MM-ddTHH:mm:ss
+                .parseDefaulting(ChronoField.HOUR_OF_DAY, 0) // si no viene hora, pone 0
+                .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
+                .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+                .toFormatter();
+
+        LocalDateTime start = startDate != null ? LocalDateTime.parse(startDate, formatter) : null;
+        LocalDateTime end = endDate != null ? LocalDateTime.parse(endDate, formatter) : null;
 
         return eventService.getEventPerMonthWithFilters(emailUser,start,end,withDonations);
     }
