@@ -8,12 +8,47 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.empuje.web_service.dto.DonationDetailDTO;
-import java.time.LocalDateTime;
-import java.util.List;
+import com.empuje.web_service.dto.DonationReportDTO;
+import com.empuje.web_service.dto.OperationDonationExcelDTO;
+import com.empuje.web_service.entities.grpc.Category;
+import com.empuje.web_service.entities.kafka.OperationDonation;
 
 
 public interface OperationDonationRepository extends JpaRepository<OperationDonation, Integer> {
 
+
+
+    // ---------------------------------------- EXCEL -----------------------------------//
+     // Excel - Donaciones enviadas por nuestra ONG (id_organization = 1)
+    @Query("""
+        SELECT new com.empuje.web_service.dto.OperationDonationExcelDTO(
+            d.category,
+            d.description,
+            d.quantity,
+            d.activate,
+            o.dateRegistration
+        )
+        FROM OperationDonation d
+        JOIN d.operation o
+        WHERE o.idOrganization = 1
+    """)
+    List<OperationDonationExcelDTO> findSentDonationsForExcel();
+
+
+    // Excel - Donaciones recibidas de ONGs externas (id_organization != 1)
+    @Query("""
+        SELECT new com.empuje.web_service.dto.OperationDonationExcelDTO(
+            d.category,
+            d.description,
+            d.quantity,
+            d.activate,
+            o.dateRegistration
+        )
+        FROM OperationDonation d
+        JOIN d.operation o
+        WHERE o.idOrganization != 1
+    """)
+    List<OperationDonationExcelDTO> findReceivedDonationsForExcel();
 
     // ---------------------------------------- PROPIOS -----------------------------------//
     @Query("""
