@@ -62,30 +62,25 @@ public class UserFilterResolver {
             return false;
         }
     }
-    /*NO ANDA */
-    /* 
+    
+
     @MutationMapping
-    public Boolean updateDonationFilter(@Argument Integer idFilter, @Argument DonationFilterDTO input, @Argument String emailOrUsername) {
-        logger.debug("updateDonationFilter called idFilter={} emailOrUsername={} input={}", idFilter, emailOrUsername, input);
+    public Boolean updateDonationFilter(@Argument DonationFilterDTO input, @Argument String emailOrUsername) {
+        
+        Boolean result = false;
 
         try {
-            // buscar usuario en base al email
-            Optional<User> userOptional = userRepository.findByEmailOrUsername(emailOrUsername, emailOrUsername);
-            if (userOptional.isEmpty()) {
-                logger.warn("User not found for emailOrUsername={}", emailOrUsername);
-                return false;
-            }
-
-            User user = userOptional.get();
-            boolean result = userFilterService.updateDonationFilter(idFilter, input, user);
-            logger.debug("updateDonationFilter result={} for idFilter={} userId={}", result, idFilter, user.getIdUser());
+            
+            result = userFilterService.updateDonationFilter(input, emailOrUsername);
             return result;
+
         } catch (Exception e) {
-            logger.error("Exception in updateDonationFilter", e);
-            return false;
+
+            return result;
         }
     }
-*/
+
+
     @QueryMapping
     public List<UserFilter> getUserFiltersByEmail(@Argument String emailOrUsername) {
         try {

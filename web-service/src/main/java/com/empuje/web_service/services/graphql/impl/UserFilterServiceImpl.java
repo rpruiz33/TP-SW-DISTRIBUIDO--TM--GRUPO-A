@@ -97,55 +97,46 @@ public class UserFilterServiceImpl implements UserFilterService{
 
     @Override
     @Transactional
-    public boolean updateDonationFilter(Integer idFilter, DonationFilterDTO dto, User user) {
-        try {
-            return userFilterRepository.findById(idFilter).map(f -> {
-                // comprobar que el filtro pertenece al usuario
-                if (f.getUser() == null || f.getUser().getIdUser() == null) {
-                    logger.warn("Update denied: filter id={} has no owner", idFilter);
-                    return false;
-                }
-                if (!f.getUser().getIdUser().equals(user.getIdUser())) {
-                    logger.warn("Update denied: filter id={} ownerId={} requestUserId={}", idFilter,
-                            f.getUser().getIdUser(), user.getIdUser());
-                    return false;
-                }
+    public Boolean updateDonationFilter(DonationFilterDTO dto, String emailOrUsername) {
 
-                // actualizar campos permitidos
-                if (dto.getFilterName() != null) f.setFilterName(dto.getFilterName());
-                if (dto.getStartDate() != null) f.setStartDate(dto.getStartDate());
-                if (dto.getEndDate() != null) f.setEndDate(dto.getEndDate());
-                if (dto.getActivate() != null) f.setActivate(dto.getActivate());
-                if (dto.getCategory() != null) f.setCategory(dto.getCategory());
+        Boolean resBoolean = false;
+        String result = "";
 
-                UserFilter saved = userFilterRepository.save(f);
-                logger.debug("Updated filter id={} by userId={}; fields set: name={}, start={}, end={}, activate={}, category={}",
-                        saved.getIdFilter(), user.getIdUser(), saved.getFilterName(), saved.getStartDate(), saved.getEndDate(), saved.getActivate(), saved.getCategory());
-                return true;
-            }).orElseGet(() -> {
-                // Si no existe el filtro, crearlo (comportamiento upsert)
-                try {
-                    UserFilter newFilter = UserFilter.builder()
-                            .filterName(dto.getFilterName())
-                            .filterType(FilterType.DONATION_REPORT)
-                            .startDate(dto.getStartDate())
-                            .endDate(dto.getEndDate())
-                            .activate(dto.getActivate())
-                            .category(dto.getCategory())
-                            .user(user)
-                            .build();
-                    UserFilter saved = userFilterRepository.save(newFilter);
-                    logger.debug("Created new filter id={} for userId={} via update upsert", saved.getIdFilter(), user.getIdUser());
-                    return true;
-                } catch (Exception ex) {
-                    logger.error("Exception while creating new filter in upsert for userId={}", user.getIdUser(), ex);
-                    return false;
-                }
-            });
-        } catch (Exception e) {
-            logger.error("Exception while updating filter id={}", idFilter, e);
-            return false;
+       // buscar usuario en base al email
+        Optional<User> userOptional = userRepository.findByEmailOrUsername(emailOrUsername, emailOrUsername);   
+
+        if(userOptional.isPresent()){
+
+            User user = userOptional.get();
+
+            Optional<UserFilter> optionalFilter = userFilterRepository.findByFilterNameAndUserAndFilterType(dto.getFilterName(), user, FilterType.DONATION_REPORT);
+
+            if(optionalFilter.isPresent()){
+
+                UserFilter filter = optionalFilter.get();
+
+                // Actualizamos los campos
+                filter.setStartDate(dto.getStartDate());
+                filter.setEndDate(dto.getEndDate());
+                filter.setActivate(dto.getActivate());
+                filter.setCategory(dto.getCategory());
+
+                userFilterRepository.save(filter);
+
+                resBoolean = true;
+
+            }else{
+
+                result = "el usuario ya tiene un filtro con ese nombre";
+            }
+            
+        }else{
+
+            result = "no existe ese email o username";
         }
+
+        System.out.println(result);
+        return resBoolean;
     }
 
 }

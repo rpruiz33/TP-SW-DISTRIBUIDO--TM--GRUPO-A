@@ -10,6 +10,6 @@ public interface UserFilterService {
     boolean deleteDonationFilter(Integer idFilter, User user);
 
 
-    boolean updateDonationFilter(Integer idFilter, DonationFilterDTO dto, User user);
+    Boolean updateDonationFilter(DonationFilterDTO dto, String emailOrUsername);
     
 }
