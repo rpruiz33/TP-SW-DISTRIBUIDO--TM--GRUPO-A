@@ -163,6 +163,9 @@ public class OperationProducerServiceImpl implements OperationServiceProducer{
         return  requests;
     }
 
+    public List<Operation> getOfferList(){
+        return operationRepository.findAllByOperationTypeWithDonations(OperationType.OFERTA);
+    }
 
 
 }

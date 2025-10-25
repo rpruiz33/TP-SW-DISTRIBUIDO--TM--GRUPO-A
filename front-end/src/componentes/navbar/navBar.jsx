@@ -48,14 +48,14 @@ const NavBar = () => {
                   </Link>
                 )}
 
-                {role !== "VOLUNTARIO" && (
+                
                   <Link
                     to="/webservice"
                     className="text-gray-100 hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium"
                   >
                     WebService
                   </Link>
-                )}
+                
 
                 <button
                   onClick={handleLogout}

@@ -67,80 +67,32 @@ VALUES
   (1, 3 ),
   (3, 3);
   
-  -- ===========================
 -- Operaciones
--- ===========================
+INSERT INTO operations (id_operation, id_operation_message, id_organization, operation_type, activate, date_registration, date_modification)
+VALUES 
+(11, 510180001, 1, 'TRANSFERENCIA', TRUE, '2025-10-18 00:00:00', '2025-10-18 00:00:00'),
+(12, 510180002, 2, 'TRANSFERENCIA', TRUE, '2025-10-18 01:00:00', '2025-10-18 01:00:00'),
+(13, 510180003, 3, 'TRANSFERENCIA', TRUE, '2025-10-18 02:00:00', '2025-10-18 02:00:00'),
+-- Nuevas operaciones inactivas
+(14, 510180004, 1, 'TRANSFERENCIA', FALSE, '2025-10-18 03:00:00', '2025-10-18 03:00:00'),
+(15, 510180005, 2, 'TRANSFERENCIA', FALSE, '2025-10-18 04:00:00', '2025-10-18 04:00:00'),
+(16, 510180006, 3, 'TRANSFERENCIA', FALSE, '2025-10-18 05:00:00', '2025-10-18 05:00:00');
 
--- Operación propia
-INSERT INTO operations (id_operation_message, id_organization, operation_type, activate, date_registration, date_modification)
-VALUES (510180001, 1, 'SOLICITUD', TRUE, '2025-10-18 00:00:00', '2025-10-18 00:00:00');
-
--- Operación externa 1
-INSERT INTO operations (id_operation_message, id_organization, operation_type, activate, date_registration, date_modification)
-VALUES (510180002, 2, 'SOLICITUD', TRUE, '2025-10-18 01:00:00', '2025-10-18 01:00:00');
-
--- Operación externa 2
-INSERT INTO operations (id_operation_message, id_organization, operation_type, activate, date_registration, date_modification)
-VALUES (510180003, 3, 'SOLICITUD', TRUE, '2025-10-18 02:00:00', '2025-10-18 02:00:00');
-
--- ===========================
--- Donaciones para la operación propia
--- ===========================
+-- Donaciones por operación
 INSERT INTO operation_donations (category, description, quantity, activate, operation_id)
 VALUES 
-('ROPA', 'Camisas y pantalones', 0, TRUE, 1),
-('ALIMENTO', 'Latas de comida', 0, TRUE, 1);
+-- Operaciones activas
+('ROPA', 'Camisas y pantalones', 12, TRUE, 11),
+('ALIMENTO', 'Latas de comida', 32, TRUE, 11),
+('JUGUETE', 'Peluches', 11, TRUE, 12),
+('UTIL_ESCOLAR', 'Cuadernos y lápices', 22, TRUE, 12),
+('ROPA', 'Zapatos', 50, TRUE, 13),
+('ALIMENTO', 'Arroz y fideos', 8, TRUE, 13),
 
--- ===========================
--- Donaciones para la operación externa 1
--- ===========================
-INSERT INTO operation_donations (category, description, quantity, activate, operation_id)
-VALUES 
-('JUGUETE', 'Peluches', 0, TRUE, 2),
-('UTIL_ESCOLAR', 'Cuadernos y lápices', 0, TRUE, 2);
-
--- ===========================
--- Donaciones para la operación externa 2
--- ===========================
-INSERT INTO operation_donations (category, description, quantity, activate, operation_id)
-VALUES 
-('ROPA', 'Zapatos', 0, TRUE, 3),
-('ALIMENTO', 'Arroz y fideos', 0, TRUE, 3);
-
--- ---------------------------TRANSFERENCIAS-----------------------------------------------
-
--- Operación propia
-INSERT INTO operations (id_operation_message, id_organization, operation_type, activate, date_registration, date_modification)
-VALUES (510180001, 1, 'TRANSFERENCIA', TRUE, '2025-10-18 00:00:00', '2025-10-18 00:00:00');
-
--- Operación externa 1
-INSERT INTO operations (id_operation_message, id_organization, operation_type, activate, date_registration, date_modification)
-VALUES (510180002, 2, 'TRANSFERENCIA', TRUE, '2025-10-18 01:00:00', '2025-10-18 01:00:00');
-
--- Operación externa 2
-INSERT INTO operations (id_operation_message, id_organization, operation_type, activate, date_registration, date_modification)
-VALUES (510180003, 3, 'TRANSFERENCIA', TRUE, '2025-10-18 02:00:00', '2025-10-18 02:00:00');
-
--- ===========================
--- Donaciones para la operación propia
--- ===========================
-INSERT INTO operation_donations (category, description, quantity, activate, operation_id)
-VALUES 
-('ROPA', 'Camisas y pantalones', 12, TRUE, 1),
-('ALIMENTO', 'Latas de comida', 32, TRUE, 1);
-
--- ===========================
--- Donaciones para la operación externa 1
--- ===========================
-INSERT INTO operation_donations (category, description, quantity, activate, operation_id)
-VALUES 
-('JUGUETE', 'Peluches', 11, TRUE, 2),
-('UTIL_ESCOLAR', 'Cuadernos y lápices', 22, TRUE, 2);
-
--- ===========================
--- Donaciones para la operación externa 2
--- ===========================
-INSERT INTO operation_donations (category, description, quantity, activate, operation_id)
-VALUES 
-('ROPA', 'Zapatos', 50, TRUE, 3),
-('ALIMENTO', 'Arroz y fideos', 8, TRUE, 3);
+-- Operaciones inactivas
+('ROPA', 'Abrigos usados', 10, FALSE, 14),
+('ALIMENTO', 'Conservas vencidas', 5, FALSE, 14),
+('UTIL_ESCOLAR', 'Lapiceras rotas', 15, FALSE, 15),
+('JUGUETE', 'Muñecos rotos', 20, FALSE, 15),
+('ROPA', 'Camperas viejas', 25, FALSE, 16),
+('ALIMENTO', 'Harina humedecida', 9, FALSE, 16);

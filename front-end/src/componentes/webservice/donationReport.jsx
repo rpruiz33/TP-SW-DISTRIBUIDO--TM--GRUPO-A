@@ -22,6 +22,7 @@ const DonationReportComponent = () => {
   }, [location]);
 
   const fetchDonationReport = async () => {
+    console.log("LLamamos a donaciones")
     try {
       const query = `
         query DonationReport(
@@ -64,7 +65,7 @@ const DonationReportComponent = () => {
         isExternal: isOther
       };
 
-       console.log(variables)
+      console.log(variables)
 
       const response = await axios.post(
         "http://localhost:8080/graphql",
@@ -79,18 +80,43 @@ const DonationReportComponent = () => {
     }
   };
 
-  const generateExcel=()=>{
-    console.log("Generando...")
+  const generateExcel = async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/api/excel/donaciones", {
+      params: { isExternal:isOther},
+      responseType: "blob", 
+    });
+
+    // Creamos un Blob a partir de los datos
+    const blob = new Blob([response.data], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    });
+
+    // Creamos un enlace temporal
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "ReporteDonaciones.xlsx"); // nombre del archivo
+    document.body.appendChild(link);
+    link.click();
+
+    // Limpiamos el objeto URL y el enlace
+    link.parentNode.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    } catch (err) {
+      console.error("Error en la generacion de excel:", err);
+    }
   }
-  
+
   return (
     <div className="p-6 bg-[#01000F] min-h-screen flex flex-col">
-     <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-4">
         <h1 className="text-5xl font-bold text-white">
-            {isOther ? "Reporte de Donaciones Externas" : "Reporte de Donaciones Propias"}
+          {isOther ? "Reporte de Donaciones Externas" : "Reporte de Donaciones Propias"}
 
         </h1>
-         <button
+        <button
           onClick={() => generateExcel()}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
@@ -152,7 +178,7 @@ const DonationReportComponent = () => {
 
         <div className="flex-none">
           <button
-            onClick={()=>fetchDonationReport()}
+            onClick={() => fetchDonationReport()}
             className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
             Buscar

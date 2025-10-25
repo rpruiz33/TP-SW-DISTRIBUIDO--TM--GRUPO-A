@@ -280,6 +280,7 @@ service KafkaService {
   rpc CreateEventAdhesion(EventAdhesionRequest) returns (GenericResponse);
   rpc GetRequestList (RequestListRequest) returns (OperationListResponse);
   rpc GetExternalEventList(Empty) returns(ExternalEventListResponse);
+  rpc GetOfferList(Empty) returns (OperationListResponse);
 }
 
 // ========================
@@ -299,7 +300,6 @@ message OperationResponse {
   int32 idOrganization = 4; //Organizacion solicitante, para operacion de transferencia
   optional bool active=5;
 }
-
 
 
 message OperationDonationProto {

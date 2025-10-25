@@ -58,7 +58,7 @@ public class KafkaProducerGrpcService extends KafkaServiceGrpc.KafkaServiceImplB
             break;
 
             case "TRANSFERENCIA":
-                log.debug("Llega a transferencia");
+
                 TransferDTO dto2 = OperationMapper.toTransferDTO(request);
                 Operation operation2 = OperationMapper.toEntity(dto2,OperationType.TRANSFERENCIA );
                 result = operationProducerServiceImpl.processTransfer(operation2, String.valueOf(request.getIdOrganization()));
@@ -189,4 +189,27 @@ public class KafkaProducerGrpcService extends KafkaServiceGrpc.KafkaServiceImplB
 
     }
 
+    @Override
+    public void getOfferList(MyServiceClass.Empty request, StreamObserver<MyServiceClass.OperationListResponse> responseObserver){
+
+        log.debug("Llega al server");
+        // 1️⃣ Obtener entidades desde la capa service
+        List<Operation> offers = operationProducerServiceImpl.getOfferList();
+        log.debug("Post service");
+
+        // 2️⃣ Mapear a Proto usando Mapper
+        List<MyServiceClass.OperationResponse> grpcOffer = offers.stream()
+                .map(OperationMapper::toProto)
+                .collect(Collectors.toList());
+
+        log.debug("Post mapper");
+
+        // 3️⃣ Construir y enviar la respuesta
+        MyServiceClass.OperationListResponse response = MyServiceClass.OperationListResponse.newBuilder()
+                .addAllOperations(grpcOffer)
+                .build();
+
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
 }

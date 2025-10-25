@@ -171,7 +171,32 @@ class MyServiceClient:
     def deleteRequest(self,  idOperationMessage:int , operationType: str, metadata=None):
         request = service_pb2.OperationRequest(idOperationMessage=idOperationMessage,operationType=operationType,idOrganization=1)
         return self.kafka_stub.CreateOperation(request, metadata=metadata )
+    
+    def offerDonation(self, idOperationMessage:int , operationType: str, donations, metadata=None ):
+        print(idOperationMessage, operationType,donations)
 
+        # Convertir lista de diccionarios -> lista de OperationDonationProto
+        donation_protos = []
+        for d in donations:
+                proto = service_pb2.OperationDonationProto(
+                category=d["category"],
+                description=d["description"],
+                quantity=int(d.get("quantity", 0))
+                )
+                donation_protos.append(proto)
+
+        request = service_pb2.OperationRequest(
+            idOperationMessage=idOperationMessage,
+            operationType=operationType,
+            idOrganization=1
+        )
+        request.donations.extend(donation_protos)
+        return self.kafka_stub.CreateOperation(request, metadata=metadata )
+  
+    def getOfferList(self,metadata=None):
+        print("api")
+        request = service_pb2.Empty()
+        return self.kafka_stub.GetOfferList(request, metadata=metadata )
 
     def getExternalEventList(self, metadata=None):
         request = service_pb2.Empty()

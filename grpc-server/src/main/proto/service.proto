@@ -280,6 +280,7 @@ service KafkaService {
   rpc CreateEventAdhesion(EventAdhesionRequest) returns (GenericResponse);
   rpc GetRequestList (RequestListRequest) returns (OperationListResponse);
   rpc GetExternalEventList(Empty) returns(ExternalEventListResponse);
+  rpc GetOfferList (Empty) returns (OperationListResponse);
 }
 
 // ========================

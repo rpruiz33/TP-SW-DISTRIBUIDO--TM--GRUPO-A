@@ -31,5 +31,10 @@ public interface OperationRepository extends JpaRepository<Operation, Integer> {
             "WHERE o.operationType = :type AND o.idOrganization = :idOrganization")
     List<Operation> findAllByOperationTypeAndIdOrganizationWithDonations(@Param("type") OperationType type,
                                                                          @Param("idOrganization") int idOrganization);
+
+    // Ofertas con donaciones
+    @Query("SELECT o FROM Operation o LEFT JOIN FETCH o.operationDonations " +
+            "WHERE o.operationType = :type")
+    List<Operation> findAllByOperationTypeWithDonations(@Param("type") OperationType type);
 }
 

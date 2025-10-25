@@ -17,11 +17,14 @@ import Dashboard from './componentes/dashboard/Dashboard';
 import Mensajeria from './componentes/kafka/message';
 import RequestList from './componentes/kafka/requestList';
 import RequestForm from './componentes/kafka/requestForm';
+import OfferList from './componentes/kafka/offerList';
+
+
 
 import EventReport from './componentes/webservice/eventReport';
 import WebService from './componentes/webservice/webservice';
 import DonationReport from './componentes/webservice/donationReport';
-
+import PresidentReport from './componentes/webservice/presidentReport';
 
 
 import 'tailwindcss/tailwind.css';
@@ -57,10 +60,13 @@ function App() {
             <Route path="/mensajeria" element={<Mensajeria />} />
             <Route path="/requestlist" element={<RequestList />} />
             <Route path="/requestform" element={<RequestForm />} />
+            <Route path="/offerlist" element={<OfferList />} />
+
 
             <Route path="/webservice" element={<WebService />} />
             <Route path="/eventreport" element={<EventReport />} />
             <Route path="/donationreport" element={<DonationReport />} />
+            <Route path="/presidentreport" element={<PresidentReport />} />
 
 
 

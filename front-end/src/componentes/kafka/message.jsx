@@ -13,6 +13,9 @@ export default function Mensajeria() {
   const [ofertas, setOfertas] = useState([{ categoria: "", descripcion: "", cantidad: "" }]);
   const [events, setEvents] = useState([]);
 
+  const [donations, setDonations] = useState([]);
+
+
   const [error, setError] = useState("");
 
 
@@ -37,6 +40,8 @@ export default function Mensajeria() {
   useEffect(() => {
     if (pestana === "adhesion") {
       getExternalEvents();
+    } else {
+      fetchDonations();
     }
   }, [pestana]);
 
@@ -55,6 +60,25 @@ export default function Mensajeria() {
   const requestList = (isExternal) => {
 
     navigate("/requestlist", { state: { isExternal } });
+  };
+
+
+  const fetchDonations = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/activedonationlist");
+
+      if (Array.isArray(response.data)) {
+        setDonations(response.data);
+      } else if (response.data.donations && Array.isArray(response.data.donations)) {
+        setDonations(response.data.donations);
+      } else {
+        setDonations([]);
+        console.warn("La respuesta no contiene un array:", response.data);
+      }
+    } catch (err) {
+      console.error("Error en la solicitud:", err);
+      setError("Error de conexión con el servidor");
+    }
   };
 
   const handleEnviarSolicitud = async () => {
@@ -92,21 +116,37 @@ export default function Mensajeria() {
   };
 
   const handleEnviarOferta = async () => {
-    if (ofertas.some(o => !CATEGORIAS.includes(o.categoria))) return alert("⚠️ Categoría inválida.");
+
+    const idOferta = generarIdOperacion();
+
+    const donationsProto = ofertas.map(o => ({
+      category: o.categoria,
+      description: o.descripcion,
+      quantity: parseInt(o.cantidad, 10) || 0, // aseguramos que sea int
+    }));
+
+    const protoData = {
+      idOperationMessage: idOferta,
+      operationType:"OFERTA",
+      donations: donationsProto,
+    };
+
     try {
-      const resp = await fetch(`${baseURL}/ofrecer-donaciones`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idOrganizacion: 1, listaDonaciones: ofertas }),
-      });
-      const data = await resp.json();
-      if (data.success) {
+
+      const response = await axios.post("http://localhost:5000/api/offerdonation", protoData);
+
+      if (response.data.success) {
+
         alert("✅ Oferta enviada!");
         setOfertas([{ categoria: "", descripcion: "", cantidad: "" }]);
-      } else alert("❌ Error: " + data.message);
+      } else alert("❌ Error: " + response.data.message);
+
+
     } catch (e) {
       alert("❌ Error enviando oferta: " + e.message);
     }
+
+
   };
 
 
@@ -121,16 +161,16 @@ export default function Mensajeria() {
     }
   };
 
-    const handleAdhesion = async (event) => {
-    
-      const protoData ={
-        idExternalEvent:event.id,
-        emailVolunteer:localStorage.getItem("usernameOrEmail")
-      }
-      console.log(protoData)
-      try {
-      
-      const response = await axios.post("http://localhost:5000/api/eventadhesion",protoData);
+  const handleAdhesion = async (event) => {
+
+    const protoData = {
+      idExternalEvent: event.id,
+      emailVolunteer: localStorage.getItem("usernameOrEmail")
+    }
+    console.log(protoData)
+    try {
+
+      const response = await axios.post("http://localhost:5000/api/eventadhesion", protoData);
 
       alert(response.data.message);
 
@@ -192,33 +232,69 @@ export default function Mensajeria() {
             {/* Ofrecer Donaciones */}
             <div className="flex flex-col gap-3 items-center">
               <h2 className="text-xl font-semibold mb-2">Ofrecer Donaciones</h2>
-              {ofertas.map((o, i) => (
-                <div key={i} className="flex flex-col gap-2 w-full">
-                  <select
-                    value={o.categoria}
-                    onChange={e => handleCambioOferta(i, "categoria", e.target.value)}
-                    className="w-full border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                  >
-                    <option value="">Seleccionar categoría</option>
-                    {CATEGORIAS.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                  </select>
-                  <input
-                    value={o.descripcion}
-                    onChange={e => handleCambioOferta(i, "descripcion", e.target.value)}
-                    placeholder="Descripción"
-                    className="w-full border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <input
-                    value={o.cantidad}
-                    onChange={e => handleCambioOferta(i, "cantidad", e.target.value)}
-                    placeholder="Cantidad"
-                    className="w-full border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              ))}
+              {ofertas.map((o, i) => {
+                const donacionSeleccionada = donations.find(d => d.id === o.id);
+
+                return (
+                  <div key={i} className="flex flex-col gap-2 w-full">
+                    {/* Selector dinámico de donaciones */}
+                    <select
+                      value={o.id || ""}
+                      onChange={e => {
+                        const selectedId = parseInt(e.target.value);
+                        const selectedDon = donations.find(d => d.id === selectedId);
+
+                        handleCambioOferta(i, "id", selectedId);
+                        handleCambioOferta(i, "categoria", selectedDon?.category || "");
+                        handleCambioOferta(i, "descripcion", selectedDon?.description || "");
+                        handleCambioOferta(i, "maxCantidad", selectedDon?.amount || 0);
+                        handleCambioOferta(i, "cantidad", ""); // reset cantidad al cambiar selección
+                      }}
+                      className="w-full border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    >
+                      <option value="">Seleccionar donación</option>
+                      {donations.map(d => (
+                        <option key={d.id} value={d.id}>
+                          {d.category} - {d.description}
+                        </option>
+                      ))}
+                    </select>
+
+                    {/* Input de cantidad */}
+                    <input
+                      type="number"
+                      value={o.cantidad || ""}
+                      onChange={e => {
+                        let val = parseInt(e.target.value) || 0;
+                        if (donacionSeleccionada && val > donacionSeleccionada.amount) {
+                          val = donacionSeleccionada.amount; // no puede superar el disponible
+                        }
+                        handleCambioOferta(i, "cantidad", val);
+                      }}
+                      placeholder={`Cantidad (máx: ${donacionSeleccionada?.amount || 0})`}
+                      className="w-full border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                );
+              })}
+
               <div className="flex gap-2 mt-2">
-                <button onClick={handleAgregarOferta} className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded">Agregar</button>
-                <button onClick={handleEnviarOferta} className="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded">Enviar Oferta</button>
+                <button
+                  onClick={handleAgregarOferta}
+                  className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded"
+                >
+                  Agregar
+                </button>
+                <button
+                  onClick={handleEnviarOferta}
+                  className="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded"
+                >
+                  Enviar Oferta
+                </button>
+              </div>
+              <div className="flex gap-2 mt-2">
+                <button onClick={() => navigate("/offerlist")} className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded">Lista de Ofertas</button>
+
               </div>
             </div>
 

@@ -380,13 +380,28 @@ def api_transferir_donaciones():
     except Exception as e:
         return jsonify({"message": "Error generando transferencia", "error": str(e)}), 500
 
+@app.route("/api/offerlist", methods=["GET"])
+def getOfferList():
 
+    try:
+        grpc_response = grpc_call_with_token(grpc_client.getOfferList)
+        json_response = MessageToJson(grpc_response)
+        return json_response
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-# 3️⃣ Ofrecer donaciones
-@app.route("/api/ofrecer-donaciones", methods=["POST"])
+# OFRECER DONACIONES
+@app.route("/api/offerdonation", methods=["POST"])
 def api_ofrecer_donaciones():
-    data = request.get_json()
-    return jsonify(ofrecer_donaciones(data))
+   data = request.json
+   try:
+        response = grpc_call_with_token(grpc_client.offerDonation, data.get("idOperationMessage"),data.get("operationType"),data.get("donations") )
+        return jsonify({
+            "success": response.success,
+            "message": response.message
+        })
+   except Exception as e:
+        return jsonify({"message": "Error generando oferta", "error": str(e)}), 500
 
 
 #DAR DE BAJA SOLICITUD

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 const WebService = () => {
   const navigate = useNavigate();
 
+  const role = localStorage.getItem("userRole");// 👈 obtenemos el rol (ej: "presidente")
 
 
 
@@ -25,20 +26,33 @@ const WebService = () => {
             >
               Reporte de Eventos
             </button>
-          
+
+          {role !== "VOLUNTARIO" && role !== "VOCAL" && (
             <button
               onClick={() => navigateDonationReport(false)}
               className="text-lg bg-blue-700 hover:bg-blue-800 text-white px-16 py-4 rounded "
             >
               Reporte de Donaciones Enviadas
             </button>
+          )}
 
+          {role !== "VOLUNTARIO" && role !== "VOCAL"  && (
             <button
               onClick={() => navigateDonationReport(true)}
               className="text-lg bg-blue-700 hover:bg-blue-800 text-white px-16 py-4 rounded "
             >
               Reporte de Donaciones Recibidas
             </button>
+          )}
+
+          {role === "PRESIDENTE"  && (
+            <button
+              onClick={() => navigate("/presidentreport")}
+              className="text-lg bg-blue-700 hover:bg-blue-800 text-white px-16 py-4 rounded "
+            >
+              Reporte de Presidentes y ONGs
+            </button>
+          )}
 
         </div>
       </div>
