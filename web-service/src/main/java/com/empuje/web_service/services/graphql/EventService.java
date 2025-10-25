@@ -1,4 +1,4 @@
-package com.empuje.web_service.services;
+package com.empuje.web_service.services.graphql;
 
 import com.empuje.web_service.dto.EventPerMonthDTO;
 import com.empuje.web_service.dto.EventReportDTO;

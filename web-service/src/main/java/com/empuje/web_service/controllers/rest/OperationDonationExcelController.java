@@ -1,4 +1,4 @@
-package com.empuje.web_service.controllers;
+package com.empuje.web_service.controllers.rest;
 
 import java.io.ByteArrayInputStream;
 
@@ -7,7 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.empuje.web_service.services.OperationDonationExcelService;
+import com.empuje.web_service.services.rest.OperationDonationExcelService;
 
 import lombok.RequiredArgsConstructor;
 

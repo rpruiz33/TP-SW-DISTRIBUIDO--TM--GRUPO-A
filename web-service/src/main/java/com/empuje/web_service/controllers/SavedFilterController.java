@@ -2,7 +2,7 @@ package com.empuje.web_service.controllers;
 
 import com.empuje.web_service.dto.SavedFilterInputDTO;
 import com.empuje.web_service.entities.web_service.SavedFilter;
-import com.empuje.web_service.services.SavedFilterService;
+import com.empuje.web_service.services.graphql.SavedFilterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;

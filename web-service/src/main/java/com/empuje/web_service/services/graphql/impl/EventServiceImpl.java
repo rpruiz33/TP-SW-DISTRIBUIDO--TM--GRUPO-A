@@ -1,4 +1,4 @@
-package com.empuje.web_service.services.impl;
+package com.empuje.web_service.services.graphql.impl;
 
 import com.empuje.web_service.dto.EventPerMonthDTO;
 import com.empuje.web_service.dto.EventReportDTO;
@@ -6,7 +6,7 @@ import com.empuje.web_service.entities.grpc.Event;
 import com.empuje.web_service.entities.grpc.User;
 import com.empuje.web_service.repositories.EventRepository;
 import com.empuje.web_service.repositories.UserRepository;
-import com.empuje.web_service.services.EventService;
+import com.empuje.web_service.services.graphql.EventService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;

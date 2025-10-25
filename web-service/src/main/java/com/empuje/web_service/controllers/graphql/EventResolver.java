@@ -1,9 +1,9 @@
-package com.empuje.web_service.controllers;
+package com.empuje.web_service.controllers.graphql;
 
 
 import com.empuje.web_service.dto.EventPerMonthDTO;
 import com.empuje.web_service.dto.EventReportDTO;
-import com.empuje.web_service.services.impl.EventServiceImpl;
+import com.empuje.web_service.services.graphql.impl.EventServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;

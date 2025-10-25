@@ -1,13 +1,11 @@
-package com.empuje.web_service.services.impl;
+package com.empuje.web_service.services.graphql.impl;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +13,9 @@ import com.empuje.web_service.dto.DonationDetailDTO;
 import com.empuje.web_service.dto.DonationReportDTO;
 import com.empuje.web_service.entities.grpc.Category;
 import com.empuje.web_service.repositories.OperationDonationRepository;
-import com.empuje.web_service.services.OperationDonationService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import com.empuje.web_service.services.graphql.OperationDonationService;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
+@Slf4j
 @Service
 public class OperationDonationServiceImpl implements OperationDonationService{
 
@@ -69,6 +63,7 @@ public class OperationDonationServiceImpl implements OperationDonationService{
             report.setDetails(groupedDetails.getOrDefault(key, List.of()));
         });
 
+        log.debug(summary.toString());
         return summary;
     }
     

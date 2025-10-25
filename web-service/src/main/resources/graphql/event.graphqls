@@ -12,6 +12,10 @@ extend type Query {
     ): [EventPerMonthDTO]
 }
 
+extend type Query {
+    userList: [UserDTO]
+}
+
 type EventPerMonthDTO {
     month: String
     events: [EventReportDTO]
@@ -29,6 +33,7 @@ type EventReportDTO {
 type UserDTO {
     fullName: String
     roleName: String
+    email: String
 }
 
 type DonationAtEventDTO {

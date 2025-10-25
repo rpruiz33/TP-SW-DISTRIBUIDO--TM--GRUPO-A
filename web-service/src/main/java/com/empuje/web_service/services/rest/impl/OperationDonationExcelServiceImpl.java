@@ -1,4 +1,4 @@
-package com.empuje.web_service.services.impl;
+package com.empuje.web_service.services.rest.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import com.empuje.web_service.dto.OperationDonationExcelDTO;
 import com.empuje.web_service.entities.grpc.Category;
 import com.empuje.web_service.repositories.OperationDonationRepository;
-import com.empuje.web_service.services.OperationDonationExcelService;
+import com.empuje.web_service.services.rest.OperationDonationExcelService;
 
 import lombok.RequiredArgsConstructor;
 

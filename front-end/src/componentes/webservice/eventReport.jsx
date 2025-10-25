@@ -9,6 +9,7 @@ const EventReport = () => {
   const [endDate, setEndDate] = useState("");
   const [withDonations, setWithDonations] = useState("AMBOS");
   const [userRole, setUserRole] = useState(localStorage.getItem("userRole") || "");
+  const [userData, setUserData] = useState([]);
 
 
 
@@ -17,10 +18,21 @@ const EventReport = () => {
 
   useEffect(() => {
     fetchEventReport();
+
+    if (canEditUser) {
+      fetchUsers()
+    }
+
   }, []);
 
   const fetchEventReport = async () => {
-    console.log("llamada")
+    if (!emailUser) {
+      setError("Debes seleccionar un usuario antes de buscar.");
+      return;
+    }
+
+    setError("");
+
     try {
       const query = `
         query GetEventReport($emailUser: String!, $startDate: String, $endDate: String, $withDonations: String) {
@@ -59,8 +71,6 @@ const EventReport = () => {
         withDonations: withDonations
       };
 
-      console.log(variables)
-
       const response = await axios.post(
         "http://localhost:8080/graphql",
         { query, variables },
@@ -74,6 +84,36 @@ const EventReport = () => {
     }
   };
 
+
+  const fetchUsers = async () => {
+
+    try {
+      const query = `
+        query GetUserList {
+          userList
+          {
+            fullName
+            roleName
+            email
+          }
+        }
+      `;
+
+      const response = await axios.post(
+        "http://localhost:8080/graphql",
+        { query },
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+      setUserData(response.data.data.userList || []);
+
+      console.log("Todo conseguido :D")
+    } catch (err) {
+      console.error(err);
+      setError("Error al obtener el listado de usuarios");
+    }
+  }
+
   return (
     <div className="p-6 bg-[#01000F] min-h-screen flex flex-col">
       <h1 className="text-5xl font-bold text-white mb-6">Reporte de Eventos por Mes</h1>
@@ -81,14 +121,19 @@ const EventReport = () => {
       <div className="bg-[#232D4F] px-6 py-3 rounded mb-4 mt-4 flex gap-4 items-end w-full">
         <div className="flex-1">
           <label className="text-white block mb-1">Usuario</label>
-          <input
-            type="text"
+          <select
             value={emailUser}
             onChange={(e) => setEmailUser(e.target.value)}
-            disabled={!canEditUser} // deshabilitar si no es coordinador ni presidente
-
+            disabled={!canEditUser}
             className="w-full px-2 py-1 rounded text-black"
-          />
+          >
+            <option value="">Seleccionar usuario...</option>
+            {userData.map((user, idx) => (
+              <option key={idx} value={user.email}>
+                {user.fullName} ({user.roleName})
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="flex-1">

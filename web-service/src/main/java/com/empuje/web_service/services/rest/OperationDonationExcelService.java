@@ -1,4 +1,4 @@
-package com.empuje.web_service.services;
+package com.empuje.web_service.services.rest;
 
 import java.io.ByteArrayInputStream;
 

@@ -1,9 +1,9 @@
 // src/main/java/com/ejemplo/controllers/OperationResolver.java
-package com.empuje.web_service.controllers;
+package com.empuje.web_service.controllers.graphql;
 
 
 import com.empuje.web_service.entities.kafka.Operation;
-import com.empuje.web_service.services.OperationService;
+import com.empuje.web_service.services.graphql.OperationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
