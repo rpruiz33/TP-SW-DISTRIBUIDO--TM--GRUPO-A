@@ -16,7 +16,7 @@ const WebService = () => {
   return (
     <div className="min-h-screen flex flex-col bg-[#01000F]">
       <div className="flex-grow flex flex-col items-center justify-center gap-8 p-6">
-        <h1 className="text-3xl font-bold text-white">Web Service Options</h1>
+        <h1 className="text-3xl font-bold text-white">Web Service Opciones</h1>
 
         <div className="flex flex-wrap gap-8 justify-center">
           
