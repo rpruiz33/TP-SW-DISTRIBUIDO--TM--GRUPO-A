@@ -7,6 +7,8 @@ import com.empuje.web_service.entities.web_service.UserFilter;
 
 public interface UserFilterServiceREST {
 
-    void saveEventFilter(EventFilterDTO dto, User user);
+    Boolean saveEventFilter(EventFilterDTO dto, String emailOrUsername);
+
+    Boolean deleteEventFilter(String filterName, String emailOrUsername);
     
 }

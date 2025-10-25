@@ -25,19 +25,35 @@ public class UserFilterController {
     @PostMapping("/save")
     public Boolean saveFilter(@RequestBody EventFilterDTO dto, @RequestParam String emailOrUsername) {
         
+        boolean result = false;
+        
         try {
             
-            // buscar usuario en base al email
-            Optional<User> userOptional = userRepository.findByEmailOrUsername(emailOrUsername, emailOrUsername);   
-            User user = userOptional.get();
-            service.saveEventFilter(dto, user);
-            return true;
+            result = service.saveEventFilter(dto, emailOrUsername);
+            return result;
+
+        } catch (Exception e){     
+
+            return result;
+        }       
+         
+    }
+
+    @DeleteMapping("/delete")
+    public Boolean deleteFilter(@RequestParam String filterName, @RequestParam String emailOrUsername) {
+        
+        Boolean result = false;
+
+        try {
+            
+            result = service.deleteEventFilter(filterName, emailOrUsername);
+
+            return result;
 
         } catch (Exception e) {
-            return false;
-        }
-        
-       
+
+            return result;
+        }       
          
     }
 
