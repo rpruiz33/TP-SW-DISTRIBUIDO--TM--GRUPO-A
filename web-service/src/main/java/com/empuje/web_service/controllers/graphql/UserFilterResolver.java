@@ -82,14 +82,8 @@ public class UserFilterResolver {
 
 
     @QueryMapping
-    public List<UserFilter> getUserFiltersByEmail(@Argument String emailOrUsername) {
-        try {
-            return userRepository.findByEmailOrUsername(emailOrUsername, emailOrUsername)
-                    .map((com.empuje.web_service.entities.grpc.User u) -> userFilterRepository.findByUser_IdUser(u.getIdUser()))
-                    .orElse(Collections.emptyList());
-        } catch (Exception e) {
-            logger.error("Error fetching user filters for {}", emailOrUsername, e);
-            return Collections.emptyList();
-        }
+    public List<DonationFilterDTO> getListUserFiltersByEmail(@Argument String emailOrUsername) {
+
+        return userFilterService.getListUserFiltersByEmail(emailOrUsername);
     }
 }

@@ -1,5 +1,6 @@
 package com.empuje.web_service.services.graphql.impl;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -137,6 +138,43 @@ public class UserFilterServiceImpl implements UserFilterService{
 
         System.out.println(result);
         return resBoolean;
+    }
+
+    public List<DonationFilterDTO> getListUserFiltersByEmail(String emailOrUsername){
+
+
+        List<UserFilter> filters = null;
+        List<DonationFilterDTO> dtos = null;
+        Optional<User> userOptional = userRepository.findByEmailOrUsername(emailOrUsername, emailOrUsername);
+
+        if(userOptional.isPresent()){
+
+            User user = userOptional.get();
+            filters =  userFilterRepository.findByUser(user);
+
+            if(!filters.isEmpty()){
+                dtos = filters.stream()
+                .filter(f -> f.getFilterType() == FilterType.DONATION_REPORT)
+                .map(f -> DonationFilterDTO.builder()
+                        .filterName(f.getFilterName())
+                        .startDate(f.getStartDate())
+                        .endDate(f.getEndDate())
+                        .activate(f.getActivate())
+                        .category(f.getCategory())
+                        .build())
+                .toList();
+
+            }else{
+                System.out.println("No tiene filtro este usuario");
+            }
+
+            
+        }else{
+            System.out.println("No existe ese usuario");
+        }
+        
+        return dtos;
+
     }
 
 }

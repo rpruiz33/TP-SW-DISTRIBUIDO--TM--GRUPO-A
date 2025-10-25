@@ -37,6 +37,15 @@ enum Category {
 
 #FILTROS
 
+# --- Tipo de salida ---
+type DonationFilter {
+  filterName: String
+  startDate: String
+  endDate: String
+  activate: Boolean
+  category: Category
+}
+
 input DonationFilterDTO {
   filterName: String!
   startDate: String
@@ -61,6 +70,8 @@ type Query {
     
   ): [DonationReport!]!
 
+  getListUserFiltersByEmail(emailOrUsername: String!): [DonationFilter]
+
 }
 
 # ===========================
@@ -72,4 +83,6 @@ type Mutation {
   deleteDonationFilter(idFilter: Int!, emailOrUsername: String!): Boolean
 
   updateDonationFilter(input: DonationFilterDTO!, emailOrUsername: String!): Boolean
+
+  
 }
