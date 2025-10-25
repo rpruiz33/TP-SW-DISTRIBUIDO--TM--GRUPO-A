@@ -1,5 +1,7 @@
 package com.empuje.web_service.services.graphql.impl;
 
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -10,6 +12,7 @@ import com.empuje.web_service.entities.grpc.User;
 import com.empuje.web_service.entities.web_service.FilterType;
 import com.empuje.web_service.entities.web_service.UserFilter;
 import com.empuje.web_service.repositories.UserFilterRepository;
+import com.empuje.web_service.repositories.UserRepository;
 import com.empuje.web_service.services.graphql.UserFilterService;
 
 import lombok.RequiredArgsConstructor;
@@ -20,11 +23,25 @@ public class UserFilterServiceImpl implements UserFilterService{
 
     private static final Logger logger = LoggerFactory.getLogger(UserFilterServiceImpl.class);
 
-    private final UserFilterRepository repository;
+    private final UserFilterRepository userFilterRepository;
+
+    private final UserRepository userRepository;
 
     @Override
-    public void saveDonationFilter(DonationFilterDTO dto, User user) {
-        UserFilter filter = UserFilter.builder()
+    public Boolean saveDonationFilter(DonationFilterDTO dto, String emailOrUsername) {
+
+        Boolean resBoolean = false;
+        String result = "";
+
+        // buscar usuario en base al email
+        Optional<User> userOptional = userRepository.findByEmailOrUsername(emailOrUsername, emailOrUsername);   
+
+        if(userOptional.isPresent()){
+
+            User user = userOptional.get();
+
+            if(userFilterRepository.findByFilterNameAndUserAndFilterType(dto.getFilterName(), user, FilterType.DONATION_REPORT).isEmpty()){
+                UserFilter filter = UserFilter.builder()
                 .filterName(dto.getFilterName())
                 .filterType(FilterType.DONATION_REPORT)
                 .startDate(dto.getStartDate())
@@ -34,20 +51,34 @@ public class UserFilterServiceImpl implements UserFilterService{
                 .user(user)
                 .build();
 
-        UserFilter saved = repository.save(filter);
-        logger.debug("Saved donation filter id={} for userId={} name={}", saved.getIdFilter(),
-                user != null ? user.getIdUser() : null, saved.getFilterName());
+                userFilterRepository.save(filter);
+
+                resBoolean = true;
+
+            }else{
+
+                result = "el usuario ya tiene un filtro con ese nombre";
+            }
+            
+        }else{
+
+            result = "no existe ese email o username";
+        }
+
+        System.out.println(result);
+        return resBoolean;
+        
     }
 
     @Override
     @Transactional
     public boolean deleteDonationFilter(Integer idFilter, User user) {
         try {
-            return repository.findById(idFilter).map(f -> {
+            return userFilterRepository.findById(idFilter).map(f -> {
                 // comprobar que el filtro pertenece al usuario
                 if (f.getUser() != null && f.getUser().getIdUser() != null
                         && f.getUser().getIdUser().equals(user.getIdUser())) {
-                    repository.delete(f);
+                    userFilterRepository.delete(f);
                     logger.debug("Deleted filter id={} by userId={}", idFilter, user.getIdUser());
                     return true;
                 }
@@ -68,7 +99,7 @@ public class UserFilterServiceImpl implements UserFilterService{
     @Transactional
     public boolean updateDonationFilter(Integer idFilter, DonationFilterDTO dto, User user) {
         try {
-            return repository.findById(idFilter).map(f -> {
+            return userFilterRepository.findById(idFilter).map(f -> {
                 // comprobar que el filtro pertenece al usuario
                 if (f.getUser() == null || f.getUser().getIdUser() == null) {
                     logger.warn("Update denied: filter id={} has no owner", idFilter);
@@ -87,7 +118,7 @@ public class UserFilterServiceImpl implements UserFilterService{
                 if (dto.getActivate() != null) f.setActivate(dto.getActivate());
                 if (dto.getCategory() != null) f.setCategory(dto.getCategory());
 
-                UserFilter saved = repository.save(f);
+                UserFilter saved = userFilterRepository.save(f);
                 logger.debug("Updated filter id={} by userId={}; fields set: name={}, start={}, end={}, activate={}, category={}",
                         saved.getIdFilter(), user.getIdUser(), saved.getFilterName(), saved.getStartDate(), saved.getEndDate(), saved.getActivate(), saved.getCategory());
                 return true;
@@ -103,7 +134,7 @@ public class UserFilterServiceImpl implements UserFilterService{
                             .category(dto.getCategory())
                             .user(user)
                             .build();
-                    UserFilter saved = repository.save(newFilter);
+                    UserFilter saved = userFilterRepository.save(newFilter);
                     logger.debug("Created new filter id={} for userId={} via update upsert", saved.getIdFilter(), user.getIdUser());
                     return true;
                 } catch (Exception ex) {

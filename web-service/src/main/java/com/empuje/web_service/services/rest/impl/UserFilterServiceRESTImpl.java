@@ -52,13 +52,9 @@ public class UserFilterServiceRESTImpl implements UserFilterServiceREST{
             if(userFilterRepository.findByFilterNameAndUserAndFilterType(dto.getFilterName(), user, FilterType.EVENT_REPORT).isEmpty()){
 
 
-                System.out.println("Pre user DTO");
                 //Buscamos el id del user por el cual filtrar
-
                 Optional<User> userDTO = userRepository.findByEmailOrUsername(dto.getFilterUser().getEmail(),dto.getFilterUser().getEmail());
-                System.out.println("Post user DTO");
-
-
+            
                 UserFilter filter = UserFilter.builder()
                 .filterName(dto.getFilterName())
                 .filterType(FilterType.EVENT_REPORT)

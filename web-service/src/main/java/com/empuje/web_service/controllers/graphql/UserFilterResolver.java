@@ -33,17 +33,16 @@ public class UserFilterResolver {
     @MutationMapping
     public Boolean saveDonationFilter(@Argument DonationFilterDTO input, @Argument String emailOrUsername) {
 
+        boolean result = false;
+
         try {
 
-            // buscar usuario en base al email
-            Optional<User> userOptional = userRepository.findByEmailOrUsername(emailOrUsername, emailOrUsername);   
-            User user = userOptional.get();
-            userFilterService.saveDonationFilter(input, user);
+            result = userFilterService.saveDonationFilter(input, emailOrUsername);
+            return result;
 
-            return true;
         } catch (Exception e) {
 
-            return false;
+            return result;
         }
         
     

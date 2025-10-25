@@ -5,8 +5,11 @@ import com.empuje.web_service.entities.grpc.User;
 
 public interface UserFilterService {
 
-    void saveDonationFilter(DonationFilterDTO dto, User user);
+    Boolean saveDonationFilter(DonationFilterDTO dto, String emailOrUsername);
+
     boolean deleteDonationFilter(Integer idFilter, User user);
+
+
     boolean updateDonationFilter(Integer idFilter, DonationFilterDTO dto, User user);
     
 }
