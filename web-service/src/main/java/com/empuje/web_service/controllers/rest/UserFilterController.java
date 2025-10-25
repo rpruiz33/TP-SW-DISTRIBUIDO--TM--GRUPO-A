@@ -14,15 +14,33 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
 @RestController
 @RequestMapping("/api/event-filters")
 @RequiredArgsConstructor
+@Tag(name = "User Filters", description = "Endpoints para manejar filtros personalizados de eventos")
 public class UserFilterController {
 
     private final UserFilterServiceREST service;
 
+    
+
     @PostMapping("/save")
-    public Boolean saveFilter(@RequestBody EventFilterDTO dto, @RequestParam String emailOrUsername) {
+    @Operation(
+        summary = "Guardar un filtro de eventos",
+        description = "Permite a un usuario guardar un filtro personalizado de eventos",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Filtro guardado correctamente"),
+            @ApiResponse(responseCode = "400", description = "Error en la solicitud", content = @Content)
+        }
+    )
+    public Boolean saveFilter(@RequestBody @Parameter(description = "DTO con los datos del filtro") EventFilterDTO dto, 
+                            @RequestParam @Parameter(description = "Email o username del usuario") String emailOrUsername) {
         
         boolean result = false;
         
@@ -39,7 +57,16 @@ public class UserFilterController {
     }
 
     @DeleteMapping("/delete")
-    public Boolean deleteFilter(@RequestParam String filterName, @RequestParam String emailOrUsername) {
+    @Operation(
+        summary = "Eliminar un filtro de eventos",
+        description = "Permite eliminar un filtro de eventos guardado por el usuario",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Filtro eliminado correctamente"),
+            @ApiResponse(responseCode = "400", description = "Error en la solicitud", content = @Content)
+        }
+    )
+    public Boolean deleteFilter(@RequestParam @Parameter(description = "Nombre del filtro a eliminar") String filterName, 
+                                @RequestParam @Parameter(description = "Email o username del usuario propietario del filtro") String emailOrUsername) {
         
         Boolean result = false;
 
@@ -57,7 +84,16 @@ public class UserFilterController {
     }
 
     @PutMapping("/update")
-    public Boolean updateFilter(@RequestBody EventFilterDTO dto, @RequestParam String emailOrUsername) {
+    @Operation(
+        summary = "Actualizar un filtro de eventos",
+        description = "Permite actualizar un filtro de eventos existente",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Filtro actualizado correctamente"),
+            @ApiResponse(responseCode = "400", description = "Error en la solicitud", content = @Content)
+        }
+    )
+    public Boolean updateFilter( @RequestBody @Parameter(description = "DTO con los nuevos datos del filtro") EventFilterDTO dto, 
+                               @RequestParam @Parameter(description = "Email o username del usuario propietario del filtro") String emailOrUsername) {
         
         boolean result = false;
         
