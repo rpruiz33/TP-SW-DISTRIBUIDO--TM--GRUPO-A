@@ -102,4 +102,47 @@ public class UserFilterServiceRESTImpl implements UserFilterServiceREST{
         return resBoolean;
         
     }
+
+    public Boolean updateEventFilter(EventFilterDTO dto, String emailOrUsername) {
+
+        String result = "";
+        Boolean resBoolean = false;
+
+        // buscar usuario en base al email
+        Optional<User> userOptional = userRepository.findByEmailOrUsername(emailOrUsername, emailOrUsername);  
+
+        if(userOptional.isPresent()){
+            
+            User user = userOptional.get();
+
+            Optional<UserFilter> optionalFilter = userFilterRepository.findByFilterNameAndUserAndFilterType(dto.getFilterName(), user, FilterType.EVENT_REPORT);
+
+            if (optionalFilter.isPresent()) {
+                
+                UserFilter filter = optionalFilter.get();
+
+                // Actualizamos los campos
+                filter.setStartDate(dto.getStartDate());
+                filter.setEndDate(dto.getEndDate());
+                filter.setFilterUserId(dto.getFilterUserId());
+                filter.setDistributionDonations(dto.getDistributionDonations());
+
+                // Guardamos
+                userFilterRepository.save(filter);
+                return true;
+
+            } else {
+
+                result = "el nombre del filtro no existe para ese usuario";
+            }
+
+        }else{
+
+            result = "no existe ese email o username";
+        }
+
+        System.out.println(result);
+
+        return resBoolean;
+    }
 }

@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 public class UserFilterController {
 
     private final UserFilterServiceREST service;
-    private final UserRepository userRepository;
 
     @PostMapping("/save")
     public Boolean saveFilter(@RequestBody EventFilterDTO dto, @RequestParam String emailOrUsername) {
@@ -55,6 +54,23 @@ public class UserFilterController {
             return result;
         }       
          
+    }
+
+    @PutMapping("/update")
+    public Boolean updateFilter(@RequestBody EventFilterDTO dto, @RequestParam String emailOrUsername) {
+        
+        boolean result = false;
+        
+        try {
+            
+            result = service.updateEventFilter(dto, emailOrUsername);
+            return result;
+
+        } catch (Exception e){     
+
+            return result;
+        } 
+        
     }
 
     

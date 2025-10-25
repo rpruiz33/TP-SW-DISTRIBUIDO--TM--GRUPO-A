@@ -10,5 +10,7 @@ public interface UserFilterServiceREST {
     Boolean saveEventFilter(EventFilterDTO dto, String emailOrUsername);
 
     Boolean deleteEventFilter(String filterName, String emailOrUsername);
+
+    Boolean updateEventFilter(EventFilterDTO dto, String emailOrUsername);
     
 }
