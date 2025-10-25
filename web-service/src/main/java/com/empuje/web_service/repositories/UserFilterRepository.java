@@ -1,5 +1,6 @@
 package com.empuje.web_service.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,5 +32,7 @@ public interface UserFilterRepository extends JpaRepository<UserFilter, Integer>
 
 	Optional<UserFilter> findByFilterNameAndUserAndFilterType(String filterName, User user, FilterType filterType);
 
+
+	List<UserFilter> findByUser(User user);
 
 }

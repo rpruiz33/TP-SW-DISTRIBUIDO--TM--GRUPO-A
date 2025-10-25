@@ -153,9 +153,13 @@
 http://localhost:8080/api/event-filters/save?emailOrUsername=admin@example.com
 
 {
-  "filterName": "Eventos importantes",
+  "filterName": "Eventos Octubre",
   "startDate": "2025-10-01T00:00:00",
   "endDate": "2025-10-31T23:59:59",
-  "filterUserId": 3,
+  "filterUser": {
+    "fullName": "Juan Pérez",
+    "roleName": "PRESIDENTE",
+    "email": "user1@demo.com"
+  },
   "distributionDonations": true
 }

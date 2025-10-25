@@ -8,6 +8,7 @@ import com.empuje.web_service.services.rest.UserFilterServiceREST;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -109,5 +110,18 @@ public class UserFilterController {
         
     }
 
-    
+
+    @GetMapping("/getlist")
+    @Operation(
+            summary = "Traer lista de filtros por usuario",
+            description = "Permite a un usuario visualizar los filtros creados por él",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Lista enviada correctamente"),
+                    @ApiResponse(responseCode = "400", description = "Error en la solicitud", content = @Content)
+            }
+    )
+    public List<EventFilterDTO> getListByUser(@RequestParam @Parameter(description = "Email o username del usuario propietario de los filtros")String emailOrUsername){
+
+        return service.getListByUser(emailOrUsername);
+    }
 }

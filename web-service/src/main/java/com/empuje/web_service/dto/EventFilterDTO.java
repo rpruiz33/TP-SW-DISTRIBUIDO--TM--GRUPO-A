@@ -12,7 +12,7 @@ public class EventFilterDTO {
     private String filterName;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-    private int filterUserId;        // Usuario participante
+    private UserDTO filterUser;        // Usuario participante
     private Boolean distributionDonations; // true = sí, false = no, null = ambos
     
 }

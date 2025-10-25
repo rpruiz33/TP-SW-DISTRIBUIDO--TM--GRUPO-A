@@ -5,6 +5,8 @@ import com.empuje.web_service.entities.grpc.User;
 import com.empuje.web_service.entities.web_service.FilterType;
 import com.empuje.web_service.entities.web_service.UserFilter;
 
+import java.util.List;
+
 public interface UserFilterServiceREST {
 
     Boolean saveEventFilter(EventFilterDTO dto, String emailOrUsername);
@@ -12,5 +14,8 @@ public interface UserFilterServiceREST {
     Boolean deleteEventFilter(String filterName, String emailOrUsername);
 
     Boolean updateEventFilter(EventFilterDTO dto, String emailOrUsername);
-    
+
+    List<EventFilterDTO> getListByUser (String emailOrUsername);
+
+
 }
