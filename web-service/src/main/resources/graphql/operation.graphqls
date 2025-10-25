@@ -69,4 +69,6 @@ type Query {
 
 type Mutation {
   saveDonationFilter(input: DonationFilterDTO!, emailOrUsername: String!): Boolean
+  deleteDonationFilter(idFilter: Int!, emailOrUsername: String!): Boolean
+  updateDonationFilter(idFilter: Int!, input: DonationFilterDTO!, emailOrUsername: String!): Boolean
 }
