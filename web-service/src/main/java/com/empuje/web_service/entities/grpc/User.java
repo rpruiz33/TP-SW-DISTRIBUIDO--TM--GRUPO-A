@@ -5,6 +5,8 @@ import lombok.*;
 
 import java.util.List;
 
+import com.empuje.web_service.entities.web_service.UserFilter;
+
 @Entity
 @Table(name = "user")
 @Getter
@@ -50,6 +52,9 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<MemberAtEvent> events;
+
+    @OneToMany(mappedBy = "user")
+    private List<UserFilter> userFilters;
 
     // Getters y Setters
 }

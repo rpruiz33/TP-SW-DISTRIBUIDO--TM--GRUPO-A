@@ -35,7 +35,6 @@ public class UserFilter {
     @Column(name = "end_date",nullable = true)
     private LocalDateTime endDate;
 
-
     // --- Filtros de DONATION_REPORT ---
 
     @Column(name = "activate",nullable = true)

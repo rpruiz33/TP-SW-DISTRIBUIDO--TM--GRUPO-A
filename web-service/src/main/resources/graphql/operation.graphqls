@@ -35,29 +35,14 @@ enum Category {
   UTIL_ESCOLAR
 }
 
-enum DeletedStatus {
-  SI
-  NO
-  AMBOS
-}
+#FILTROS
 
-type SavedFilter {
-  id: ID!
-  userId: ID!
-  name: String!
-  category: Category
+input DonationFilterDTO {
+  filterName: String!
   startDate: String
   endDate: String
-  deletedStatus: DeletedStatus
-}
-
-input SavedFilterInputDTO {
-  userId: ID!
-  name: String!
+  activate: Boolean
   category: Category
-  startDate: String
-  endDate: String
-  deletedStatus: DeletedStatus
 }
 
 # ===========================
@@ -76,14 +61,12 @@ type Query {
     
   ): [DonationReport!]!
 
-  getSavedFilters(userId: ID!): [SavedFilter!]!
 }
 
 # ===========================
 # Mutations
 # ===========================
+
 type Mutation {
-  saveFilter(input: SavedFilterInputDTO!): SavedFilter!
-  updateFilter(id: ID!, input: SavedFilterInputDTO!): SavedFilter!
-  deleteStatus(id: ID!): Boolean!
+  saveDonationFilter(input: DonationFilterDTO!, emailOrUsername: String!): Boolean
 }
