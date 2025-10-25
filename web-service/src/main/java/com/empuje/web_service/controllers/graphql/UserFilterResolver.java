@@ -49,17 +49,18 @@ public class UserFilterResolver {
     }
 
     @MutationMapping
-    public Boolean deleteDonationFilter(@Argument Integer idFilter, @Argument String emailOrUsername) {
+    public Boolean deleteDonationFilter(@Argument String filterName, @Argument String emailOrUsername) {
+
+        boolean result=false;
 
         try {
 
-            // buscar usuario en base al email
-            Optional<User> userOptional = userRepository.findByEmailOrUsername(emailOrUsername, emailOrUsername);
-            User user = userOptional.get();
-            return userFilterService.deleteDonationFilter(idFilter, user);
+            result = userFilterService.deleteDonationFilter(filterName, emailOrUsername);
+            return result;
+            
         } catch (Exception e) {
 
-            return false;
+            return result;
         }
     }
     

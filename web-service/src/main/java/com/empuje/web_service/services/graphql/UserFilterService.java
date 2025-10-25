@@ -11,7 +11,7 @@ public interface UserFilterService {
 
     Boolean saveDonationFilter(DonationFilterDTO dto, String emailOrUsername);
 
-    boolean deleteDonationFilter(Integer idFilter, User user);
+    Boolean deleteDonationFilter(String filterName, String emailOrUsername);
 
     Boolean updateDonationFilter(DonationFilterDTO dto, String emailOrUsername);
 

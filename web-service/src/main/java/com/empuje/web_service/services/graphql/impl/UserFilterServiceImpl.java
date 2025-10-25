@@ -73,27 +73,37 @@ public class UserFilterServiceImpl implements UserFilterService{
 
     @Override
     @Transactional
-    public boolean deleteDonationFilter(Integer idFilter, User user) {
-        try {
-            return userFilterRepository.findById(idFilter).map(f -> {
-                // comprobar que el filtro pertenece al usuario
-                if (f.getUser() != null && f.getUser().getIdUser() != null
-                        && f.getUser().getIdUser().equals(user.getIdUser())) {
-                    userFilterRepository.delete(f);
-                    logger.debug("Deleted filter id={} by userId={}", idFilter, user.getIdUser());
-                    return true;
-                }
-                logger.warn("Delete denied: filter id={} ownerId={} requestUserId={}", idFilter,
-                        f.getUser() != null ? f.getUser().getIdUser() : null, user.getIdUser());
-                return false;
-            }).orElseGet(() -> {
-                logger.warn("Delete failed: filter id={} not found", idFilter);
-                return false;
-            });
-        } catch (Exception e) {
-            logger.error("Exception while deleting filter id={}", idFilter, e);
-            return false;
+    public Boolean deleteDonationFilter(String filterName, String emailOrUsername) {
+
+        String result = "";
+        Boolean resBoolean = false;
+
+        // buscar usuario en base al email
+        Optional<User> userOptional = userRepository.findByEmailOrUsername(emailOrUsername, emailOrUsername);  
+        
+        if(userOptional.isPresent()){
+            User user = userOptional.get();
+
+            // Elimino solo filtros DONATION_REPORT del usuario
+
+            if(userFilterRepository.deleteEventFilter(filterName, user, FilterType.DONATION_REPORT) == 1){
+
+                resBoolean = true;
+
+            }else{
+
+                result = "el nombre del filtro no existe para ese usuario";
+            }
+          
+        }else{
+
+            result = "no existe ese email o username";
         }
+
+        System.out.println(result);
+        
+        return resBoolean;
+        
     }
 
     @Override
