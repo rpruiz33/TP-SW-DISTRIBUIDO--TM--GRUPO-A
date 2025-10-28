@@ -1,0 +1,163 @@
+{
+  "info": {
+    "name": "TP-SW-DISTRIBUIDO - API Tests",
+    "_postman_id": "b0d9f7f8-0000-4000-8000-000000000000",
+    "description": "Colección para probar funcionalidades: login, GraphQL (donationReport, saveDonationFilter), export Excel y gestión de filtros.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "authBase",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "usernameOrEmail",
+      "value": "admin@example.com",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Login (Auth)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"admin@example.com\",\n  \"password\": \"password\"\n}"
+        },
+        "url": {
+          "raw": "{{authBase}}/api/login",
+          "host": [
+            "{{authBase}}"
+          ],
+          "path": [
+            "api",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GraphQL - Donation Report",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"query\": \"query DonationReport($category: Category, $startDate: String, $endDate: String, $activate: Boolean, $isExternal: Boolean) { donationReport(category: $category, startDate: $startDate, endDate: $endDate, activate: $activate, isExternal: $isExternal) { category activate totalQuantity details { description quantity } } }\",\n  \"variables\": {\n    \"category\": null,\n    \"startDate\": null,\n    \"endDate\": null,\n    \"activate\": null,\n    \"isExternal\": false\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/graphql",
+          "host": ["{{baseUrl}}"],
+          "path": ["graphql"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GraphQL - Save Donation Filter",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"query\": \"mutation SaveDonationFilter($input: DonationFilterDTO!, $emailOrUsername: String!) { saveDonationFilter(input: $input, emailOrUsername: $emailOrUsername) }\",\n  \"variables\": {\n    \"input\": {\n      \"filterName\": \"MiFiltroDonaciones\",\n      \"startDate\": \"2025-10-01T00:00:00\",\n      \"endDate\": \"2025-10-31T23:59:59\",\n      \"activate\": null,\n      \"category\": null\n    },\n    \"emailOrUsername\": \"{{usernameOrEmail}}\"\n  }\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/graphql", "host": ["{{baseUrl}}"], "path": ["graphql"] }
+      },
+      "response": []
+    },
+    {
+      "name": "GraphQL - Get User Filters",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"query\": \"query GetUserFilters($emailOrUsername: String!) { getUserFiltersByEmail(emailOrUsername: $emailOrUsername) { idFilter filterName filterType startDate endDate activate category filterUserId distributionDonations } }\",\n  \"variables\": {\n    \"emailOrUsername\": \"{{usernameOrEmail}}\"\n  }\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/graphql", "host": ["{{baseUrl}}"], "path": ["graphql"] }
+      },
+      "response": []
+    },
+    {
+      "name": "REST - Export Excel (Donaciones)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/excel/donaciones?isExternal=false",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","excel","donaciones"],
+          "query": [ { "key": "isExternal", "value": "false" } ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "REST - Save Event Filter",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"filterName\": \"MiFiltroEventos\",\n  \"startDate\": \"2025-10-01T00:00:00\",\n  \"endDate\": \"2025-10-31T23:59:59\",\n  \"filterUser\": { \"idUser\": 3, \"email\": \"user@example.com\" },\n  \"distributionDonations\": true\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/event-filters/save?emailOrUsername={{usernameOrEmail}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","event-filters","save"],
+          "query": [ { "key": "emailOrUsername", "value": "{{usernameOrEmail}}" } ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "REST - Delete Event Filter",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/event-filters/delete?filterName=MiFiltroEventos&emailOrUsername={{usernameOrEmail}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","event-filters","delete"],
+          "query": [ { "key": "filterName", "value": "MiFiltroEventos" }, { "key": "emailOrUsername", "value": "{{usernameOrEmail}}" } ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "REST - Update Event Filter",
+      "request": {
+        "method": "PUT",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"filterName\": \"MiFiltroEventos\",\n  \"startDate\": \"2025-10-01T00:00:00\",\n  \"endDate\": \"2025-10-31T23:59:59\",\n  \"filterUser\": { \"idUser\": 3, \"email\": \"user@example.com\" },\n  \"distributionDonations\": false\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/event-filters/update?emailOrUsername={{usernameOrEmail}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","event-filters","update"],
+          "query": [ { "key": "emailOrUsername", "value": "{{usernameOrEmail}}" } ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
