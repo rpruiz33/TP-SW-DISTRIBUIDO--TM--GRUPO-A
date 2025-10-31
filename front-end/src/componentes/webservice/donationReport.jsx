@@ -99,8 +99,8 @@ const DonationReportComponent = () => {
     }
   };
 
-  // 🔹 Guardar filtro en DB
-  const saveDonationFilter = async () => {
+  // 🔹 Guardar / Actualizar filtro en DB
+  const saveDonationFilter = async (isUpdate = false) => {
     if (!filterName || filterName.trim() === "") {
       setError("❌ Ingrese un nombre para el filtro");
       return;
@@ -120,30 +120,40 @@ const DonationReportComponent = () => {
       return;
     }
 
-    const mutation = `
+    // Elegimos la mutación según si es creación o actualización
+    const mutationSave = `
       mutation SaveDonationFilter($input: DonationFilterDTO!, $emailOrUsername: String!) {
         saveDonationFilter(input: $input, emailOrUsername: $emailOrUsername)
+      }
+    `;
+
+    const mutationUpdate = `
+      mutation UpdateDonationFilter($input: DonationFilterDTO!, $emailOrUsername: String!) {
+        updateDonationFilter(input: $input, emailOrUsername: $emailOrUsername)
       }
     `;
 
     try {
       const resp = await axios.post(
         "http://localhost:8080/graphql",
-        { query: mutation, variables: { input, emailOrUsername } },
+        { query: isUpdate ? mutationUpdate : mutationSave, variables: { input, emailOrUsername } },
         { headers: { "Content-Type": "application/json" } }
       );
 
-      const saved = resp.data?.data?.saveDonationFilter;
+      const key = isUpdate ? 'updateDonationFilter' : 'saveDonationFilter';
+      const saved = resp.data?.data?.[key];
       if (saved) {
         setError("");
-        setMessage("✅ Filtro guardado correctamente.");
-        setTimeout(() => setMessage(""), 4000);
+        setMessage(isUpdate ? "🔄 Filtro actualizado correctamente." : "✅ Filtro guardado correctamente.");
+        // refrescar lista para que aparezca inmediatamente
+        await fetchDonationFilter();
+        setFilterName("");
       } else {
-        setError("❌ No se pudo guardar el filtro");
+        setError("❌ No se pudo guardar/actualizar el filtro");
       }
     } catch (err) {
-      console.error("Error guardando filtro:", err);
-      setError("❌ Error al guardar el filtro en el servidor");
+      console.error("Error guardando/actualizando filtro:", err);
+      setError("❌ Error al guardar/actualizar el filtro en el servidor");
     }
   };
 
@@ -321,12 +331,35 @@ const DonationReportComponent = () => {
           </div>
 
           <div className="flex-none">
-            <button
-              onClick={saveDonationFilter}
-              className="px-6 py-2 bg-green-700 text-white rounded hover:bg-green-900"
-            >
-              Guardar Filtro
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => saveDonationFilter(false)}
+                className="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-900"
+              >
+                Guardar
+              </button>
+
+              <button
+                onClick={async () => {
+                  if (!filterName || filterName.trim() === "") {
+                    setError("❌ Debes ingresar el nombre del filtro a borrar.");
+                    return;
+                  }
+                  if (!window.confirm(`¿Eliminar el filtro '${filterName}'?`)) return;
+                  await deleteFilter(filterName);
+                }}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                Borrar
+              </button>
+
+              <button
+                onClick={() => saveDonationFilter(true)}
+                className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+              >
+                Actualizar
+              </button>
+            </div>
           </div>
         </div>
       </div>
