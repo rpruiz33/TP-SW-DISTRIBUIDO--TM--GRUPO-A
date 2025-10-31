@@ -35,4 +35,7 @@ public interface UserFilterRepository extends JpaRepository<UserFilter, Integer>
 
 	List<UserFilter> findByUser(User user);
 
+	// Devuelve como máximo los 50 filtros más recientes (por id) para evitar enviar demasiados registros al cliente
+	List<UserFilter> findTop50ByUserOrderByIdFilterDesc(User user);
+
 }

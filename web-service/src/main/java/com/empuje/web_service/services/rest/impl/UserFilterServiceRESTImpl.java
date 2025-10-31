@@ -1,25 +1,23 @@
 package com.empuje.web_service.services.rest.impl;
 
-import com.empuje.web_service.dto.DonationFilterDTO;
-import com.empuje.web_service.dto.EventFilterDTO;
-import com.empuje.web_service.dto.UserDTO;
-import com.empuje.web_service.entities.grpc.Category;
-import com.empuje.web_service.entities.grpc.User;
-import com.empuje.web_service.entities.web_service.FilterType;
-import com.empuje.web_service.entities.web_service.UserFilter;
-import com.empuje.web_service.repositories.UserFilterRepository;
-import com.empuje.web_service.repositories.UserRepository;
-import com.empuje.web_service.services.graphql.UserFilterService;
-import com.empuje.web_service.services.rest.UserFilterServiceREST;
-
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+
+import com.empuje.web_service.dto.EventFilterDTO;
+import com.empuje.web_service.dto.UserDTO;
+import com.empuje.web_service.entities.grpc.User;
+import com.empuje.web_service.entities.web_service.FilterType;
+import com.empuje.web_service.entities.web_service.UserFilter;
+import com.empuje.web_service.repositories.UserFilterRepository;
+import com.empuje.web_service.repositories.UserRepository;
+import com.empuje.web_service.services.rest.UserFilterServiceREST;
+
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -166,19 +164,39 @@ public class UserFilterServiceRESTImpl implements UserFilterServiceREST{
 
         String clean = emailOrUsername.trim();
         System.out.println(clean);
-        Optional<User> userOptional = userRepository.findByEmailOrUsername(clean, clean);
+    Optional<User> userOptional = userRepository.findByEmailOrUsername(clean, clean);
 
-        return userFilterRepository.findByUser(userOptional.get())
-                .stream()
-                .map(f->{ return  new EventFilterDTO(
-                        f.getFilterName(),
-                        f.getStartDate(),
-                        f.getEndDate(),
-                        UserDTO.toDTO(userRepository.findById(f.getFilterUserId())),
-                        f.getDistributionDonations()
-                );
-                })
-                .collect(Collectors.toList());
+    if (!userOptional.isPresent()) {
+        System.out.println("getListByUser: no existe ese usuario -> " + clean);
+        return Collections.emptyList();
+    }
+
+    // limitamos a los últimos 50 filtros por usuario ordenando por id descendente
+    return userFilterRepository.findTop50ByUserOrderByIdFilterDesc(userOptional.get())
+        .stream()
+        .map(f -> {
+            // proteger contra filterUserId nulo o users eliminados
+            com.empuje.web_service.entities.grpc.User filterUser = null;
+            if (f.getFilterUserId() != null) {
+                try {
+                    filterUser = userRepository.findById(f.getFilterUserId());
+                } catch (Exception e) {
+                    // Si ocurre cualquier problema al buscar, dejamos filterUser en null
+                    filterUser = null;
+                }
+            }
+
+            UserDTO filterUserDTO = (filterUser != null) ? UserDTO.toDTO(filterUser) : null;
+
+            return new EventFilterDTO(
+                f.getFilterName(),
+                f.getStartDate(),
+                f.getEndDate(),
+                filterUserDTO,
+                f.getDistributionDonations()
+            );
+        })
+        .collect(Collectors.toList());
 
     }
 

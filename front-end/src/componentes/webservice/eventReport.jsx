@@ -26,15 +26,73 @@ const EventReport = () => {
     }
   }, [message]);
 
-  const fetchSavedFilters = useCallback(async () => {
+  const fetchSavedFilters = useCallback(async (force = false) => {
     if (!emailUser) return;
     try {
       const resp = await axios.get(
         `http://localhost:8080/api/event-filters/getlist?emailOrUsername=${emailUser}`
       );
-      setSavedFilters(resp.data || []);
+  // response shape defensive handling
+
+      // Normalize response: the REST endpoint returns a plain array in resp.data
+      // but be defensive in case it's wrapped.
+      let list = [];
+      if (Array.isArray(resp.data)) list = resp.data;
+      else if (Array.isArray(resp.data?.data)) list = resp.data.data;
+      else if (Array.isArray(resp.data?.result)) list = resp.data.result;
+
+      // Normalize field names: some DTOs use 'distributionDonations' while UI
+      // previously expected 'activate'. Keep both for compatibility.
+      list = list.map((f) => ({
+        ...f,
+        activate: f.activate === undefined ? f.distributionDonations : f.activate,
+        filterUser: f.filterUser || f.user || null,
+      }));
+
+  // Only replace savedFilters if server returned something, unless force=true
+      if (force) {
+        setSavedFilters(list || []);
+      } else {
+        setSavedFilters((prev) => (list && list.length > 0 ? list : prev));
+      }
     } catch (err) {
-      console.error("Error fetching saved filters", err);
+      console.error("Error fetching saved filters (REST), trying GraphQL fallback", err);
+      // If REST fails (500 etc.), try GraphQL query as a fallback to retrieve filters
+      try {
+        const gqlQuery = `
+          query GetListUserFiltersByEmail($emailOrUsername: String!) {
+            getListUserFiltersByEmail(emailOrUsername: $emailOrUsername) {
+              filterName
+              startDate
+              endDate
+              activate
+              category
+              distributionDonations
+              filterUser {
+                fullName
+                roleName
+                email
+              }
+            }
+          }
+        `;
+
+        const gqlResp = await axios.post(
+          "http://localhost:8080/graphql",
+          { query: gqlQuery, variables: { emailOrUsername: emailUser } },
+          { headers: { "Content-Type": "application/json" } }
+        );
+
+        const gqlList = gqlResp.data?.data?.getListUserFiltersByEmail || [];
+        const normalized = (gqlList || []).map((f) => ({
+          ...f,
+          activate: f.activate === undefined ? f.distributionDonations : f.activate,
+          filterUser: f.filterUser || null,
+        }));
+        setSavedFilters((prev) => (normalized && normalized.length > 0 ? normalized : prev));
+      } catch (gqlErr) {
+        console.error("GraphQL fallback also failed", gqlErr);
+      }
     }
   }, [emailUser]);
 
@@ -123,7 +181,7 @@ const EventReport = () => {
   // Efecto inicial: una vez que las funciones están definidas, disparamos las cargas necesarias
   useEffect(() => {
     setEmailUserFilter(emailUser);
-    fetchSavedFilters();
+    fetchSavedFilters(true);
     if (canEditUser) fetchUsers();
     if (emailUser) fetchEventReport(emailUser);
   }, [fetchEventReport, fetchSavedFilters, fetchUsers, canEditUser, emailUser]);
@@ -163,9 +221,28 @@ const EventReport = () => {
         );
         console.log('UPDATE filter response', resp?.data);
         if (resp?.data) {
-          setMessage("🔄 Filtro actualizado correctamente.");
+        
+          if (resp?.data === true || resp?.data === "true") {
+            setMessage("🔄 Filtro actualizado correctamente.");
+            // optimistic update so user sees change immediately
+            const updatedFilter = {
+              filterName: name,
+              startDate: input.startDate,
+              endDate: input.endDate,
+              filterUser: input.filterUser,
+              distributionDonations: input.distributionDonations,
+              activate: input.distributionDonations,
+            };
+            setSavedFilters((prev) => prev.map((f) => (f.filterName === name ? { ...f, ...updatedFilter } : f)));
+          } else {
+            setMessage("❌ No se pudo actualizar el filtro (respuesta del servidor)");
+            // refresh from server to ensure UI reflects reality
+            await fetchSavedFilters(true);
+            return;
+          }
         } else {
           setMessage("❌ No se pudo actualizar el filtro (respuesta del servidor)");
+          await fetchSavedFilters(true);
           return;
         }
       } else {
@@ -177,15 +254,33 @@ const EventReport = () => {
         );
         console.log('SAVE filter response', resp?.data);
         if (resp?.data) {
-          setMessage("✅ Filtro guardado correctamente.");
+          
+          if (resp?.data === true || resp?.data === "true") {
+            setMessage("✅ Filtro guardado correctamente.");
+            // optimistic add so user sees the new filter immediately
+            const newFilter = {
+              filterName: name,
+              startDate: input.startDate,
+              endDate: input.endDate,
+              filterUser: input.filterUser,
+              distributionDonations: input.distributionDonations,
+              activate: input.distributionDonations,
+            };
+            setSavedFilters((prev) => [newFilter, ...(prev || [])]);
+          } else {
+            setMessage("❌ No se pudo guardar el filtro (respuesta del servidor)");
+            await fetchSavedFilters(true);
+            return;
+          }
         } else {
           setMessage("❌ No se pudo guardar el filtro (respuesta del servidor)");
+          await fetchSavedFilters(true);
           return;
         }
       }
 
-      setFilterName("");
-      await fetchSavedFilters();
+  setFilterName("");
+  await fetchSavedFilters(true);
     } catch (err) {
       console.error("Error saving/updating filter", err);
       setMessage("❌ Error al guardar/actualizar el filtro.");
@@ -195,7 +290,9 @@ const EventReport = () => {
   const applyFilter = async (filter) => {
     setStartDate(filter.startDate || "");
     setEndDate(filter.endDate || "");
-    setWithDonations(filter.activate === true ? "SI" : filter.activate === false ? "NO" : "AMBOS");
+    // Some filters may use 'distributionDonations' instead of 'activate'
+    const activeVal = filter.activate === undefined ? filter.distributionDonations : filter.activate;
+    setWithDonations(activeVal === true ? "SI" : activeVal === false ? "NO" : "AMBOS");
     const email = filter.filterUser?.email || "";
     setEmailUserFilter(email);
     setUserFilter(filter.filterUser || null);
@@ -215,7 +312,7 @@ const EventReport = () => {
       });
       if (response.data) {
         setMessage("🗑️ Filtro eliminado con éxito.");
-        await fetchSavedFilters();
+        await fetchSavedFilters(true);
       }
     } catch (err) {
       console.error("Error deleting filter", err);
@@ -315,7 +412,7 @@ const EventReport = () => {
             </button>
             <button
               onClick={() => saveFilter(true)}
-              className="flex-1 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 transition"
+              className="flex-1 px-2 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 transition"
             >
               Actualizar
             </button>
@@ -339,12 +436,12 @@ const EventReport = () => {
         </div>
       </div>
 
-      {/* Filtros guardados */}
-      {savedFilters.length > 0 && (
-        <div className="bg-[#232D4F] px-6 py-4 rounded mb-6">
-          <h2 className="text-2xl text-white mb-3 font-semibold">Filtros guardados</h2>
-          <div className="flex flex-wrap gap-3">
-            {savedFilters.map((f) => (
+      {/* Filtros guardados (si no hay, se muestra mensaje) */}
+      <div className="bg-[#232D4F] px-6 py-4 rounded mb-6">
+        <h2 className="text-2xl text-white mb-3 font-semibold">Filtros guardados</h2>
+        <div className="flex flex-wrap gap-3">
+          {savedFilters && savedFilters.length > 0 ? (
+            savedFilters.map((f) => (
               <div
                 key={f.filterName}
                 className="bg-[#1B2440] text-white px-4 py-3 rounded-lg shadow-md flex flex-col gap-2 w-[250px]"
@@ -378,10 +475,12 @@ const EventReport = () => {
                   </button>
                 </div>
               </div>
-            ))}
-          </div>
+            ))
+          ) : (
+            <div className="text-white">No hay filtros guardados</div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Reporte */}
       {eventData.map((group) => (
