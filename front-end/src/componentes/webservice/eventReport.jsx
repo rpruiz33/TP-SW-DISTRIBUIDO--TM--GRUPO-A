@@ -1,33 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 
 const EventReport = () => {
   const [eventData, setEventData] = useState([]);
   const [error, setError] = useState("");
-  const [emailUser, setEmailUser] = useState(localStorage.getItem("usernameOrEmail") || "");
+  const emailUser = localStorage.getItem("usernameOrEmail") || "";
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [emailUserFilter, setEmailUserFilter] = useState("");
   const [userFilter, setUserFilter] = useState(null);
   const [withDonations, setWithDonations] = useState("AMBOS");
-  const [userRole, setUserRole] = useState(localStorage.getItem("userRole") || "");
+  const userRole = localStorage.getItem("userRole") || "";
   const [userData, setUserData] = useState([]);
   const [message, setMessage] = useState("");
   const [filterName, setFilterName] = useState("");
   const [savedFilters, setSavedFilters] = useState([]);
-
   const canEditUser = userRole === "COORDINADOR" || userRole === "PRESIDENTE";
 
-
-
-  useEffect(() => {
-    setEmailUserFilter(emailUser);
-    fetchEventReport();
-    if (canEditUser) fetchUsers();
-    fetchSavedFilters();
-  }, []);
-
-
+  
 
   useEffect(() => {
     if (message) {
@@ -36,22 +26,21 @@ const EventReport = () => {
     }
   }, [message]);
 
-  const fetchSavedFilters = async () => {
+  const fetchSavedFilters = useCallback(async () => {
     if (!emailUser) return;
     try {
-
       const resp = await axios.get(
-        `http://localhost:8080/api/event-filters/getlist?emailOrUsername=${emailUser}`);
-
-
+        `http://localhost:8080/api/event-filters/getlist?emailOrUsername=${emailUser}`
+      );
       setSavedFilters(resp.data || []);
     } catch (err) {
       console.error("Error fetching saved filters", err);
     }
-  };
+  }, [emailUser]);
 
-  const fetchEventReport = async () => {
-    if (!emailUser) {
+  const fetchEventReport = useCallback(async (overrideEmail) => {
+    const targetEmail = overrideEmail || emailUserFilter;
+    if (!targetEmail) {
       setError("Debes seleccionar un usuario antes de buscar.");
       return;
     }
@@ -88,7 +77,12 @@ const EventReport = () => {
         }
       `;
 
-      const variables = { emailUser: emailUserFilter, startDate: startDate || null, endDate: endDate || null, withDonations };
+      const variables = {
+        emailUser: targetEmail,
+        startDate: startDate || null,
+        endDate: endDate || null,
+        withDonations,
+      };
 
       const response = await axios.post(
         "http://localhost:8080/graphql",
@@ -101,9 +95,9 @@ const EventReport = () => {
       console.error(err);
       setError("Error al obtener el reporte de eventos");
     }
-  };
+  }, [emailUserFilter, startDate, endDate, withDonations]);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const query = `
         query GetUserList {
@@ -124,9 +118,17 @@ const EventReport = () => {
       console.error(err);
       setError("Error al obtener el listado de usuarios");
     }
-  };
+  }, []);
 
-  const saveFilter = async () => {
+  // Efecto inicial: una vez que las funciones están definidas, disparamos las cargas necesarias
+  useEffect(() => {
+    setEmailUserFilter(emailUser);
+    fetchSavedFilters();
+    if (canEditUser) fetchUsers();
+    if (emailUser) fetchEventReport(emailUser);
+  }, [fetchEventReport, fetchSavedFilters, fetchUsers, canEditUser, emailUser]);
+
+  const saveFilter = async (isUpdate = false) => {
     const name = filterName.trim();
     if (!name) {
       setMessage("❌ Debes ingresar un nombre para el filtro.");
@@ -145,57 +147,79 @@ const EventReport = () => {
       filterName: name,
       startDate: startDate || null,
       endDate: endDate || null,
-      filterUser: userFilter,
-      activate,
+      // El backend espera filterUser con al menos email; si no está, lo llenamos
+      filterUser: userFilter || { email: emailUserFilter || emailUser },
+      // El DTO del backend para eventos usa 'distributionDonations'
+      distributionDonations: activate,
     };
 
-
-    if (!emailUser) return;
     try {
+      if (isUpdate) {
+        // PUT para actualizar
+        const resp = await axios.put(
+          `http://localhost:8080/api/event-filters/update?emailOrUsername=${emailUser}`,
+          input,
+          { headers: { "Content-Type": "application/json" } }
+        );
+        console.log('UPDATE filter response', resp?.data);
+        if (resp?.data) {
+          setMessage("🔄 Filtro actualizado correctamente.");
+        } else {
+          setMessage("❌ No se pudo actualizar el filtro (respuesta del servidor)");
+          return;
+        }
+      } else {
+        // POST para crear
+        const resp = await axios.post(
+          `http://localhost:8080/api/event-filters/save?emailOrUsername=${emailUser}`,
+          input,
+          { headers: { "Content-Type": "application/json" } }
+        );
+        console.log('SAVE filter response', resp?.data);
+        if (resp?.data) {
+          setMessage("✅ Filtro guardado correctamente.");
+        } else {
+          setMessage("❌ No se pudo guardar el filtro (respuesta del servidor)");
+          return;
+        }
+      }
 
-      const resp = await axios.post(
-        `http://localhost:8080/api/event-filters/save?emailOrUsername=${emailUser}`,
-        input,
-        { headers: { "Content-Type": "application/json" } })
-
-      await fetchSavedFilters()
+      setFilterName("");
+      await fetchSavedFilters();
     } catch (err) {
-      console.error("Error fetching saved filters", err);
+      console.error("Error saving/updating filter", err);
+      setMessage("❌ Error al guardar/actualizar el filtro.");
     }
   };
 
-  const applyFilter = (filter) => {
+  const applyFilter = async (filter) => {
     setStartDate(filter.startDate || "");
     setEndDate(filter.endDate || "");
     setWithDonations(filter.activate === true ? "SI" : filter.activate === false ? "NO" : "AMBOS");
-    setEmailUserFilter(filter.filterUser.email)
-    setUserFilter(filter.filterUser || "");
+    const email = filter.filterUser?.email || "";
+    setEmailUserFilter(email);
+    setUserFilter(filter.filterUser || null);
     setFilterName(filter.filterName);
-    fetchEventReport();
+    await fetchEventReport(email);
     setMessage(`🔎 Filtro "${filter.filterName}" aplicado.`);
   };
 
   const deleteFilter = async (name) => {
     const nameF = name.trim();
-
     try {
-
-
-    const response= await axios.delete("http://localhost:8080/api/event-filters/delete", {
-      params: {
-        filterName: nameF,
-        emailOrUsername: emailUser
+      const response = await axios.delete("http://localhost:8080/api/event-filters/delete", {
+        params: {
+          filterName: nameF,
+          emailOrUsername: emailUser,
+        },
+      });
+      if (response.data) {
+        setMessage("🗑️ Filtro eliminado con éxito.");
+        await fetchSavedFilters();
       }
-    });
-      if(response.data){
-        alert("Filtro eliminado con exito")
-        await fetchSavedFilters()
-      }
-
     } catch (err) {
-      console.error("Error fetching saved filters", err);
+      console.error("Error deleting filter", err);
     }
-
   };
 
   return (
@@ -205,42 +229,59 @@ const EventReport = () => {
       {error && <div className="mb-4 px-4 py-2 rounded text-white text-center bg-red-500">{error}</div>}
       {message && <div className="mb-4 px-4 py-2 rounded text-white text-center bg-blue-500">{message}</div>}
 
-
-
-
       {/* Panel de filtros */}
       <div className="bg-[#232D4F] px-6 py-3 rounded mb-4 mt-4 flex gap-4 items-start w-full flex-wrap">
         <div className="flex-1 min-w-[200px]">
           <label className="text-white block mb-1">Usuario</label>
-          <select value={emailUserFilter} onChange={(e) => {
-
-            const selectedEmail = e.target.value;
-            setEmailUserFilter(selectedEmail)
-            const selectedUser = userData.find(u => u.email === selectedEmail);
-            setUserFilter(selectedUser || null);
-          }
-
-          } disabled={!canEditUser} className="w-full px-2 py-1 rounded text-black">
+          <select
+            value={emailUserFilter}
+            onChange={(e) => {
+              const selectedEmail = e.target.value;
+              setEmailUserFilter(selectedEmail);
+              const selectedUser = userData.find((u) => u.email === selectedEmail);
+              setUserFilter(selectedUser || null);
+            }}
+            disabled={!canEditUser}
+            className="w-full px-2 py-1 rounded text-black"
+          >
             <option value="">Seleccionar usuario...</option>
             {userData.map((u, i) => (
-              <option key={i} value={u.email}>{u.fullName} ({u.roleName})</option>
+              <option key={i} value={u.email}>
+                {u.fullName} ({u.roleName})
+              </option>
             ))}
           </select>
         </div>
 
         <div className="flex-1 min-w-[180px]">
           <label className="text-white block mb-1">Fecha Inicio</label>
-          <input type="datetime-local" step="1" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full px-2 py-1 rounded text-black" />
+          <input
+            type="datetime-local"
+            step="1"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="w-full px-2 py-1 rounded text-black"
+          />
         </div>
 
         <div className="flex-1 min-w-[180px]">
           <label className="text-white block mb-1">Fecha Fin</label>
-          <input type="datetime-local" step="1" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full px-2 py-1 rounded text-black" />
+          <input
+            type="datetime-local"
+            step="1"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="w-full px-2 py-1 rounded text-black"
+          />
         </div>
 
         <div className="flex-1 min-w-[150px]">
           <label className="text-white block mb-1">Con Donaciones</label>
-          <select value={withDonations} onChange={(e) => setWithDonations(e.target.value)} className="w-full px-2 py-1 rounded text-black">
+          <select
+            value={withDonations}
+            onChange={(e) => setWithDonations(e.target.value)}
+            className="w-full px-2 py-1 rounded text-black"
+          >
             <option value="SI">Sí</option>
             <option value="NO">No</option>
             <option value="AMBOS">Ambos</option>
@@ -248,15 +289,53 @@ const EventReport = () => {
         </div>
 
         <div className="flex-1 min-w-[200px] mt-4">
-
-          <button onClick={fetchEventReport} className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">Buscar</button>
-
+          <button
+            onClick={fetchEventReport}
+            className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+          >
+            Buscar
+          </button>
         </div>
 
         <div className="flex-1 min-w-[200px]">
           <label className="text-white block mb-1">Nombre filtro</label>
-          <input type="text" value={filterName} onChange={(e) => setFilterName(e.target.value)} placeholder="Nombre del filtro" className="w-full px-2 py-1 rounded text-black" />
-          <button onClick={saveFilter} className="px-6 py-2 bg-green-700 text-white rounded hover:bg-green-800 transition mt-4">Guardar Filtro</button>
+          <input
+            type="text"
+            value={filterName}
+            onChange={(e) => setFilterName(e.target.value)}
+            placeholder="Nombre del filtro"
+            className="w-full px-2 py-1 rounded text-black"
+          />
+          <div className="flex gap-2 mt-4">
+            <button
+              onClick={() => saveFilter(false)}
+              className="flex-1 px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800 transition"
+            >
+              Guardar
+            </button>
+            <button
+              onClick={() => saveFilter(true)}
+              className="flex-1 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 transition"
+            >
+              Actualizar
+            </button>
+          </div>
+          {/* Botón Borrar colocado en nueva fila para evitar scroll lateral */}
+          <div className="w-full mt-3">
+            <button
+              onClick={async () => {
+                if (!filterName || filterName.trim() === "") {
+                  setMessage("❌ Debes ingresar el nombre del filtro a borrar.");
+                  return;
+                }
+                if (!window.confirm(`¿Eliminar el filtro '${filterName}'?`)) return;
+                await deleteFilter(filterName);
+              }}
+              className="w-full px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+            >
+              Borrar
+            </button>
+          </div>
         </div>
       </div>
 
@@ -266,7 +345,10 @@ const EventReport = () => {
           <h2 className="text-2xl text-white mb-3 font-semibold">Filtros guardados</h2>
           <div className="flex flex-wrap gap-3">
             {savedFilters.map((f) => (
-              <div key={f.filterName} className="bg-[#1B2440] text-white px-4 py-3 rounded-lg shadow-md flex flex-col gap-2 w-[250px]">
+              <div
+                key={f.filterName}
+                className="bg-[#1B2440] text-white px-4 py-3 rounded-lg shadow-md flex flex-col gap-2 w-[250px]"
+              >
                 <div className="font-semibold text-lg">{f.filterName}</div>
                 <div className="text-sm opacity-80">
                   <div>Desde: {f.startDate ? new Date(f.startDate).toLocaleString() : "—"}</div>
@@ -276,11 +358,24 @@ const EventReport = () => {
                     {f.filterUser
                       ? `${f.filterUser.fullName || "Sin nombre"} (${f.filterUser.roleName || "Sin rol"})`
                       : "—"}
-                  </div>                  <div>Donaciones: {f.activate === true ? "Sí" : f.activate === false ? "No" : "Ambos"}</div>
+                  </div>
+                  <div>
+                    Donaciones: {f.activate === true ? "Sí" : f.activate === false ? "No" : "Ambos"}
+                  </div>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => applyFilter(f)} className="flex-1 bg-blue-500 hover:bg-blue-600 text-white rounded py-1 text-sm">Aplicar</button>
-                  <button onClick={() => deleteFilter(f.filterName)} className="flex-1 bg-red-600 hover:bg-red-700 text-white rounded py-1 text-sm">Eliminar</button>
+                  <button
+                    onClick={() => applyFilter(f)}
+                    className="flex-1 bg-blue-500 hover:bg-blue-600 text-white rounded py-1 text-sm"
+                  >
+                    Aplicar
+                  </button>
+                  <button
+                    onClick={() => deleteFilter(f.filterName)}
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-white rounded py-1 text-sm"
+                  >
+                    Eliminar
+                  </button>
                 </div>
               </div>
             ))}
@@ -311,26 +406,38 @@ const EventReport = () => {
                   <td className="px-4 py-2 border border-gray-700">
                     {event.members.length > 0 ? (
                       <details>
-                        <summary className="text-blue-400 hover:underline cursor-pointer">Ver Miembros</summary>
+                        <summary className="text-blue-400 hover:underline cursor-pointer">
+                          Ver Miembros
+                        </summary>
                         <ul className="mt-2 text-left">
                           {event.members.map((m, j) => (
-                            <li key={j} className="border-b border-gray-700 py-1">{m.fullName} ({m.roleName})</li>
+                            <li key={j} className="border-b border-gray-700 py-1">
+                              {m.fullName} ({m.roleName})
+                            </li>
                           ))}
                         </ul>
                       </details>
-                    ) : "N/A"}
+                    ) : (
+                      "N/A"
+                    )}
                   </td>
                   <td className="px-4 py-2 border border-gray-700">
                     {event.donations.length > 0 ? (
                       <details>
-                        <summary className="text-blue-400 hover:underline cursor-pointer">Ver Donaciones</summary>
+                        <summary className="text-blue-400 hover:underline cursor-pointer">
+                          Ver Donaciones
+                        </summary>
                         <ul className="mt-2 text-left">
                           {event.donations.map((d, j) => (
-                            <li key={j} className="border-b border-gray-700 py-1">{d.donation.category} - {d.donation.description} ({d.quantity})</li>
+                            <li key={j} className="border-b border-gray-700 py-1">
+                              {d.donation.category} - {d.donation.description} ({d.quantity})
+                            </li>
                           ))}
                         </ul>
                       </details>
-                    ) : "N/A"}
+                    ) : (
+                      "N/A"
+                    )}
                   </td>
                 </tr>
               ))}
