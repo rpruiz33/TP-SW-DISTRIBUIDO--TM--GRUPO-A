@@ -11,6 +11,7 @@ const DonationReportComponent = () => {
   const [activate, setActivate] = useState("AMBOS");
   const [filterName, setFilterName] = useState("");
   const [savedFilters, setSavedFilters] = useState([]);
+  const [originalFilterName, setOriginalFilterName] = useState("");
 
   const [message, setMessage] = useState("");
 
@@ -130,15 +131,16 @@ const DonationReportComponent = () => {
     `;
 
     const mutationUpdate = `
-      mutation UpdateDonationFilter($input: DonationFilterDTO!, $emailOrUsername: String!) {
-        updateDonationFilter(input: $input, emailOrUsername: $emailOrUsername)
+      mutation UpdateDonationFilter($input: DonationFilterDTO!, $emailOrUsername: String!, $originalFilterName: String) {
+        updateDonationFilter(input: $input, emailOrUsername: $emailOrUsername, originalFilterName: $originalFilterName)
       }
     `;
 
     try {
+      const variables = isUpdate ? { input, emailOrUsername, originalFilterName } : { input, emailOrUsername };
       const resp = await axios.post(
         "http://localhost:8080/graphql",
-        { query: isUpdate ? mutationUpdate : mutationSave, variables: { input, emailOrUsername } },
+        { query: isUpdate ? mutationUpdate : mutationSave, variables },
         { headers: { "Content-Type": "application/json" } }
       );
 
@@ -146,13 +148,14 @@ const DonationReportComponent = () => {
       const saved = resp.data?.data?.[key];
       if (saved) {
         setError("");
-        setMessage(isUpdate ? "🔄 Filtro actualizado correctamente." : "✅ Filtro guardado correctamente.");
+  setMessage(isUpdate ? "🔄 Filtro actualizado correctamente." : "✅ Filtro guardado correctamente.");
         // refrescar lista para que aparezca inmediatamente
         await fetchDonationFilter();
         // Also refresh the report so the user sees the updated data right after saving
         // (matches the behavior requested: load records when saving).
         await fetchDonationReport();
         setFilterName("");
+        setOriginalFilterName("");
       } else {
         setError("❌ No se pudo guardar/actualizar el filtro");
       }
@@ -203,6 +206,7 @@ const DonationReportComponent = () => {
     setEndDate(filter.endDate || "");
     setActivate(filter.activate === true ? "SI" : filter.activate === false ? "NO" : "AMBOS");
     setFilterName(filter.filterName);
+    setOriginalFilterName(filter.filterName);
     fetchDonationReport();
     setMessage(`🔎 Filtro "${filter.filterName}" aplicado.`);
   };

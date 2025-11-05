@@ -14,6 +14,7 @@ const EventReport = () => {
   const [userData, setUserData] = useState([]);
   const [message, setMessage] = useState("");
   const [filterName, setFilterName] = useState("");
+  const [originalFilterName, setOriginalFilterName] = useState("");
   const [savedFilters, setSavedFilters] = useState([]);
   const canEditUser = userRole === "COORDINADOR" || userRole === "PRESIDENTE";
 
@@ -190,8 +191,10 @@ const EventReport = () => {
     try {
       if (isUpdate) {
         // PUT para actualizar
+        // Include originalFilterName so the backend can locate and rename the filter if the user changed the name
+        const params = `?emailOrUsername=${encodeURIComponent(emailUser)}${originalFilterName ? `&originalFilterName=${encodeURIComponent(originalFilterName)}` : ""}`;
         const resp = await axios.put(
-          `http://localhost:8080/api/event-filters/update?emailOrUsername=${emailUser}`,
+          `http://localhost:8080/api/event-filters/update${params}`,
           input,
           { headers: { "Content-Type": "application/json" } }
         );
@@ -209,7 +212,7 @@ const EventReport = () => {
               distributionDonations: input.distributionDonations,
               activate: input.distributionDonations,
             };
-            setSavedFilters((prev) => prev.map((f) => (f.filterName === name ? { ...f, ...updatedFilter } : f)));
+            setSavedFilters((prev) => prev.map((f) => (f.filterName === (originalFilterName || name) ? { ...f, ...updatedFilter } : f)));
           } else {
             setMessage("❌ No se pudo actualizar el filtro (respuesta del servidor)");
             // refresh from server to ensure UI reflects reality
@@ -219,6 +222,7 @@ const EventReport = () => {
         } else {
           setMessage("❌ No se pudo actualizar el filtro (respuesta del servidor)");
           await fetchSavedFilters(true);
+          setOriginalFilterName("");
           return;
         }
       } else {
@@ -273,6 +277,7 @@ const EventReport = () => {
     setEmailUserFilter(email);
     setUserFilter(filter.filterUser || null);
     setFilterName(filter.filterName);
+    setOriginalFilterName(filter.filterName);
     await fetchEventReport(email);
     setMessage(`🔎 Filtro "${filter.filterName}" aplicado.`);
   };

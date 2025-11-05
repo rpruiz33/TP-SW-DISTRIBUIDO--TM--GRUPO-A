@@ -94,13 +94,14 @@ public class UserFilterController {
         }
     )
     public Boolean updateFilter( @RequestBody @Parameter(description = "DTO con los nuevos datos del filtro") EventFilterDTO dto, 
-                               @RequestParam @Parameter(description = "Email o username del usuario propietario del filtro") String emailOrUsername) {
+                               @RequestParam @Parameter(description = "Email o username del usuario propietario del filtro") String emailOrUsername,
+                               @RequestParam(required = false) @Parameter(description = "Nombre de filtro original si se desea renombrar") String originalFilterName) {
         
         boolean result = false;
         
         try {
             
-            result = service.updateEventFilter(dto, emailOrUsername);
+            result = service.updateEventFilter(dto, emailOrUsername, originalFilterName);
             return result;
 
         } catch (Exception e){     

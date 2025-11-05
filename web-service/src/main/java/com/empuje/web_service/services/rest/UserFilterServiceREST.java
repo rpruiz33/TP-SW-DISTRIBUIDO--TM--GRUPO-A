@@ -1,11 +1,8 @@
 package com.empuje.web_service.services.rest;
 
-import com.empuje.web_service.dto.EventFilterDTO;
-import com.empuje.web_service.entities.grpc.User;
-import com.empuje.web_service.entities.web_service.FilterType;
-import com.empuje.web_service.entities.web_service.UserFilter;
-
 import java.util.List;
+
+import com.empuje.web_service.dto.EventFilterDTO;
 
 public interface UserFilterServiceREST {
 
@@ -13,7 +10,8 @@ public interface UserFilterServiceREST {
 
     Boolean deleteEventFilter(String filterName, String emailOrUsername);
 
-    Boolean updateEventFilter(EventFilterDTO dto, String emailOrUsername);
+    // originalFilterName optional: if provided, will be used to find existing filter to rename
+    Boolean updateEventFilter(EventFilterDTO dto, String emailOrUsername, String originalFilterName);
 
     List<EventFilterDTO> getListByUser (String emailOrUsername);
 

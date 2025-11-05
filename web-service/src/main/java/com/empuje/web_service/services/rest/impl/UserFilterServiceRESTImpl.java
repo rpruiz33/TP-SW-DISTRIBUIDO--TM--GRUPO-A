@@ -110,7 +110,7 @@ public class UserFilterServiceRESTImpl implements UserFilterServiceREST{
         
     }
 
-    public Boolean updateEventFilter(EventFilterDTO dto, String emailOrUsername) {
+    public Boolean updateEventFilter(EventFilterDTO dto, String emailOrUsername, String originalFilterName) {
 
         String result = "";
         Boolean resBoolean = false;
@@ -124,19 +124,26 @@ public class UserFilterServiceRESTImpl implements UserFilterServiceREST{
             
             User user = userOptional.get();
 
-            Optional<UserFilter> optionalFilter = userFilterRepository.findByFilterNameAndUserAndFilterType(dto.getFilterName(), user, FilterType.EVENT_REPORT);
+            // Use originalFilterName when provided to lookup existing filter, otherwise use DTO name
+            String lookupName = (originalFilterName != null && !originalFilterName.trim().isEmpty()) ? originalFilterName.trim() : dto.getFilterName();
+
+            Optional<UserFilter> optionalFilter = userFilterRepository.findByFilterNameAndUserAndFilterType(lookupName, user, FilterType.EVENT_REPORT);
 
             if (optionalFilter.isPresent()) {
                 
                 UserFilter filter = optionalFilter.get();
 
-                //Buscamos el id del user por el cual filtrar
-                Optional<User> userDTO = userRepository.findByEmailOrUsername(dto.getFilterUser().getEmail(),dto.getFilterUser().getEmail());
+                //Buscamos el id del user por el cual filtrar (si viene)
+                Optional<User> userDTO = Optional.empty();
+                if (dto.getFilterUser() != null && dto.getFilterUser().getEmail() != null) {
+                    userDTO = userRepository.findByEmailOrUsername(dto.getFilterUser().getEmail(), dto.getFilterUser().getEmail());
+                }
 
                 // Actualizamos los campos
+                filter.setFilterName(dto.getFilterName());
                 filter.setStartDate(dto.getStartDate());
                 filter.setEndDate(dto.getEndDate());
-                filter.setFilterUserId(userDTO.get().getIdUser());
+                if (userDTO.isPresent()) filter.setFilterUserId(userDTO.get().getIdUser());
                 filter.setDistributionDonations(dto.getDistributionDonations());
 
                 // Guardamos

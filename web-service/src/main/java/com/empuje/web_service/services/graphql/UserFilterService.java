@@ -10,7 +10,9 @@ public interface UserFilterService {
 
     Boolean deleteDonationFilter(String filterName, String emailOrUsername);
 
-    Boolean updateDonationFilter(DonationFilterDTO dto, String emailOrUsername);
+    // originalFilterName: optional. If provided, the service will look up the existing
+    // filter by that name and then rename it to dto.filterName if different.
+    Boolean updateDonationFilter(DonationFilterDTO dto, String emailOrUsername, String originalFilterName);
 
     List<DonationFilterDTO> getListUserFiltersByEmail(String emailOrUsername, Boolean isExternal);
     

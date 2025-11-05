@@ -109,7 +109,7 @@ public class UserFilterServiceImpl implements UserFilterService{
 
     @Override
     @Transactional
-    public Boolean updateDonationFilter(DonationFilterDTO dto, String emailOrUsername) {
+    public Boolean updateDonationFilter(DonationFilterDTO dto, String emailOrUsername, String originalFilterName) {
 
         Boolean resBoolean = false;
         String result = "";
@@ -121,13 +121,17 @@ public class UserFilterServiceImpl implements UserFilterService{
 
             User user = userOptional.get();
 
-            Optional<UserFilter> optionalFilter = userFilterRepository.findByFilterNameAndUserAndFilterType(dto.getFilterName(), user, FilterType.DONATION_REPORT);
+            // Try to find the existing filter by originalFilterName if provided; otherwise use dto.filterName
+            String lookupName = (originalFilterName != null && !originalFilterName.trim().isEmpty()) ? originalFilterName.trim() : dto.getFilterName();
+
+            Optional<UserFilter> optionalFilter = userFilterRepository.findByFilterNameAndUserAndFilterType(lookupName, user, FilterType.DONATION_REPORT);
 
             if(optionalFilter.isPresent()){
 
                 UserFilter filter = optionalFilter.get();
 
-                // Actualizamos los campos
+                // Update the fields, including allowing a rename by setting filterName from DTO
+                filter.setFilterName(dto.getFilterName());
                 filter.setStartDate(dto.getStartDate());
                 filter.setEndDate(dto.getEndDate());
                 filter.setActivate(dto.getActivate());
@@ -140,7 +144,7 @@ public class UserFilterServiceImpl implements UserFilterService{
 
             }else{
 
-                result = "el usuario ya tiene un filtro con ese nombre";
+                result = "el nombre del filtro no existe para ese usuario";
             }
             
         }else{

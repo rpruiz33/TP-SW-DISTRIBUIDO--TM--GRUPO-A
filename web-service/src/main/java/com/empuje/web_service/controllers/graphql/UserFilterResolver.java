@@ -54,13 +54,13 @@ public class UserFilterResolver {
     
 
     @MutationMapping
-    public Boolean updateDonationFilter(@Argument DonationFilterDTO input, @Argument String emailOrUsername) {
+    public Boolean updateDonationFilter(@Argument DonationFilterDTO input, @Argument String emailOrUsername, @Argument String originalFilterName) {
         
         Boolean result = false;
 
         try {
             
-            result = userFilterService.updateDonationFilter(input, emailOrUsername);
+            result = userFilterService.updateDonationFilter(input, emailOrUsername, originalFilterName);
             return result;
 
         } catch (Exception e) {
