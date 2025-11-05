@@ -18,40 +18,51 @@ const WebService = () => {
       <div className="flex-grow flex flex-col items-center justify-center gap-8 p-6">
         <h1 className="text-3xl font-bold text-white">Web Service Opciones</h1>
 
-        <div className="flex flex-wrap gap-8 justify-center">
-          
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 justify-items-center items-center w-full">
+          {/* Columna 1: Reporte de Eventos */}
+          <div className="w-full flex justify-center col-start-1">
             <button
               onClick={() => navigate("/eventreport")}
-              className="text-lg bg-blue-700 hover:bg-blue-800 text-white px-16 py-4 rounded "
+              className="text-lg bg-blue-700 hover:bg-blue-800 text-white px-8 sm:px-16 py-4 rounded w-full sm:w-auto max-w-md"
             >
               Reporte de Eventos
             </button>
+          </div>
 
+          {/* Columna 2: Reporte de Donaciones Enviadas (y Reporte de Presidentes irá también en esta columna) */}
           {role !== "VOLUNTARIO" && role !== "VOCAL" && (
-            <button
-              onClick={() => navigateDonationReport(false)}
-              className="text-lg bg-blue-700 hover:bg-blue-800 text-white px-16 py-4 rounded "
-            >
-              Reporte de Donaciones Enviadas
-            </button>
+            <div className="w-full flex justify-center col-start-2">
+              <button
+                onClick={() => navigateDonationReport(false)}
+                className="text-lg bg-blue-700 hover:bg-blue-800 text-white px-8 sm:px-16 py-4 rounded w-full sm:w-auto max-w-md"
+              >
+                Reporte de Donaciones Enviadas
+              </button>
+            </div>
           )}
 
-          {role !== "VOLUNTARIO" && role !== "VOCAL"  && (
-            <button
-              onClick={() => navigateDonationReport(true)}
-              className="text-lg bg-blue-700 hover:bg-blue-800 text-white px-16 py-4 rounded "
-            >
-              Reporte de Donaciones Recibidas
-            </button>
+          {/* Columna 3: Reporte de Donaciones Recibidas */}
+          {role !== "VOLUNTARIO" && role !== "VOCAL" && (
+            <div className="w-full flex justify-center col-start-3">
+              <button
+                onClick={() => navigateDonationReport(true)}
+                className="text-lg bg-blue-700 hover:bg-blue-800 text-white px-8 sm:px-16 py-4 rounded w-full sm:w-auto max-w-md"
+              >
+                Reporte de Donaciones Recibidas
+              </button>
+            </div>
           )}
 
-          {role === "PRESIDENTE"  && (
-            <button
-              onClick={() => navigate("/presidentreport")}
-              className="text-lg bg-blue-700 hover:bg-blue-800 text-white px-16 py-4 rounded "
-            >
-              Reporte de Presidentes y ONGs
-            </button>
+          {/* Reporte de Presidentes: forzamos columna 2 para que quede alineado con Donaciones Enviadas */}
+          {role === "PRESIDENTE" && (
+            <div className="w-full flex justify-center col-start-2 mt-6">
+              <button
+                onClick={() => navigate("/presidentreport")}
+                className="text-lg bg-blue-700 hover:bg-blue-800 text-white px-8 sm:px-16 py-4 rounded w-full sm:w-auto max-w-md"
+              >
+                Reporte de Presidentes y ONGs
+              </button>
+            </div>
           )}
 
         </div>
