@@ -172,7 +172,8 @@ public class UserFilterServiceRESTImpl implements UserFilterServiceREST{
     }
 
     // limitamos a los últimos 50 filtros por usuario ordenando por id descendente
-    return userFilterRepository.findTop50ByUserOrderByIdFilterDesc(userOptional.get())
+    // y filtrando por tipo EVENT_REPORT para evitar devolver filtros de donaciones
+    return userFilterRepository.findTop50ByUserAndFilterTypeOrderByIdFilterDesc(userOptional.get(), FilterType.EVENT_REPORT)
         .stream()
         .map(f -> {
             // proteger contra filterUserId nulo o users eliminados

@@ -21,7 +21,8 @@ const DonationReportComponent = () => {
   const booleanOptions = ["SI", "NO", "AMBOS"];
 
   useEffect(() => {
-    fetchDonationReport();
+    // Load only the saved filters on mount/location change. Do NOT auto-fetch the
+    // donation report so the user must click "Buscar" (or save a filter) to load data.
     fetchDonationFilter();
   }, [location]);
 
@@ -112,6 +113,7 @@ const DonationReportComponent = () => {
       endDate: endDate || null,
       activate: parseBoolean(activate),
       category: category || null,
+      isExternal: isOther,
     };
 
     const emailOrUsername = localStorage.getItem("usernameOrEmail") || "";
@@ -147,6 +149,9 @@ const DonationReportComponent = () => {
         setMessage(isUpdate ? "🔄 Filtro actualizado correctamente." : "✅ Filtro guardado correctamente.");
         // refrescar lista para que aparezca inmediatamente
         await fetchDonationFilter();
+        // Also refresh the report so the user sees the updated data right after saving
+        // (matches the behavior requested: load records when saving).
+        await fetchDonationReport();
         setFilterName("");
       } else {
         setError("❌ No se pudo guardar/actualizar el filtro");
@@ -164,24 +169,25 @@ const DonationReportComponent = () => {
       console.log(emailOrUsername)
 
       const query = `
-          query {
-            getListUserFiltersByEmail(emailOrUsername: "${emailOrUsername}") {
+          query GetListUserFiltersByEmail($emailOrUsername: String!, $isExternal: Boolean) {
+            getListUserFiltersByEmail(emailOrUsername: $emailOrUsername, isExternal: $isExternal) {
               filterName
               startDate
               endDate
               activate
               category
+              isExternal
             }
           }
         `;
 
+      const variables = { emailOrUsername, isExternal: isOther };
+
       const response = await axios.post(
         "http://localhost:8080/graphql",
-        { query },
+        { query, variables },
         { headers: { "Content-Type": "application/json" } }
       );
-
-      console.log(response)
 
       setSavedFilters(response.data.data.getListUserFiltersByEmail || []);
       setError("");
@@ -310,7 +316,8 @@ const DonationReportComponent = () => {
 
         <div className="flex-none">
           <button
-            onClick={fetchDonationReport}
+            // Call via arrow so the click event isn't passed as an argument.
+            onClick={() => fetchDonationReport()}
             className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
             Buscar

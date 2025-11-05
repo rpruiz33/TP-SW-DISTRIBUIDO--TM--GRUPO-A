@@ -49,6 +49,7 @@ public class UserFilterServiceImpl implements UserFilterService{
                 .endDate(dto.getEndDate())
                 .activate(dto.getActivate())
                 .category(dto.getCategory())
+                .isExternal(dto.getIsExternal())
                 .user(user)
                 .build();
 
@@ -131,6 +132,7 @@ public class UserFilterServiceImpl implements UserFilterService{
                 filter.setEndDate(dto.getEndDate());
                 filter.setActivate(dto.getActivate());
                 filter.setCategory(dto.getCategory());
+                filter.setIsExternal(dto.getIsExternal());
 
                 userFilterRepository.save(filter);
 
@@ -150,8 +152,8 @@ public class UserFilterServiceImpl implements UserFilterService{
         return resBoolean;
     }
 
-    public List<DonationFilterDTO> getListUserFiltersByEmail(String emailOrUsername){
-
+    @Override
+    public List<DonationFilterDTO> getListUserFiltersByEmail(String emailOrUsername, Boolean isExternal){
 
         List<UserFilter> filters = null;
         List<DonationFilterDTO> dtos = null;
@@ -165,12 +167,15 @@ public class UserFilterServiceImpl implements UserFilterService{
             if(!filters.isEmpty()){
                 dtos = filters.stream()
                 .filter(f -> f.getFilterType() == FilterType.DONATION_REPORT)
+                // If isExternal is null, return both kinds; otherwise match the flag
+                .filter(f -> isExternal == null ? true : (f.getIsExternal() == null ? false : f.getIsExternal().equals(isExternal)))
                 .map(f -> DonationFilterDTO.builder()
                         .filterName(f.getFilterName())
                         .startDate(f.getStartDate())
                         .endDate(f.getEndDate())
                         .activate(f.getActivate())
                         .category(f.getCategory())
+                        .isExternal(f.getIsExternal())
                         .build())
                 .toList();
 

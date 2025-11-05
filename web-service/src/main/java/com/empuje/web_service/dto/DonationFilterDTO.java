@@ -1,8 +1,13 @@
 package com.empuje.web_service.dto;
 
 import java.time.LocalDateTime;
+
 import com.empuje.web_service.entities.grpc.Category;
-import lombok.*;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
@@ -15,5 +20,6 @@ public class DonationFilterDTO {
     private LocalDateTime endDate;
     private Boolean activate;
     private Category category;
+    private Boolean isExternal;
     
 }

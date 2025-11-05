@@ -1,21 +1,13 @@
 package com.empuje.web_service.controllers.graphql;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
 import com.empuje.web_service.dto.DonationFilterDTO;
-import com.empuje.web_service.entities.grpc.User;
-import com.empuje.web_service.entities.web_service.UserFilter;
-import com.empuje.web_service.repositories.UserFilterRepository;
-import com.empuje.web_service.repositories.UserRepository;
 import com.empuje.web_service.services.graphql.UserFilterService;
 
 import lombok.RequiredArgsConstructor;
@@ -24,11 +16,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserFilterResolver {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserFilterResolver.class);
-
     private final UserFilterService userFilterService;
-    private final UserRepository userRepository;
-    private final UserFilterRepository userFilterRepository;
 
     @MutationMapping
     public Boolean saveDonationFilter(@Argument DonationFilterDTO input, @Argument String emailOrUsername) {
@@ -83,8 +71,8 @@ public class UserFilterResolver {
 
 
     @QueryMapping
-    public List<DonationFilterDTO> getListUserFiltersByEmail(@Argument String emailOrUsername) {
+    public List<DonationFilterDTO> getListUserFiltersByEmail(@Argument String emailOrUsername, @Argument Boolean isExternal) {
 
-        return userFilterService.getListUserFiltersByEmail(emailOrUsername);
+        return userFilterService.getListUserFiltersByEmail(emailOrUsername, isExternal);
     }
 }

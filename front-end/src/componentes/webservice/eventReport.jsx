@@ -56,48 +56,22 @@ const EventReport = () => {
         setSavedFilters((prev) => (list && list.length > 0 ? list : prev));
       }
     } catch (err) {
-      console.error("Error fetching saved filters (REST), trying GraphQL fallback", err);
-      // If REST fails (500 etc.), try GraphQL query as a fallback to retrieve filters
-      try {
-        const gqlQuery = `
-          query GetListUserFiltersByEmail($emailOrUsername: String!) {
-            getListUserFiltersByEmail(emailOrUsername: $emailOrUsername) {
-              filterName
-              startDate
-              endDate
-              activate
-              category
-              distributionDonations
-              filterUser {
-                fullName
-                roleName
-                email
-              }
-            }
-          }
-        `;
-
-        const gqlResp = await axios.post(
-          "http://localhost:8080/graphql",
-          { query: gqlQuery, variables: { emailOrUsername: emailUser } },
-          { headers: { "Content-Type": "application/json" } }
-        );
-
-        const gqlList = gqlResp.data?.data?.getListUserFiltersByEmail || [];
-        const normalized = (gqlList || []).map((f) => ({
-          ...f,
-          activate: f.activate === undefined ? f.distributionDonations : f.activate,
-          filterUser: f.filterUser || null,
-        }));
-        setSavedFilters((prev) => (normalized && normalized.length > 0 ? normalized : prev));
-      } catch (gqlErr) {
-        console.error("GraphQL fallback also failed", gqlErr);
-      }
+      // If REST fails, do not fall back to the GraphQL donation-filters query because
+      // that endpoint returns only donation filters (server GraphQL API is donation-specific).
+      // Showing donation filters on the event page is incorrect. Log error and leave
+      // savedFilters as-is (or empty).
+      console.error("Error fetching saved event filters (REST)", err);
+      setSavedFilters([]);
     }
   }, [emailUser]);
 
   const fetchEventReport = useCallback(async (overrideEmail) => {
-    const targetEmail = overrideEmail || emailUserFilter;
+    // Defensive: if overrideEmail is provided by accident (e.g. MouseEvent),
+    // ignore it unless it's a non-empty string. Otherwise use the selected email.
+    const targetEmail = typeof overrideEmail === "string" && overrideEmail.trim()
+      ? overrideEmail.trim()
+      : (emailUserFilter || "");
+
     if (!targetEmail) {
       setError("Debes seleccionar un usuario antes de buscar.");
       return;
@@ -151,7 +125,7 @@ const EventReport = () => {
       setEventData(response.data.data.eventReport || []);
     } catch (err) {
       console.error(err);
-      setError("Error al obtener el reporte de eventos");
+      //setError("Error al obtener el reporte de eventos");
     }
   }, [emailUserFilter, startDate, endDate, withDonations]);
 
@@ -180,11 +154,13 @@ const EventReport = () => {
 
   // Efecto inicial: una vez que las funciones están definidas, disparamos las cargas necesarias
   useEffect(() => {
+    // Initialize UI values and saved filters/users, but DO NOT auto-fetch events.
+    // The user must click "Buscar" to request the report.
     setEmailUserFilter(emailUser);
     fetchSavedFilters(true);
     if (canEditUser) fetchUsers();
-    if (emailUser) fetchEventReport(emailUser);
-  }, [fetchEventReport, fetchSavedFilters, fetchUsers, canEditUser, emailUser]);
+    // NOTE: intentionally not calling fetchEventReport here to avoid automatic searches on mount
+  }, [fetchSavedFilters, fetchUsers, canEditUser, emailUser]);
 
   const saveFilter = async (isUpdate = false) => {
     const name = filterName.trim();
@@ -387,7 +363,9 @@ const EventReport = () => {
 
         <div className="flex-1 min-w-[200px] mt-4">
           <button
-            onClick={fetchEventReport}
+            // Call fetchEventReport without passing the click event. This prevents the
+            // MouseEvent object from being interpreted as an email (overrideEmail).
+            onClick={() => fetchEventReport()}
             className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
           >
             Buscar

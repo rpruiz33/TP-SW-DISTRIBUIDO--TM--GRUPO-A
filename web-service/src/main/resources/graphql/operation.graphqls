@@ -44,6 +44,7 @@ type DonationFilter {
   endDate: String
   activate: Boolean
   category: Category
+  isExternal: Boolean
 }
 
 input DonationFilterDTO {
@@ -52,6 +53,7 @@ input DonationFilterDTO {
   endDate: String
   activate: Boolean
   category: Category
+  isExternal: Boolean
 }
 
 # ===========================
@@ -70,7 +72,7 @@ type Query {
     
   ): [DonationReport!]!
 
-  getListUserFiltersByEmail(emailOrUsername: String!): [DonationFilter]
+  getListUserFiltersByEmail(emailOrUsername: String!, isExternal: Boolean): [DonationFilter]
 
 }
 
