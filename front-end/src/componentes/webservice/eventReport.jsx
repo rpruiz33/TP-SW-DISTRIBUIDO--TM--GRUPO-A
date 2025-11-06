@@ -126,7 +126,7 @@ const EventReport = () => {
       setEventData(response.data.data.eventReport || []);
     } catch (err) {
       console.error(err);
-      //setError("Error al obtener el reporte de eventos");
+      setError("Error al obtener el reporte de eventos");
     }
   }, [emailUserFilter, startDate, endDate, withDonations]);
 
