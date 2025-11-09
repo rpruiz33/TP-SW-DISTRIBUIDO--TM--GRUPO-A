@@ -292,6 +292,8 @@ const EventReport = () => {
         },
       });
       if (response.data) {
+        // Mostrar alerta y mensaje consistente con DonationReport
+        alert("Filtro eliminado con éxito");
         setMessage("🗑️ Filtro eliminado con éxito.");
         await fetchSavedFilters(true);
       }
