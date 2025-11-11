@@ -3,30 +3,32 @@ import axios from "axios";
 import { useLocation } from "react-router-dom";
 
 const DonationReportComponent = () => {
-  const [reportData, setReportData] = useState([]);
-  const [error, setError] = useState("");
-  const [category, setCategory] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [activate, setActivate] = useState("AMBOS");
-  const [filterName, setFilterName] = useState("");
-  const [savedFilters, setSavedFilters] = useState([]);
-  const [originalFilterName, setOriginalFilterName] = useState("");
+  // Estados principales
+  const [reportData, setReportData] = useState([]); // Datos del reporte
+  const [error, setError] = useState(""); // Mensajes de error
+  const [category, setCategory] = useState(""); // Categoría seleccionada
+  const [startDate, setStartDate] = useState(""); // Fecha de inicio del filtro
+  const [endDate, setEndDate] = useState(""); // Fecha de fin del filtro
+  const [activate, setActivate] = useState("AMBOS"); // Filtro de estado activo (SI, NO, AMBOS)
+  const [filterName, setFilterName] = useState(""); // Nombre del filtro a guardar
+  const [savedFilters, setSavedFilters] = useState([]); // Filtros guardados en BD
+  const [originalFilterName, setOriginalFilterName] = useState(""); // Nombre original del filtro (para actualización)
+  const [message, setMessage] = useState(""); // Mensaje informativo temporal
 
-  const [message, setMessage] = useState("");
-
+  // Hook para obtener información de la ruta actual
   const location = useLocation();
-  const isOther = location.state?.isOther || false; // true si son donaciones externas
+  const isOther = location.state?.isOther || false; // true si las donaciones son externas
 
+  // Opciones para los combos
   const categoryOptions = ["ROPA", "ALIMENTO", "JUGUETE", "UTIL_ESCOLAR"];
   const booleanOptions = ["SI", "NO", "AMBOS"];
 
+  // 🔹 Cargar los filtros guardados al montar o cambiar de pantalla
   useEffect(() => {
-    // Load only the saved filters on mount/location change. Do NOT auto-fetch the
-    // donation report so the user must click "Buscar" (or save a filter) to load data.
     fetchDonationFilter();
   }, [location]);
 
+  // 🔹 Ocultar los mensajes automáticos luego de unos segundos
   useEffect(() => {
     if (message) {
       const timer = setTimeout(() => setMessage(""), 4000);
@@ -34,9 +36,10 @@ const DonationReportComponent = () => {
     }
   }, [message]);
 
+  // Convierte "SI"/"NO"/"AMBOS" en valores booleanos o null
   const parseBoolean = (val) => (val === "SI" ? true : val === "NO" ? false : null);
 
-  // 🔹 Obtener reporte de donaciones
+  // 🔹 Obtener reporte de donaciones desde GraphQL
   const fetchDonationReport = async () => {
     try {
       const query = `
@@ -61,12 +64,14 @@ const DonationReportComponent = () => {
         isExternal: isOther
       };
 
+      // Enviar la consulta por POST a GraphQL
       const response = await axios.post(
         "http://localhost:8080/graphql",
         { query, variables },
         { headers: { "Content-Type": "application/json" } }
       );
 
+      // Actualizar los datos del reporte
       setReportData(response.data.data.donationReport || []);
       setError("");
     } catch (err) {
@@ -75,7 +80,7 @@ const DonationReportComponent = () => {
     }
   };
 
-  // 🔹 Generar Excel
+  // 🔹 Generar y descargar el archivo Excel del reporte
   const generateExcel = async () => {
     try {
       const response = await axios.get("http://localhost:8080/api/excel/donaciones", {
@@ -83,6 +88,7 @@ const DonationReportComponent = () => {
         responseType: "blob",
       });
 
+      // Crear un enlace de descarga temporal
       const blob = new Blob([response.data], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
@@ -101,13 +107,14 @@ const DonationReportComponent = () => {
     }
   };
 
-  // 🔹 Guardar / Actualizar filtro en DB
+  // 🔹 Guardar o actualizar un filtro en la base de datos
   const saveDonationFilter = async (isUpdate = false) => {
     if (!filterName || filterName.trim() === "") {
       setError("❌ Ingrese un nombre para el filtro");
       return;
     }
 
+    // Datos del filtro a guardar
     const input = {
       filterName,
       startDate: startDate || null,
@@ -123,7 +130,7 @@ const DonationReportComponent = () => {
       return;
     }
 
-    // Elegimos la mutación según si es creación o actualización
+    // Definición de mutaciones GraphQL (guardar o actualizar)
     const mutationSave = `
       mutation SaveDonationFilter($input: DonationFilterDTO!, $emailOrUsername: String!) {
         saveDonationFilter(input: $input, emailOrUsername: $emailOrUsername)
@@ -137,6 +144,7 @@ const DonationReportComponent = () => {
     `;
 
     try {
+      // Elegir mutación según si es actualización o guardado
       const variables = isUpdate ? { input, emailOrUsername, originalFilterName } : { input, emailOrUsername };
       const resp = await axios.post(
         "http://localhost:8080/graphql",
@@ -146,14 +154,15 @@ const DonationReportComponent = () => {
 
       const key = isUpdate ? 'updateDonationFilter' : 'saveDonationFilter';
       const saved = resp.data?.data?.[key];
+
       if (saved) {
         setError("");
-  setMessage(isUpdate ? "🔄 Filtro actualizado correctamente." : "✅ Filtro guardado correctamente.");
-        // refrescar lista para que aparezca inmediatamente
+        setMessage(isUpdate ? "🔄 Filtro actualizado correctamente." : "✅ Filtro guardado correctamente.");
+        // Refrescar lista de filtros guardados
         await fetchDonationFilter();
-        // Also refresh the report so the user sees the updated data right after saving
-        // (matches the behavior requested: load records when saving).
+        // Cargar el reporte con los filtros recién guardados
         await fetchDonationReport();
+        // Limpiar campos
         setFilterName("");
         setOriginalFilterName("");
       } else {
@@ -165,11 +174,11 @@ const DonationReportComponent = () => {
     }
   };
 
+  // 🔹 Obtener los filtros guardados desde el backend
   const fetchDonationFilter = async () => {
     try {
-
-      const emailOrUsername=localStorage.getItem("usernameOrEmail")
-      console.log(emailOrUsername)
+      const emailOrUsername = localStorage.getItem("usernameOrEmail");
+      console.log(emailOrUsername);
 
       const query = `
           query GetListUserFiltersByEmail($emailOrUsername: String!, $isExternal: Boolean) {
@@ -192,6 +201,7 @@ const DonationReportComponent = () => {
         { headers: { "Content-Type": "application/json" } }
       );
 
+      // Guardar los filtros recuperados
       setSavedFilters(response.data.data.getListUserFiltersByEmail || []);
       setError("");
     } catch (err) {
@@ -200,6 +210,7 @@ const DonationReportComponent = () => {
     }
   };
 
+  // 🔹 Aplicar un filtro guardado (carga sus valores y ejecuta el reporte)
   const applyFilter = (filter) => {
     setCategory(filter.category || "");
     setStartDate(filter.startDate || "");
@@ -211,12 +222,12 @@ const DonationReportComponent = () => {
     setMessage(`🔎 Filtro "${filter.filterName}" aplicado.`);
   };
 
+  // 🔹 Eliminar un filtro guardado
   const deleteFilter = async (name) => {
     const filterName = name.trim();
     const emailOrUsername = localStorage.getItem("usernameOrEmail");
 
     try {
-
       const mutation = `
       mutation DeleteDonationFilter($filterName: String!, $emailOrUsername: String!) {
         deleteDonationFilter(filterName: $filterName, emailOrUsername: $emailOrUsername)
@@ -229,21 +240,19 @@ const DonationReportComponent = () => {
         { headers: { "Content-Type": "application/json" } }
       );
 
-      if (response.data){
-        alert("Filtro eliminado con exito")
-        await fetchDonationFilter()
+      if (response.data) {
+        alert("Filtro eliminado con éxito");
+        await fetchDonationFilter();
       }
-
-
     } catch (err) {
-      console.error("Error fetching saved filters", err);
+      console.error("Error eliminando filtro guardado", err);
     }
-
   };
 
-
+  // 🔹 Renderizado del componente
   return (
     <div className="p-6 bg-[#01000F] min-h-screen flex flex-col">
+      {/* Título y botón de exportar Excel */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-5xl font-bold text-white">
           {isOther ? "Reporte de Donaciones Externas" : "Reporte de Donaciones Propias"}
@@ -256,15 +265,15 @@ const DonationReportComponent = () => {
         </button>
       </div>
 
-      {/* Mensajes unificados estilo EventReport */}
+      {/* Mensajes de error o confirmación */}
       {error && (
         <div className="mb-4 px-4 py-2 rounded text-white text-center bg-red-500">{error}</div>
       )}
       {message && <div className="mb-4 px-4 py-2 rounded text-white text-center bg-blue-500">{message}</div>}
 
-
-      {/* Filtros */}
+      {/* Sección de filtros */}
       <div className="bg-[#232D4F] px-6 py-3 rounded mb-4 mt-4 flex gap-4 items-end w-full flex-wrap">
+        {/* Filtro por categoría */}
         <div className="flex-1 min-w-[200px]">
           <label className="text-white block mb-1">Categoría</label>
           <select
@@ -281,6 +290,7 @@ const DonationReportComponent = () => {
           </select>
         </div>
 
+        {/* Filtro por fechas */}
         <div className="flex-1 min-w-[200px]">
           <label className="text-white block mb-1">Fecha Inicio</label>
           <input
@@ -303,6 +313,7 @@ const DonationReportComponent = () => {
           />
         </div>
 
+        {/* Filtro por estado activo */}
         <div className="flex-1 min-w-[200px]">
           <label className="text-white block mb-1">Activo</label>
           <select
@@ -318,9 +329,9 @@ const DonationReportComponent = () => {
           </select>
         </div>
 
+        {/* Botón para buscar reporte */}
         <div className="flex-none">
           <button
-            // Call via arrow so the click event isn't passed as an argument.
             onClick={() => fetchDonationReport()}
             className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
@@ -328,7 +339,7 @@ const DonationReportComponent = () => {
           </button>
         </div>
 
-        {/* Guardar filtro */}
+        {/* Campos para guardar o actualizar filtro */}
         <div className="flex items-end gap-2">
           <div>
             <label className="text-white block mb-1">Nombre del filtro</label>
@@ -375,7 +386,7 @@ const DonationReportComponent = () => {
         </div>
       </div>
 
-      {/* Filtros guardados */}
+      {/* Mostrar lista de filtros guardados */}
       {savedFilters.length > 0 && (
         <div className="bg-[#232D4F] px-6 py-4 rounded mb-6">
           <h2 className="text-2xl text-white mb-3 font-semibold">Filtros guardados</h2>
@@ -399,7 +410,7 @@ const DonationReportComponent = () => {
         </div>
       )}
 
-      {/* Tabla de resultados */}
+      {/* Mostrar los resultados del reporte */}
       {reportData.map((report, idx) => (
         <div key={idx} className="mb-10">
           <h2 className="text-3xl font-semibold text-blue-400 mb-3">

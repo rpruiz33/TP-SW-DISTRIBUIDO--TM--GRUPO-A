@@ -18,8 +18,7 @@ const EventReport = () => {
   const [savedFilters, setSavedFilters] = useState([]);
   const canEditUser = userRole === "COORDINADOR" || userRole === "PRESIDENTE";
 
-  
-
+  // Oculta los mensajes después de 4 segundos
   useEffect(() => {
     if (message) {
       const timer = setTimeout(() => setMessage(""), 4000);
@@ -27,48 +26,49 @@ const EventReport = () => {
     }
   }, [message]);
 
+  // Obtiene la lista de filtros guardados del usuario
   const fetchSavedFilters = useCallback(async (force = false) => {
     if (!emailUser) return;
     try {
       const resp = await axios.get(
         `http://localhost:8080/api/event-filters/getlist?emailOrUsername=${emailUser}`
       );
-  // response shape defensive handling
 
-      // Normalize response: the REST endpoint returns a plain array in resp.data
-      // but be defensive in case it's wrapped.
+      // Manejo defensivo de la forma de la respuesta
+      // Normaliza la respuesta: el endpoint REST devuelve un array plano en resp.data
+      // pero se manejan otros posibles formatos por precaución.
       let list = [];
       if (Array.isArray(resp.data)) list = resp.data;
       else if (Array.isArray(resp.data?.data)) list = resp.data.data;
       else if (Array.isArray(resp.data?.result)) list = resp.data.result;
 
-      // Normalize field names: some DTOs use 'distributionDonations' while UI
-      // previously expected 'activate'. Keep both for compatibility.
+      // Normaliza los nombres de los campos: algunos DTOs usan 'distributionDonations'
+      // mientras que la interfaz esperaba 'activate'. Se mantienen ambos por compatibilidad.
       list = list.map((f) => ({
         ...f,
         activate: f.activate === undefined ? f.distributionDonations : f.activate,
         filterUser: f.filterUser || f.user || null,
       }));
 
-  // Only replace savedFilters if server returned something, unless force=true
+      // Solo reemplaza savedFilters si el servidor devolvió algo, a menos que force=true
       if (force) {
         setSavedFilters(list || []);
       } else {
         setSavedFilters((prev) => (list && list.length > 0 ? list : prev));
       }
     } catch (err) {
-      // If REST fails, do not fall back to the GraphQL donation-filters query because
-      // that endpoint returns only donation filters (server GraphQL API is donation-specific).
-      // Showing donation filters on the event page is incorrect. Log error and leave
-      // savedFilters as-is (or empty).
-      console.error("Error fetching saved event filters (REST)", err);
+      // Si el REST falla, no hacer fallback al endpoint GraphQL de donaciones,
+      // ya que ese endpoint solo devuelve filtros de donaciones.
+      // Mostrar el error y dejar savedFilters vacío o sin cambios.
+      console.error("Error al obtener los filtros de eventos (REST)", err);
       setSavedFilters([]);
     }
   }, [emailUser]);
 
+  // Obtiene el reporte de eventos desde el backend (GraphQL)
   const fetchEventReport = useCallback(async (overrideEmail) => {
-    // Defensive: if overrideEmail is provided by accident (e.g. MouseEvent),
-    // ignore it unless it's a non-empty string. Otherwise use the selected email.
+    // Prevención: si overrideEmail proviene por accidente de un evento de clic,
+    // se ignora a menos que sea un string válido. Caso contrario, usa el email seleccionado.
     const targetEmail = typeof overrideEmail === "string" && overrideEmail.trim()
       ? overrideEmail.trim()
       : (emailUserFilter || "");
@@ -130,6 +130,7 @@ const EventReport = () => {
     }
   }, [emailUserFilter, startDate, endDate, withDonations]);
 
+  // Obtiene la lista de usuarios (solo si el rol lo permite)
   const fetchUsers = useCallback(async () => {
     try {
       const query = `
@@ -153,16 +154,16 @@ const EventReport = () => {
     }
   }, []);
 
-  // Efecto inicial: una vez que las funciones están definidas, disparamos las cargas necesarias
+  // Efecto inicial: carga los filtros y los usuarios (si corresponde),
+  // pero no ejecuta la búsqueda automática de eventos
   useEffect(() => {
-    // Initialize UI values and saved filters/users, but DO NOT auto-fetch events.
-    // The user must click "Buscar" to request the report.
     setEmailUserFilter(emailUser);
     fetchSavedFilters(true);
     if (canEditUser) fetchUsers();
-    // NOTE: intentionally not calling fetchEventReport here to avoid automatic searches on mount
+    // No se llama a fetchEventReport para evitar búsquedas automáticas al montar
   }, [fetchSavedFilters, fetchUsers, canEditUser, emailUser]);
 
+  // Guarda o actualiza un filtro en el backend
   const saveFilter = async (isUpdate = false) => {
     const name = filterName.trim();
     if (!name) {
@@ -182,7 +183,7 @@ const EventReport = () => {
       filterName: name,
       startDate: startDate || null,
       endDate: endDate || null,
-      // El backend espera filterUser con al menos email; si no está, lo llenamos
+      // El backend espera filterUser con al menos email; si no está, se completa
       filterUser: userFilter || { email: emailUserFilter || emailUser },
       // El DTO del backend para eventos usa 'distributionDonations'
       distributionDonations: activate,
@@ -191,7 +192,7 @@ const EventReport = () => {
     try {
       if (isUpdate) {
         // PUT para actualizar
-        // Include originalFilterName so the backend can locate and rename the filter if the user changed the name
+        // Incluye originalFilterName para que el backend pueda ubicar y renombrar el filtro si cambió
         const params = `?emailOrUsername=${encodeURIComponent(emailUser)}${originalFilterName ? `&originalFilterName=${encodeURIComponent(originalFilterName)}` : ""}`;
         const resp = await axios.put(
           `http://localhost:8080/api/event-filters/update${params}`,
@@ -200,10 +201,9 @@ const EventReport = () => {
         );
         console.log('UPDATE filter response', resp?.data);
         if (resp?.data) {
-        
           if (resp?.data === true || resp?.data === "true") {
             setMessage("🔄 Filtro actualizado correctamente.");
-            // optimistic update so user sees change immediately
+            // Actualización optimista: el usuario ve el cambio inmediatamente
             const updatedFilter = {
               filterName: name,
               startDate: input.startDate,
@@ -215,7 +215,6 @@ const EventReport = () => {
             setSavedFilters((prev) => prev.map((f) => (f.filterName === (originalFilterName || name) ? { ...f, ...updatedFilter } : f)));
           } else {
             setMessage("❌ No se pudo actualizar el filtro (respuesta del servidor)");
-            // refresh from server to ensure UI reflects reality
             await fetchSavedFilters(true);
             return;
           }
@@ -226,7 +225,7 @@ const EventReport = () => {
           return;
         }
       } else {
-        // POST para crear
+        // POST para crear un nuevo filtro
         const resp = await axios.post(
           `http://localhost:8080/api/event-filters/save?emailOrUsername=${emailUser}`,
           input,
@@ -234,10 +233,9 @@ const EventReport = () => {
         );
         console.log('SAVE filter response', resp?.data);
         if (resp?.data) {
-          
           if (resp?.data === true || resp?.data === "true") {
             setMessage("✅ Filtro guardado correctamente.");
-            // optimistic add so user sees the new filter immediately
+            // Inserción optimista: el usuario ve el nuevo filtro al instante
             const newFilter = {
               filterName: name,
               startDate: input.startDate,
@@ -259,18 +257,19 @@ const EventReport = () => {
         }
       }
 
-  setFilterName("");
-  await fetchSavedFilters(true);
+      setFilterName("");
+      await fetchSavedFilters(true);
     } catch (err) {
-      console.error("Error saving/updating filter", err);
+      console.error("Error al guardar/actualizar el filtro", err);
       setMessage("❌ Error al guardar/actualizar el filtro.");
     }
   };
 
+  // Aplica un filtro guardado
   const applyFilter = async (filter) => {
     setStartDate(filter.startDate || "");
     setEndDate(filter.endDate || "");
-    // Some filters may use 'distributionDonations' instead of 'activate'
+    // Algunos filtros usan 'distributionDonations' en lugar de 'activate'
     const activeVal = filter.activate === undefined ? filter.distributionDonations : filter.activate;
     setWithDonations(activeVal === true ? "SI" : activeVal === false ? "NO" : "AMBOS");
     const email = filter.filterUser?.email || "";
@@ -282,6 +281,7 @@ const EventReport = () => {
     setMessage(`🔎 Filtro "${filter.filterName}" aplicado.`);
   };
 
+  // Elimina un filtro guardado
   const deleteFilter = async (name) => {
     const nameF = name.trim();
     try {
@@ -292,13 +292,13 @@ const EventReport = () => {
         },
       });
       if (response.data) {
-        // Mostrar alerta y mensaje consistente con DonationReport
+        // Mostrar alerta y mensaje coherente con DonationReport
         alert("Filtro eliminado con éxito");
         setMessage("🗑️ Filtro eliminado con éxito.");
         await fetchSavedFilters(true);
       }
     } catch (err) {
-      console.error("Error deleting filter", err);
+      console.error("Error al eliminar el filtro", err);
     }
   };
 
@@ -370,8 +370,7 @@ const EventReport = () => {
 
         <div className="flex-1 min-w-[200px] mt-4">
           <button
-            // Call fetchEventReport without passing the click event. This prevents the
-            // MouseEvent object from being interpreted as an email (overrideEmail).
+            // Llamar a fetchEventReport sin pasar el evento de clic, para evitar que se interprete como un email
             onClick={() => fetchEventReport()}
             className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
           >
@@ -402,7 +401,7 @@ const EventReport = () => {
               Actualizar
             </button>
           </div>
-          {/* Botón Borrar colocado en nueva fila para evitar scroll lateral */}
+          {/* Botón de borrar en una fila separada para evitar scroll lateral */}
           <div className="w-full mt-3">
             <button
               onClick={async () => {
@@ -421,7 +420,7 @@ const EventReport = () => {
         </div>
       </div>
 
-      {/* Filtros guardados (si no hay, se muestra mensaje) */}
+      {/* Filtros guardados */}
       <div className="bg-[#232D4F] px-6 py-4 rounded mb-6">
         <h2 className="text-2xl text-white mb-3 font-semibold">Filtros guardados</h2>
         <div className="flex flex-wrap gap-3">
@@ -467,7 +466,7 @@ const EventReport = () => {
         </div>
       </div>
 
-      {/* Reporte */}
+      {/* Tabla de reporte de eventos */}
       {eventData.map((group) => (
         <div key={group.month} className="mb-10">
           <h2 className="text-3xl font-semibold text-blue-400 mb-3">{group.month}</h2>
